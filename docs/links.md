@@ -1,0 +1,6 @@
+- https://code-maze.com/tracing-dotnet-applications-opentelemetry/
+- https://www.jaegertracing.io/docs/1.21/getting-started/
+- https://code-maze.com/masstransit-rabbitmq-aspnetcore/
+- https://github.com/MassTransit/Sample-Dispatcher
+- https://www.youtube.com/watch?v=WsTYClGrOVI
+- https://learn.microsoft.com/en-us/dotnet/core/diagnostics/observability-with-otel
