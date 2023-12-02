@@ -12,7 +12,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
 builder.Services.AddOpenTelemetry()
-    .ConfigureResource(resource => 
+    .ConfigureResource(resource =>
         resource.AddService(serviceName: builder.Environment.ApplicationName)
     )
     .WithTracing(tracing => tracing
@@ -30,6 +30,7 @@ builder.Services.AddMassTransit(options =>
     options.UsingRabbitMq((context, cfg) =>
     {
         cfg.ConfigureEndpoints(context);
+        cfg.UseMessageRetry(opt => opt.Exponential(int.MaxValue, TimeSpan.FromMilliseconds(300), TimeSpan.FromMinutes(120), TimeSpan.FromMilliseconds(300)));
     });
 });
 

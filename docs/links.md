@@ -4,3 +4,4 @@
 - https://github.com/MassTransit/Sample-Dispatcher
 - https://www.youtube.com/watch?v=WsTYClGrOVI
 - https://learn.microsoft.com/en-us/dotnet/core/diagnostics/observability-with-otel
+- https://markgossa.com/2022/06/masstransit-exponential-back-off.html
