@@ -3,6 +3,7 @@ using TechStack.Application.Queries;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using OpenTelemetry.Metrics;
+using Prometheus;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,11 +11,13 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddMetrics();
 builder.Services.AddControllers();
 builder.Services.AddOpenTelemetry()
     .ConfigureResource(resource =>
         resource.AddService(serviceName: builder.Environment.ApplicationName)
     )
+    .WithMetrics(builder => builder.AddPrometheusExporter())
     .WithTracing(tracing => tracing
         .AddAspNetCoreInstrumentation()
         .AddHttpClientInstrumentation()
@@ -44,6 +47,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseHttpMetrics();
+app.UseMetricServer();
+
 app.MapControllers();
 
 var summaries = new[]
