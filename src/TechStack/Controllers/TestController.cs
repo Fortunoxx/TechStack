@@ -21,14 +21,6 @@ namespace MyApp.Namespace
         public async Task<IActionResult> GetSomeData(int id)
         {
             var query = new TestQuery(id);
-
-            if (id > 100)
-            {
-                var message = "Provoked Exception for values greater than 100";
-                logger.LogError("{message} {id}", message, id);
-                throw new ArithmeticException(message);
-            }
-
             var result = await testQueryClient.GetResponse<TestResult>(query);
 
             return Ok(result.Message);
