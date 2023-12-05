@@ -1,9 +1,10 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using MassTransit;
-using TechStack.Application.Queries;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using OpenTelemetry.Metrics;
 using Serilog;
+using TechStack.Application.Queries;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +17,8 @@ builder.Host.UseSerilog((ctx, lc) => lc
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
+builder.Services.AddAuthentication(opt => opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
+builder.Services.AddAuthorization();
 builder.Services.AddOpenTelemetry()
     .ConfigureResource(resource =>
         resource.AddService(serviceName: builder.Environment.ApplicationName)
@@ -48,10 +51,15 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.UseSerilogRequestLogging(options =>
     options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
     {
         diagnosticContext.Set("QueryString", httpContext.Request.QueryString);
+        diagnosticContext.Set("Authorization", httpContext.Request.Headers["Authorization"]);
+        diagnosticContext.Set("CorrelationId", httpContext.Request.Headers["X-Correlation-Id"]);
     }
 );
 
