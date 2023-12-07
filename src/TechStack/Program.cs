@@ -1,16 +1,24 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using MassTransit;
-using TechStack.Application.Queries;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using OpenTelemetry.Metrics;
+using Serilog;
+using TechStack.Application.Queries;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog((ctx, lc) => lc
+    .WriteTo.Console()
+    .ReadFrom.Configuration(ctx.Configuration));
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
+builder.Services.AddAuthentication(opt => opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
+builder.Services.AddAuthorization();
 builder.Services.AddOpenTelemetry()
     .ConfigureResource(resource =>
         resource.AddService(serviceName: builder.Environment.ApplicationName)
@@ -30,7 +38,7 @@ builder.Services.AddMassTransit(options =>
     options.UsingRabbitMq((context, cfg) =>
     {
         cfg.ConfigureEndpoints(context);
-        cfg.UseMessageRetry(opt => opt.Exponential(int.MaxValue, TimeSpan.FromMilliseconds(300), TimeSpan.FromMinutes(120), TimeSpan.FromMilliseconds(300)));
+        cfg.UseMessageRetry(opt => opt.Exponential(7, TimeSpan.FromMilliseconds(300), TimeSpan.FromMinutes(120), TimeSpan.FromMilliseconds(300)));
     });
 });
 
@@ -42,6 +50,18 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.UseSerilogRequestLogging(options =>
+    options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
+    {
+        diagnosticContext.Set("QueryString", httpContext.Request.QueryString);
+        diagnosticContext.Set("Authorization", httpContext.Request.Headers["Authorization"]);
+        diagnosticContext.Set("CorrelationId", httpContext.Request.Headers["X-Correlation-Id"]);
+    }
+);
 
 app.UseHttpsRedirection();
 app.MapControllers();

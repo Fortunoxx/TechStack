@@ -1,4 +1,4 @@
-﻿﻿version: "3.4"
+version: "3.4"
 services:
   rabbitmq:
     image: masstransit/rabbitmq:latest
@@ -18,7 +18,7 @@ services:
       - "14269:14269"
       - "9411:9411"
   loki:
-    image: grafana/loki:master
+    image: grafana/loki:latest
     ports:
       - 3100:3100
     command: -config.file=/etc/loki/local-config.yaml
@@ -29,7 +29,7 @@ services:
       retries: 10
       start_period: 10s
   grafana:
-    image: grafana/grafana:master
+    image: grafana/grafana:latest
     ports:
       - "3000:3000"
     depends_on:
