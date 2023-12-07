@@ -38,7 +38,7 @@ builder.Services.AddMassTransit(options =>
     options.UsingRabbitMq((context, cfg) =>
     {
         cfg.ConfigureEndpoints(context);
-        cfg.UseMessageRetry(opt => opt.Exponential(int.MaxValue, TimeSpan.FromMilliseconds(300), TimeSpan.FromMinutes(120), TimeSpan.FromMilliseconds(300)));
+        cfg.UseMessageRetry(opt => opt.Exponential(7, TimeSpan.FromMilliseconds(300), TimeSpan.FromMinutes(120), TimeSpan.FromMilliseconds(300)));
     });
 });
 

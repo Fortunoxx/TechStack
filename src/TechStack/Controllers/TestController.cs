@@ -23,5 +23,15 @@ namespace MyApp.Namespace
 
             return Ok(result.Message);
         }
+
+        [AllowAnonymous]
+        [HttpGet("anonymous/{id:int}", Name = "GetSomeAnonymousData")]
+        public async Task<IActionResult> GetSomeAnonymousData(int id)
+        {
+            var query = new TestQuery(id);
+            var result = await testQueryClient.GetResponse<TestResult>(query);
+
+            return Ok(result.Message);
+        }
     }
 }
