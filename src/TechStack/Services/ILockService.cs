@@ -2,8 +2,8 @@ namespace TechStack.Services;
 
 public interface ILockService
 {
-    bool ReleaseLock(int id);
-    bool AquireLock (int id);
+    bool DeleteLock(int id);
+    bool CreateLock (int id);
     IEnumerable<int> GetAllLocks();
 }
 
@@ -11,7 +11,7 @@ public class LockService : ILockService
 {
     private IDictionary<int, object> _list = new Dictionary<int, object>();
 
-    public bool AquireLock(int id)
+    public bool CreateLock(int id)
     {
         _list.Add(id, Guid.NewGuid());
         return true;
@@ -19,7 +19,7 @@ public class LockService : ILockService
 
     public IEnumerable<int> GetAllLocks() => _list.Select(x => x.Key);
 
-    public bool ReleaseLock(int id)
+    public bool DeleteLock(int id)
     {
         if (_list.Any(x => x.Key == id))
         {

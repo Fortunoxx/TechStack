@@ -18,18 +18,18 @@ public class LocksController : ControllerBase
         return Ok(lockService.GetAllLocks());
     }
 
-    [HttpPost("{id:int}/set", Name = "AquireLock")]
-    public IActionResult AquireLock(int id)
+    [HttpPost("{id:int}", Name = "CreateLock")]
+    public IActionResult CreateLock(int id)
     {
-        if(lockService.AquireLock(id))
-            return Ok();
+        if(lockService.CreateLock(id))
+            return Created();
         return BadRequest();
     }
 
-    [HttpPost("{id:int}/release", Name = "ReleaseLock")]
-    public IActionResult ReleaseLock(int id)
+    [HttpDelete("{id:int}", Name = "DeleteLock")]
+    public IActionResult DeleteLock(int id)
     {
-        if (lockService.ReleaseLock(id))
+        if (lockService.DeleteLock(id))
             return Ok();
         return BadRequest();
     }

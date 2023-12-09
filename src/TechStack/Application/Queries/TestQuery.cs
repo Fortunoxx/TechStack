@@ -22,7 +22,7 @@ public class TestQueryConsumer : IConsumer<TestQuery>
     {
         var result = new TestResult(context.Message.Id, $"Hello from {nameof(TestQueryConsumer)}");
 
-        lockService.AquireLock(context.Message.Id);
+        lockService.CreateLock(context.Message.Id);
 
         await context.RespondAsync(result);
     }
