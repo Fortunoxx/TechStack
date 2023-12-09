@@ -5,6 +5,7 @@ using OpenTelemetry.Trace;
 using OpenTelemetry.Metrics;
 using Serilog;
 using TechStack.Application.Queries;
+using TechStack.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,6 +42,9 @@ builder.Services.AddMassTransit(options =>
         cfg.UseMessageRetry(opt => opt.Exponential(7, TimeSpan.FromMilliseconds(300), TimeSpan.FromMinutes(120), TimeSpan.FromMilliseconds(300)));
     });
 });
+
+// custom services
+builder.Services.AddSingleton<ILockService, LockService>();
 
 var app = builder.Build();
 
