@@ -1,14 +1,16 @@
 # Tech used
-- [x] MassTransit Mediator (Architecture)
-- [x] MassTransit Retry (Architecture)
-- [ ] MassTransit Circuit Breaker (Architecture)
+- [ ] MassTransit
+  - [x] MassTransit Mediator (Architecture)
+  - [x] MassTransit Retry (Architecture)
+  - [ ] MassTransit Circuit Breaker (Architecture) (replaced by KillSwitch)
+  - [ ] MassTransit KillSwitch (Architecture)
 - [x] rabbitmq (Architecture) (everyday I'm shoveling)
 - [x] Seq (Logging)
 - [x] Serilog (Logging)
-- [x] Serilog Enrichers (Logging)
+  - [x] Serilog Enrichers (Logging)
 - [x] Loki (Logging)
 - [x] Grafana (Visualization)
 - [x] Jaeger Trace (Telemetry)
-- [ ] Prometheus Metrics
+- [x] Prometheus Metrics
 - [ ] SignalR
 - [x] k6.io parallel load test (Testing)

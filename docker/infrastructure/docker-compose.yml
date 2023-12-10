@@ -32,6 +32,7 @@ services:
     image: prom/prometheus
     volumes:
       - "./prometheus.yml:/etc/prometheus/prometheus.yml"
+      - "./rules.yml:/etc/prometheus/rules.yml"
     # networks:
     #   - localprom
     healthcheck:
@@ -48,6 +49,14 @@ services:
     #   - localprom
     ports:
       - 9100:9100
+  alert-manager:
+    image: prom/alertmanager
+    volumes:
+      - "./alertmanager.yml:/alertmanager/alertmanager.yml"
+    # networks:
+    #   - localprom
+    ports:
+      - 9093:9093
   grafana:
     image: grafana/grafana:latest
     ports:
@@ -57,3 +66,8 @@ services:
         condition: service_healthy
       prometheus:
         condition: service_healthy
+    volumes:
+      - grafana-storage:/var/lib/grafana
+volumes:
+  grafana-storage:
+    external: true
