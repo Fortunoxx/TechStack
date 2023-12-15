@@ -31,6 +31,6 @@ public class LocksController : ControllerBase
     {
         if (lockService.DeleteLock(id))
             return Ok();
-        return BadRequest();
+        return NotFound();
     }
 }
