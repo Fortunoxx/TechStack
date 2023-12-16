@@ -1,3 +1,3 @@
 namespace TechStack.Application.Common.Models;
 
-public record TestResult(int Id, string Text);
+public record TestQueryResult(int Id, string Text);
