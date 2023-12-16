@@ -1,11 +1,9 @@
-namespace TechStack.Application.Queries;
+namespace TechStack.Infrastructure.Consumers;
 
 using MassTransit;
-using TechStack.Services;
-
-public record TestQuery(int Id);
-
-public record TestResult(int Id, string Text);
+using Microsoft.Extensions.Logging;
+using TechStack.Application.Common.Interfaces;
+using TechStack.Application.Common.Models;
 
 public class TestQueryConsumer : IConsumer<TestQuery>
 {

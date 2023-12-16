@@ -1,9 +1,9 @@
+namespace TechStack.Web.Controllers;
+
 using MassTransit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TechStack.Application.Queries;
-
-namespace TechStack.Controllers;
+using TechStack.Application.Common.Models;
 
 [Route("api/[controller]")]
 [ApiController]

@@ -1,11 +1,9 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using MassTransit;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using OpenTelemetry.Metrics;
 using Serilog;
-using TechStack.Application.Queries;
-using TechStack.Services;
+using TechStack.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,20 +39,7 @@ builder.Services.AddOpenTelemetry()
             })
     );
 
-builder.Services.AddMassTransit(options =>
-{
-    options.AddConsumersFromNamespaceContaining<TestQueryConsumer>();
-    options.AddRequestClient<TestQuery>();
-
-    options.UsingRabbitMq((context, cfg) =>
-    {
-        cfg.ConfigureEndpoints(context);
-        cfg.UseMessageRetry(opt => opt.Exponential(7, TimeSpan.FromMilliseconds(300), TimeSpan.FromMinutes(120), TimeSpan.FromMilliseconds(300)));
-    });
-});
-
-// custom services
-builder.Services.AddSingleton<ILockService, LockService>();
+builder.Services.AddInfrastructureServices(builder.Configuration);
 
 var app = builder.Build();
 
@@ -75,7 +60,7 @@ app.UseSerilogRequestLogging(options =>
     options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
     {
         diagnosticContext.Set("QueryString", httpContext.Request.QueryString);
-        diagnosticContext.Set("Authorization", httpContext.Request.Headers["Authorization"]);
+        diagnosticContext.Set("Authorization", httpContext.Request.Headers.Authorization);
         diagnosticContext.Set("CorrelationId", httpContext.Request.Headers["X-Correlation-Id"]);
     }
 );
