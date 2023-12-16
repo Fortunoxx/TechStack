@@ -1,11 +1,6 @@
-namespace TechStack.Services;
+namespace TechStack.Infrastructure.Services;
 
-public interface ILockService
-{
-    bool DeleteLock(int id);
-    bool CreateLock (int id);
-    IEnumerable<int> GetAllLocks();
-}
+using TechStack.Application.Common.Interfaces;
 
 public class LockService : ILockService
 {
@@ -17,8 +12,6 @@ public class LockService : ILockService
         return true;
     }
 
-    public IEnumerable<int> GetAllLocks() => _list.Select(x => x.Key);
-
     public bool DeleteLock(int id)
     {
         if (_list.Any(x => x.Key == id))
@@ -27,5 +20,14 @@ public class LockService : ILockService
             return true;
         }
         return false;
+    }
+
+    public IEnumerable<int> GetAllLocks() => _list.Select(x => x.Key);
+
+    public int? GetById(int id)
+    {
+        if (_list.Any(x => x.Key == id))
+            return id;
+        return null;
     }
 }

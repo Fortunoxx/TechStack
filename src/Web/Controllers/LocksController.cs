@@ -1,7 +1,7 @@
-using Microsoft.AspNetCore.Mvc;
-using TechStack.Services;
+namespace TechStack.Web.Controllers;
 
-namespace TechStack.Controllers;
+using Microsoft.AspNetCore.Mvc;
+using TechStack.Application.Common.Interfaces;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -18,11 +18,18 @@ public class LocksController : ControllerBase
         return Ok(lockService.GetAllLocks());
     }
 
+    [HttpGet("{id:int}", Name = "GetById")]
+    public IActionResult GetById(int id)
+    {
+        var result = lockService.GetById(id);
+        return result != null ? Ok(result) : NotFound();
+    }
+
     [HttpPost("{id:int}", Name = "CreateLock")]
     public IActionResult CreateLock(int id)
     {
-        if(lockService.CreateLock(id))
-            return Created();
+        if (lockService.CreateLock(id))
+            return Created("", id);
         return BadRequest();
     }
 

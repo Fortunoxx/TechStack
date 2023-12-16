@@ -1,9 +1,13 @@
 # Tech used
 - [ ] MassTransit
   - [x] MassTransit Mediator (Architecture)
+  - [ ] SendFilter
   - [x] MassTransit Retry (Architecture)
   - [ ] MassTransit Circuit Breaker (Architecture) (replaced by KillSwitch)
   - [ ] MassTransit KillSwitch (Architecture)
+  - [x] Request-Response
+  - [ ] RoutingSlips (Courier)
+  - [ ] Saga
 - [x] rabbitmq (Architecture) (everyday I'm shoveling)
 - [x] Seq (Logging)
 - [x] Serilog (Logging)
@@ -12,5 +16,27 @@
 - [x] Grafana (Visualization)
 - [x] Jaeger Trace (Telemetry)
 - [x] Prometheus Metrics
-- [ ] SignalR
 - [x] k6.io parallel load test (Testing)
+- [ ] Blazor Frontend (with SignalR)
+- [ ] SignalR
+- [ ] MongoDB or PostgreSQL for Saga Persistence
+- [ ] UnitTests
+- [ ] TestContainers
+- [ ] IntegrationTests (with TestContainers)
+- [ ] AutoMapper
+- [ ] KeyVault (secrets)
+
+# Patterns
+- [x] Mediator
+- [ ] CleanArchitecture
+  - [ ] MassTransit: 
+    - [ ] Contracts
+    - [ ] Components 
+      - company.accounting.billing.components
+      - routing slips
+      - sagas
+      - statemachinestates 
+    - [ ] Services/Inrastructure
+      - addmasstransit
+      - usingrabbitmq
+- [ ] CQRS
