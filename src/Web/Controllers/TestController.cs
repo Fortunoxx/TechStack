@@ -48,4 +48,12 @@ public class TestController : ControllerBase
 
         return Ok(result.Message);
     }
+
+    [AllowAnonymous]
+    [HttpPut("{id:int}", Name = "UpdateTestLock")]
+    public async Task<IActionResult> UpdateTestLock(int id, [FromBody] UpsertLockCommand model)
+    {
+        // this doesn't really do anything - just wanted to see the logging
+        return NoContent();
+    }
 }
