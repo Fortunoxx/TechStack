@@ -25,24 +25,28 @@
 - [ ] TestContainers
 - [ ] AutoMapper
 - [ ] KeyVault (secrets)
-- [ ] 
+- [ ] SQLite
 
 # Patterns
 - [x] Mediator
-- [ ] CleanArchitecture
-  - [ ] MassTransit: 
+- [x]] CleanArchitecture
+  - [x] MassTransit: 
     - [ ] Contracts
     - [ ] Components 
       - company.accounting.billing.components
       - routing slips
       - sagas
       - statemachinestates 
-    - [ ] Services/Inrastructure
+    - [x] Services/Inrastructure
       - addmasstransit
       - usingrabbitmq
-- [ ] CQRS
+- [x] CQRS
 
 # CI/CD
 - [ ] Bicep / Terraform
 - [ ] Github Actions
+  - [ ] build
+    - [ ] multiple versions
+  - [ ] analyze
 - [ ] Staging / Live Environments
+- [ ] CodeCov

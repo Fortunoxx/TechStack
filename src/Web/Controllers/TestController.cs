@@ -12,11 +12,13 @@ public class TestController : ControllerBase
 {
     private readonly IBus bus;
     private readonly IRequestClient<TestQuery> testQueryClient;
+    private readonly IRequestClient<TestCommand> testCommandClient;
 
-    public TestController(IBus bus, IRequestClient<TestQuery> testQueryClient)
+    public TestController(IBus bus, IRequestClient<TestQuery> testQueryClient, IRequestClient<TestCommand> testCommandClient)
     {
         this.bus = bus;
         this.testQueryClient = testQueryClient;
+        this.testCommandClient = testCommandClient;
     }
 
     [HttpGet("{id:int}", Name = "GetSomeData")]
@@ -43,8 +45,7 @@ public class TestController : ControllerBase
     public async Task<IActionResult> CreateTestLock(int id)
     {
         var command = new TestCommand(id);
-        var client = bus.CreateRequestClient<TestCommand>();
-        var result = await client.GetResponse<TestCommandResponse>(command);
+        var result = await testCommandClient.GetResponse<TestCommandResponse>(command);
 
         return Ok(result.Message);
     }
