@@ -4,6 +4,9 @@ using OpenTelemetry.Trace;
 using OpenTelemetry.Metrics;
 using Serilog;
 using TechStack.Infrastructure;
+using TechStack.Infrastructure.Data;
+using TechStack.Web.Extensions;
+// using TechStack.Infrastructure.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,6 +45,17 @@ builder.Services.AddOpenTelemetry()
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
 var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    await app.InitialiseDatabaseAsync();
+}
+else
+{
+    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    app.UseHsts();
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

@@ -11,8 +11,19 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Data\SQLite\**" />
+    <EmbeddedResource Remove="Data\SQLite\**" />
+    <None Remove="Data\SQLite\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="MassTransit.RabbitMQ" Version="8.1.2" />
     <PackageReference Include="MassTransit" Version="8.1.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0" />
+
   </ItemGroup>
 
 </Project>
