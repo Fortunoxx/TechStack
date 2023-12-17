@@ -21,10 +21,11 @@
 - [ ] SignalR
 - [ ] MongoDB or PostgreSQL for Saga Persistence
 - [ ] UnitTests
-- [ ] TestContainers
 - [ ] IntegrationTests (with TestContainers)
+- [ ] TestContainers
 - [ ] AutoMapper
 - [ ] KeyVault (secrets)
+- [ ] 
 
 # Patterns
 - [x] Mediator
@@ -40,3 +41,8 @@
       - addmasstransit
       - usingrabbitmq
 - [ ] CQRS
+
+# CI/CD
+- [ ] Bicep / Terraform
+- [ ] Github Actions
+- [ ] Staging / Live Environments

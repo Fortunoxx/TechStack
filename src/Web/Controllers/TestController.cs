@@ -51,7 +51,7 @@ public class TestController : ControllerBase
 
     [AllowAnonymous]
     [HttpPut("{id:int}", Name = "UpdateTestLock")]
-    public async Task<IActionResult> UpdateTestLock(int id, [FromBody] UpsertLockCommand model)
+    public IActionResult UpdateTestLock(int id, [FromBody] UpsertLockCommand model)
     {
         // this doesn't really do anything - just wanted to see the logging
         return NoContent();
