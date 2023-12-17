@@ -10,13 +10,11 @@ using TechStack.Application.Common.Models;
 [Authorize]
 public class TestController : ControllerBase
 {
-    private readonly IBus bus;
     private readonly IRequestClient<TestQuery> testQueryClient;
     private readonly IRequestClient<TestCommand> testCommandClient;
 
-    public TestController(IBus bus, IRequestClient<TestQuery> testQueryClient, IRequestClient<TestCommand> testCommandClient)
+    public TestController(IRequestClient<TestQuery> testQueryClient, IRequestClient<TestCommand> testCommandClient)
     {
-        this.bus = bus;
         this.testQueryClient = testQueryClient;
         this.testCommandClient = testCommandClient;
     }
