@@ -4,9 +4,9 @@ rule_files:
   - rules.yml
 alerting:
   alertmanagers:
-   - static_configs:
-     - targets:
-        - alert-manager:9093
+    - static_configs:
+        - targets:
+            - alert-manager:9093
 scrape_configs:
   - job_name: prometheus
     static_configs:
@@ -22,3 +22,8 @@ scrape_configs:
     scrape_interval: 5s # poll very quickly for a more responsive demo
     static_configs:
       - targets: ["host.docker.internal:5131"] # this is our custom Service: API
+  - job_name: cadvisor
+    scrape_interval: 5s
+    static_configs:
+      - targets:
+          - cadvisor:8080
