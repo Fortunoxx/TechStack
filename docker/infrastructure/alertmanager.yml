@@ -1,6 +1,6 @@
 global:
-  smtp_smarthost: 'mailhog:1025'
-  smtp_from: 'alertmanager@test.com'
+  smtp_smarthost: "mailhog:1025"
+  smtp_from: "alertmanager@test.com"
   smtp_require_tls: false
 
 route:
@@ -8,17 +8,19 @@ route:
   group_wait: 30s
   group_interval: 5m
   repeat_interval: 3h
-  group_by: ['alertname', 'job']
+  group_by: ["alertname", "job"]
   routes:
-  - receiver: discord
-    group_wait: 30s
-    group_interval: 5m
-    repeat_interval: 3h
+    - receiver: discord
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 3h
+      matchers:
+        - channel="discord"
 
 receivers:
   - name: email
     email_configs:
-      - to: 'developer@test.com'
+      - to: "developer@test.com"
   - name: discord
-    discord_configs: 
+    discord_configs:
       - webhook_url: "https://discord.com/api/webhooks/XXX/YYY"
