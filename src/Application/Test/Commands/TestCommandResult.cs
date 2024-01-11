@@ -1,3 +1,3 @@
-namespace TechStack.Application.Common.Models;
+namespace TechStack.Application.Test.Commands;
 
 public record TestCommandResponse(bool Success);
