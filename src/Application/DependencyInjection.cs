@@ -5,6 +5,7 @@ using System.Reflection;
 using FluentValidation;
 using MassTransit;
 using TechStack.Application.Test.Queries;
+using TechStack.Application.Common.Validation;
 
 public static class DependencyInjection
 {
@@ -28,6 +29,7 @@ public static class DependencyInjection
             options.AddConsumer<TestQueryMediatorConsumer>();
             options.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
             // add validation filter here
+            options.ConfigureMediator((context, mediator) => mediator.UseSendFilter(typeof(FluentValidationFilter<>), context));
         });
 
         // services.AddMassTransit(options =>
