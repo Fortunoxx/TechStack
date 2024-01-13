@@ -12,7 +12,10 @@ public class FluentValidationFilter<TMessage> : IFilter<ConsumeContext<TMessage>
     private readonly ILogger<FluentValidationFilter<TMessage>> _logger;
     private readonly IValidator<TMessage> _validator;
 
-    public FluentValidationFilter(ILogger<FluentValidationFilter<TMessage>> logger, IValidator<TMessage> validator, IValidationFailurePipe<TMessage> failurePipe)
+    public FluentValidationFilter(
+        ILogger<FluentValidationFilter<TMessage>> logger, 
+        IValidator<TMessage> validator, 
+        IValidationFailurePipe<TMessage> failurePipe)
     {
         _failurePipe = failurePipe ?? throw new ArgumentNullException(nameof(failurePipe));
         _logger = logger;
@@ -36,8 +39,10 @@ public class FluentValidationFilter<TMessage> : IFilter<ConsumeContext<TMessage>
             return;
         }
 
-        var validationProblems = validationResult.Errors.ToErrorDictionary();
+        // var validationProblems = validationResult.Errors.ToErrorDictionary();
+        var validationProblems = new FailureMessage(validationResult.Errors.ToErrorDictionary());
 
+        // var failureContext = new ValidationFailureContext<TMessage>(context, validationProblems);
         var failureContext = new ValidationFailureContext<TMessage>(context, validationProblems);
         await _failurePipe.Send(failureContext);
     }

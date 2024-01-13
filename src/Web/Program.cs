@@ -5,6 +5,10 @@ using OpenTelemetry.Metrics;
 using Serilog;
 using TechStack.Infrastructure;
 using TechStack.Application;
+using TechStack.Web.Infrastructure;
+using TechStack.Application.Common.Interfaces;
+using Microsoft.AspNetCore.Diagnostics;
+using TechStack.Application.Common.Validation;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +18,7 @@ builder.Host.UseSerilog((ctx, lc) => lc
 
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
+builder.Services.AddTransient(typeof(IValidationFailurePipe<>), typeof(ValidationFailurePipe<>));
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -45,6 +50,33 @@ builder.Services.AddOpenTelemetry()
 
 
 var app = builder.Build();
+
+app.UseExceptionHandler(exceptionHandlerApp => {
+    exceptionHandlerApp.Run(async context => {
+        var exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
+        var exception = exceptionHandlerPathFeature?.Error;
+        
+        if(exception is MassTransit.RequestException rex)
+        {
+            if (rex.InnerException is ValidationException vex)
+            {
+                context.Response.StatusCode = vex.StatusCode;
+                var pd = new HttpValidationProblemDetails { 
+                    Detail = vex.Detail,
+                    Errors = vex.Errors,
+                    Instance = context.Request.Path,
+                    Status = vex.StatusCode,
+                    Type = typeof(ValidationException).FullName
+                };
+
+                await context.Response.WriteAsJsonAsync(pd);
+                return;
+            }
+        }
+
+        await context.Response.WriteAsJsonAsync(new { error = exception.Message });
+    });
+});
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

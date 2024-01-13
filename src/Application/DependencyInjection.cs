@@ -29,7 +29,7 @@ public static class DependencyInjection
             options.AddConsumer<TestQueryMediatorConsumer>();
             options.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
             // add validation filter here
-            options.ConfigureMediator((context, mediator) => mediator.UseSendFilter(typeof(FluentValidationFilter<>), context));
+            options.ConfigureMediator((context, mediator) => mediator.UseConsumeFilter(typeof(FluentValidationFilter<>), context));
         });
 
         // services.AddMassTransit(options =>

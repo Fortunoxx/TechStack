@@ -7,7 +7,7 @@ public class ValidationFailureContext<TMessage> :
     BasePipeContext, PipeContext
     where TMessage : class
 {
-    public ValidationFailureContext(ConsumeContext<TMessage> wrappedContext, IDictionary<string, string[]> validationProblems) :
+    public ValidationFailureContext(ConsumeContext<TMessage> wrappedContext, FailureMessage validationProblems) :
         base(wrappedContext.CancellationToken)
     {
         InnerContext = wrappedContext ?? throw new ArgumentNullException(nameof(wrappedContext));
@@ -15,5 +15,5 @@ public class ValidationFailureContext<TMessage> :
     }
 
     public ConsumeContext<TMessage> InnerContext { get; }
-    public IDictionary<string, string[]> ValidationProblems { get; }
+    public FailureMessage ValidationProblems { get; }
 }
