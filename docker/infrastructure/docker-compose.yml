@@ -72,6 +72,10 @@ services:
   alert-manager:
     image: prom/alertmanager
     container_name: alertmanager
+    depends_on:
+      - vault
+    environment:
+      - DISCORD_WEBHOOK_URL=$(vault kv-get -field=data secret/prometheus/alertmanager/discord_configs)
     volumes:
       - ./alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
     ports:
@@ -99,12 +103,27 @@ services:
   seq: 
     image: datalust/seq:latest
     container_name: seq
+    depends_on:
+      - vault
     environment:
       - ACCEPT_EULA=Y
     ports:
       - 5341:5341
       - 3110:80
     restart: unless-stopped
+
+  vault:
+    image: hashicorp/vault:latest
+    container_name: vault
+    ports:
+      - "8200:8200"  # Vault API port
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: "root"  # Use only in development mode
+      VAULT_ADDR: "http://localhost:8200"
+    volumes:
+      - ./vault-data:/vault/data  # Persistent storage for Vault data
+    cap_add:
+      - IPC_LOCK  # Required for mlock to improve security
 
 volumes:
   grafana-storage:
