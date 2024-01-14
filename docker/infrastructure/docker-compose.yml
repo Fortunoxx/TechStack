@@ -96,6 +96,16 @@ services:
     ports:
       - "8025:8025"
 
+  seq: 
+    image: datalust/seq:latest
+    container_name: seq
+    environment:
+      - ACCEPT_EULA=Y
+    ports:
+      - 5341:5341
+      - 3110:80
+    restart: unless-stopped
+
 volumes:
   grafana-storage:
     external: true

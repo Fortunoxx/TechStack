@@ -1,10 +1,13 @@
 # Tech used
 - [ ] MassTransit
   - [x] MassTransit Mediator (Architecture)
+  - [x] ConsumeFilter
   - [ ] SendFilter
+  - [ ] Authorization Filter (API Key)
   - [x] MassTransit Retry (Architecture)
-  - [ ] MassTransit Circuit Breaker (Architecture) (replaced by KillSwitch)
-  - [ ] MassTransit KillSwitch (Architecture)
+    - [ ] MassTransit Circuit Breaker (Architecture) (replaced by KillSwitch)
+    - [ ] MassTransit KillSwitch (Architecture)
+    - [ ] MassTransit Delayed Redelivery (Architecture)
   - [x] Request-Response
   - [ ] RoutingSlips (Courier)
   - [ ] Saga
@@ -16,6 +19,7 @@
 - [x] Grafana (Visualization)
 - [x] Jaeger Trace (Telemetry)
 - [x] Prometheus Metrics
+- [x] Prometheus Alerting
 - [x] k6.io parallel load test (Testing)
 - [ ] Blazor Frontend (with SignalR)
 - [ ] SignalR
@@ -26,10 +30,11 @@
 - [ ] AutoMapper
 - [ ] KeyVault (secrets)
 - [ ] SQLite
+- [x] FluentValidation (in Masstransit Mediator as ConsumeFilter)
 
 # Patterns
 - [x] Mediator
-- [x]] CleanArchitecture
+- [x] CleanArchitecture
   - [x] MassTransit: 
     - [ ] Contracts
     - [ ] Components 
