@@ -3,16 +3,16 @@ namespace TechStack.Infrastructure.Consumers;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using TechStack.Application.Common.Interfaces;
-using TechStack.Application.Common.Models;
+using TechStack.Application.Test.Commands;
 
 public class TestBusConsumer :
     IConsumer<TestCommand>,
     IConsumer<Fault<TestCommand>>
 {
     private readonly ILockService lockService;
-    private readonly ILogger<TestMediatorConsumer> logger;
+    private readonly ILogger<TestBusConsumer> logger;
 
-    public TestBusConsumer(ILockService lockService, ILogger<TestMediatorConsumer> logger)
+    public TestBusConsumer(ILockService lockService, ILogger<TestBusConsumer> logger)
     {
         this.lockService = lockService;
         this.logger = logger;

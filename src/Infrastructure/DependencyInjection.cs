@@ -4,7 +4,6 @@ using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TechStack.Application.Common.Interfaces;
-using TechStack.Application.Common.Models;
 using TechStack.Infrastructure.Consumers;
 using TechStack.Infrastructure.Services;
 
@@ -12,12 +11,6 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddMediator(options =>
-        {
-            options.AddRequestClient<TestQuery>();
-            options.AddConsumer<TestMediatorConsumer>();
-        });
-
         services.AddMassTransit(options =>
         {
             options.AddConsumer<TestBusConsumer>();
