@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Diagnostics;
 using TechStack.Application.Common.Validation;
 using System.Text.Json;
 using System.Buffers;
+using TechStack.Web.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,7 +20,7 @@ builder.Host.UseSerilog((ctx, lc) => lc
     .ReadFrom.Configuration(ctx.Configuration));
 
 builder.Services.AddApplicationServices();
-builder.Services.AddInfrastructureServices(builder.Configuration);
+builder.Services.AddInfrastructureServices();
 builder.Services.AddTransient(typeof(IValidationFailurePipe<>), typeof(ValidationFailurePipe<>));
 
 // Add services to the container.
@@ -52,6 +53,8 @@ builder.Services.AddOpenTelemetry()
 
 
 var app = builder.Build();
+
+app.AddCorrelationIdMiddleware();
 
 app.Use(async (context, next) =>
 {
@@ -125,6 +128,7 @@ app.UseAuthorization();
 // Configure the Prometheus scraping endpoint
 app.MapPrometheusScrapingEndpoint();
 
+
 async Task<string?> GetRequestBody(HttpRequest httpRequest)
 {
     httpRequest.Body.Position = 0;
@@ -143,19 +147,19 @@ async Task<string?> GetRequestBody(HttpRequest httpRequest)
     return null;
 }
 
-// async Task<string?> GetResponseBody(HttpResponse httpResponse)
-// {
-//     // httpResponse.Body.Position = 0;
-//     var payload = await new StreamReader(httpResponse.Body).ReadToEndAsync();
+async Task<string?> GetResponseBody(HttpResponse httpResponse)
+{
+    // httpResponse.Body.Position = 0;
+    var payload = await new StreamReader(httpResponse.Body).ReadToEndAsync();
 
-//     if (!string.IsNullOrEmpty(payload))
-//     {
-//         var json = JsonSerializer.Deserialize<object>(payload);
-//         return $"{JsonSerializer.Serialize(json)} ";
-//     }
+    if (!string.IsNullOrEmpty(payload))
+    {
+        var json = JsonSerializer.Deserialize<object>(payload);
+        return $"{JsonSerializer.Serialize(json)} ";
+    }
 
-//     return null;
-// }
+    return null;
+}
 
 app.UseHttpsRedirection();
 app.MapControllers();

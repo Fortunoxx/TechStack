@@ -1,15 +1,15 @@
 namespace TechStack.Infrastructure;
 
 using MassTransit;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TechStack.Application.Common.Interfaces;
 using TechStack.Infrastructure.Consumers;
+using TechStack.Infrastructure.Filter;
 using TechStack.Infrastructure.Services;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddInfrastructureServices(this IServiceCollection services)
     {
         services.AddMassTransit(options =>
         {
@@ -21,13 +21,18 @@ public static class DependencyInjection
                     .SetActivationThreshold(3)
                     .SetTripThreshold(0.15)
                     .SetRestartTimeout(s: 10));
-                // cfg.UseDelayedRedelivery(r => r.Intervals(TimeSpan.FromMinutes(5), TimeSpan.FromMinutes(15), TimeSpan.FromMinutes(30)));
+
+                cfg.UseDelayedRedelivery(r => r.Intervals(TimeSpan.FromMinutes(5), TimeSpan.FromMinutes(15), TimeSpan.FromMinutes(30), TimeSpan.FromMinutes(60), TimeSpan.FromMinutes(120)));
+
                 cfg.ConfigureEndpoints(context);
+
+                cfg.UseConsumeFilter(typeof(CorrelationIdConsumeFilter<>), context);
             });
         });
 
         // custom services
         services.AddSingleton<ILockService, LockService>();
+        services.AddScoped<ICorrelationIdGenerator, CorrelationIdGenerator>();
 
         return services;
     }

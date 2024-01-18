@@ -9,8 +9,8 @@ public static class LogHelper
             ? LogEventLevel.Error 
             : ctx.Response.StatusCode > 499 
                 ? LogEventLevel.Error 
-                : IsHealthCheckEndpoint(ctx) || IsMetricsEndpoint(ctx) // Not an error, check if it was a health check
-                    ? LogEventLevel.Verbose // Was a health check, use Verbose
+                : IsHealthCheckEndpoint(ctx) || IsMetricsEndpoint(ctx) // Not an error, check if it was a health check or metrics call
+                    ? LogEventLevel.Verbose // Was a health check or metrics call, use Verbose
                     : LogEventLevel.Information;
 
     private static bool IsMetricsEndpoint(HttpContext context)
@@ -39,19 +39,5 @@ public static class LogHelper
         }
         // No endpoint, so not a health check endpoint
         return false;
-    }
-
-    private static LogEventLevel DetermineByPath(HttpRequest httpRequest)
-    {
-        if (httpRequest?.Path.Value?.EndsWith("/health") == true)
-        {
-            return LogEventLevel.Verbose;
-        }
-        else if (httpRequest?.Path.Value?.EndsWith("/metrics") == true)
-        {
-            return LogEventLevel.Verbose;
-        }
-
-        return LogEventLevel.Information;
     }
 }
