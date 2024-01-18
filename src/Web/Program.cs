@@ -9,6 +9,8 @@ using TechStack.Web.Infrastructure;
 using TechStack.Application.Common.Interfaces;
 using Microsoft.AspNetCore.Diagnostics;
 using TechStack.Application.Common.Validation;
+using System.Text.Json;
+using System.Buffers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -51,17 +53,49 @@ builder.Services.AddOpenTelemetry()
 
 var app = builder.Build();
 
-app.UseExceptionHandler(exceptionHandlerApp => {
-    exceptionHandlerApp.Run(async context => {
+app.Use(async (context, next) =>
+{
+    context.Request.EnableBuffering(); // to enable set position
+    await next();
+});
+
+app.UseSerilogRequestLogging(options =>
+{
+    options.GetLevel = LogHelper.CustomGetLevel;
+    options.EnrichDiagnosticContext = async (diagnosticContext, httpContext) =>
+    {
+        diagnosticContext.Set("QueryString", httpContext.Request.QueryString);
+        diagnosticContext.Set("Authorization", httpContext.Request.Headers.Authorization);
+        diagnosticContext.Set("CorrelationId", httpContext.Request.Headers["X-Correlation-Id"]);
+
+        var requestBody = await GetRequestBody(httpContext.Request);
+        if (!string.IsNullOrEmpty(requestBody))
+        {
+            diagnosticContext.Set("RequestBody", requestBody);
+        }
+
+        // var responseBody = await GetResponseBody(httpContext.Response);
+        // if (!string.IsNullOrEmpty(requestBody))
+        // {
+        //     diagnosticContext.Set("ResponseBody", requestBody);
+        // }
+    };
+});
+
+app.UseExceptionHandler(exceptionHandlerApp =>
+{
+    exceptionHandlerApp.Run(async context =>
+    {
         var exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
         var exception = exceptionHandlerPathFeature?.Error;
-        
-        if(exception is MassTransit.RequestException rex)
+
+        if (exception is MassTransit.RequestException rex)
         {
             if (rex.InnerException is ValidationException vex)
             {
                 context.Response.StatusCode = vex.StatusCode;
-                var pd = new HttpValidationProblemDetails { 
+                var pd = new HttpValidationProblemDetails
+                {
                     Detail = vex.Detail,
                     Errors = vex.Errors,
                     Instance = context.Request.Path,
@@ -91,17 +125,41 @@ app.UseAuthorization();
 // Configure the Prometheus scraping endpoint
 app.MapPrometheusScrapingEndpoint();
 
-app.UseSerilogRequestLogging(options =>
-    options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
+async Task<string?> GetRequestBody(HttpRequest httpRequest)
+{
+    httpRequest.Body.Position = 0;
+    var payload = await new StreamReader(httpRequest.Body).ReadToEndAsync();
+  
+    if (!string.IsNullOrEmpty(payload))
     {
-        diagnosticContext.Set("QueryString", httpContext.Request.QueryString);
-        diagnosticContext.Set("Authorization", httpContext.Request.Headers.Authorization);
-        diagnosticContext.Set("CorrelationId", httpContext.Request.Headers["X-Correlation-Id"]);
+        var json = JsonSerializer.Deserialize<object>(payload);
+        // var json2 = JsonSerializer.Deserialize<UpsertLockCommand>(payload, new JsonSerializerOptions
+        // {
+        //     PropertyNameCaseInsensitive = true
+        // });
+        return $"{JsonSerializer.Serialize(json)} ";
     }
-);
+
+    return null;
+}
+
+// async Task<string?> GetResponseBody(HttpResponse httpResponse)
+// {
+//     // httpResponse.Body.Position = 0;
+//     var payload = await new StreamReader(httpResponse.Body).ReadToEndAsync();
+
+//     if (!string.IsNullOrEmpty(payload))
+//     {
+//         var json = JsonSerializer.Deserialize<object>(payload);
+//         return $"{JsonSerializer.Serialize(json)} ";
+//     }
+
+//     return null;
+// }
 
 app.UseHttpsRedirection();
 app.MapControllers();
+app.MapHealthChecks("/health");
 
 var summaries = new[]
 {

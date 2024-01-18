@@ -41,7 +41,7 @@ public class TestController : ControllerBase
 
     [AllowAnonymous]
     [HttpPost("{id:int}", Name = "CreateTestLock")]
-    public async Task<IActionResult> CreateTestLock(int id)
+    public async Task<IActionResult> CreateTestLock(int id, [FromBody] UpsertLockCommand model)
     {
         var command = new TestCommand(id);
         var result = await testCommandClient.GetResponse<TestCommandResponse>(command);
