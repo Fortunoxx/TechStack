@@ -74,8 +74,10 @@ services:
     container_name: alertmanager
     depends_on:
       - vault
-    environment:
-      - DISCORD_WEBHOOK_URL=$(vault kv-get -field=data secret/prometheus/alertmanager/discord_configs)
+    # environment:
+      # - DISCORD_WEBHOOK_URL=$(vault kv-get -field=data secret/url -format=yaml)
+      # - DISCORD_WEBHOOK_URL='${DISCORD_WEBHOOK_URL}'
+      # - DISCORD_WEBHOOK_URL='https://www.google.de'
     volumes:
       - ./alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
     ports:
