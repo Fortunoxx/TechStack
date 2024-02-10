@@ -68,8 +68,8 @@ app.UseSerilogRequestLogging(options =>
     options.EnrichDiagnosticContext = async (diagnosticContext, httpContext) =>
     {
         diagnosticContext.Set("QueryString", httpContext.Request.QueryString);
-        diagnosticContext.Set("Authorization", httpContext.Request.Headers.Authorization);
-        diagnosticContext.Set("CorrelationId", httpContext.Request.Headers["X-Correlation-Id"]);
+        diagnosticContext.Set("Authorization", httpContext.Request.Headers.Authorization.FirstOrDefault());
+        diagnosticContext.Set("CorrelationId", httpContext.Request.Headers["X-Correlation-Id"].FirstOrDefault());
 
         var requestBody = await GetRequestBody(httpContext.Request);
         if (!string.IsNullOrEmpty(requestBody))

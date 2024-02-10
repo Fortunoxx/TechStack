@@ -46,7 +46,7 @@ public class TestController : ControllerBase
     [HttpPost("{id:int}", Name = "CreateTestLock")]
     public async Task<IActionResult> CreateTestLock(int id, [FromBody] UpsertLockCommand model)
     {
-        var command = new TestCommand(id, model, correlationIdGenerator.Get());
+        var command = new TestCommand(id, model);
         var result = await testCommandClient.GetResponse<TestCommandResponse>(command);
 
         return Ok(result.Message);
@@ -56,7 +56,7 @@ public class TestController : ControllerBase
     [HttpPut("{id:int}", Name = "UpdateTestLock")]
     public async Task<IActionResult> UpdateTestLock(int id, [FromBody] UpsertLockCommand model)
     {
-        var command = new TestCommand(id, model, correlationIdGenerator.Get());
+        var command = new TestCommand(id, model);
         _ = await testCommandClient.GetResponse<TestCommandResponse>(command);
 
         return NoContent();
