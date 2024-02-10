@@ -111,7 +111,7 @@ app.UseExceptionHandler(exceptionHandlerApp =>
             }
         }
 
-        await context.Response.WriteAsJsonAsync(new { error = exception.Message });
+        await context.Response.WriteAsJsonAsync(new { error = exception?.Message });
     });
 });
 

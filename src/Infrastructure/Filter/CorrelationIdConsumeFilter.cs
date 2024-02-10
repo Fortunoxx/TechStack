@@ -9,6 +9,7 @@ public class CorrelationIdConsumeFilter<T> : IFilter<ConsumeContext<T>>
     where T : class
 {
     private readonly ILogger<CorrelationIdConsumeFilter<T>> logger;
+    
     private readonly ICorrelationIdGenerator correlationIdGenerator;
 
     public CorrelationIdConsumeFilter(ILogger<CorrelationIdConsumeFilter<T>> logger, ICorrelationIdGenerator correlationIdGenerator)
@@ -25,7 +26,6 @@ public class CorrelationIdConsumeFilter<T> : IFilter<ConsumeContext<T>>
 
         using (logger.BeginScope(dictionary))
         {
-
             await next.Send(context);
         }
     }

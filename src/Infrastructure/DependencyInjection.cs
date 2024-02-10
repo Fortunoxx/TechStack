@@ -11,6 +11,10 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services)
     {
+        // custom services
+        services.AddSingleton<ILockService, LockService>();
+        services.AddScoped<ICorrelationIdGenerator, CorrelationIdGenerator>();
+
         services.AddMassTransit(options =>
         {
             options.AddConsumer<TestBusConsumer>();
@@ -24,15 +28,11 @@ public static class DependencyInjection
 
                 cfg.UseDelayedRedelivery(r => r.Intervals(TimeSpan.FromMinutes(5), TimeSpan.FromMinutes(15), TimeSpan.FromMinutes(30), TimeSpan.FromMinutes(60), TimeSpan.FromMinutes(120)));
 
-                cfg.ConfigureEndpoints(context);
-
                 cfg.UseConsumeFilter(typeof(CorrelationIdConsumeFilter<>), context);
+
+                cfg.ConfigureEndpoints(context);
             });
         });
-
-        // custom services
-        services.AddSingleton<ILockService, LockService>();
-        services.AddScoped<ICorrelationIdGenerator, CorrelationIdGenerator>();
 
         return services;
     }
