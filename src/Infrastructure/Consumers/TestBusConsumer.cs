@@ -20,8 +20,16 @@ public class TestBusConsumer :
 
     public async Task Consume(ConsumeContext<TestCommand> context)
     {
-        lockService.CreateLock(context.Message.Id);
-        logger.LogWarning("Lock created: {id}", context.Message.Id);
+        if (lockService.DeleteLock(context.Message.Id))
+        {
+            logger.LogInformation("Log deleted: {id}", context.Message.Id);
+        }
+
+        if (lockService.CreateLock(context.Message.Id, context.Message.Data))
+        {
+            logger.LogInformation("Lock created: {id}", context.Message.Id);
+        }
+
         await context.RespondAsync(new TestCommandResponse(true));
     }
 

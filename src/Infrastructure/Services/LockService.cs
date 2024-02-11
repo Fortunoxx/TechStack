@@ -4,29 +4,29 @@ using TechStack.Application.Common.Interfaces;
 
 public class LockService : ILockService
 {
-    private IDictionary<int, object> _list = new Dictionary<int, object>();
+    private readonly Dictionary<int, object> dataDictionary = [];
 
-    public bool CreateLock(int id)
+    public bool CreateLock(int id, object data)
     {
-        _list.Add(id, Guid.NewGuid());
+        dataDictionary.Add(id, data ?? Guid.NewGuid());
         return true;
     }
 
     public bool DeleteLock(int id)
     {
-        if (_list.Any(x => x.Key == id))
+        if (dataDictionary.Any(x => x.Key == id))
         {
-            _list.Remove(id);
+            dataDictionary.Remove(id);
             return true;
         }
         return false;
     }
 
-    public IEnumerable<int> GetAllLocks() => _list.Select(x => x.Key);
+    public IEnumerable<int> GetAllLocks() => dataDictionary.Select(x => x.Key);
 
     public int? GetById(int id)
     {
-        if (_list.Any(x => x.Key == id))
+        if (dataDictionary.Any(x => x.Key == id))
             return id;
         return null;
     }
