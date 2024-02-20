@@ -9,6 +9,7 @@ using TechStack.Web.Infrastructure;
 using TechStack.Application.Common.Interfaces;
 using Microsoft.AspNetCore.Diagnostics;
 using TechStack.Application.Common.Validation;
+using MassTransit.Monitoring;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,7 +30,7 @@ builder.Services.AddAuthentication(opt => opt.DefaultAuthenticateScheme = JwtBea
 builder.Services.AddAuthorization();
 builder.Services.AddOpenTelemetry()
     .ConfigureResource(resource =>
-        resource.AddService(serviceName: builder.Environment.ApplicationName)
+        resource.AddService(serviceName: builder.Environment.ApplicationName, serviceVersion: "Version 0.1", serviceInstanceId: Environment.MachineName)
     )
     .WithTracing(tracing => tracing
         .AddAspNetCoreInstrumentation()
@@ -39,7 +40,7 @@ builder.Services.AddOpenTelemetry()
     )
     .WithMetrics(builder => builder
         .AddPrometheusExporter()
-        .AddMeter("Microsoft.AspNetCore.Hosting", "Microsoft.AspNetCore.Server.Kestrel")
+        .AddMeter("Microsoft.AspNetCore.Hosting", "Microsoft.AspNetCore.Server.Kestrel", InstrumentationOptions.MeterName)
         .AddView("http.server.request.duration",
             new ExplicitBucketHistogramConfiguration
             {
@@ -90,6 +91,8 @@ app.UseAuthorization();
 
 // Configure the Prometheus scraping endpoint
 app.MapPrometheusScrapingEndpoint();
+// Map prometheus metrics endpoint
+// app.UseOpenTelemetryPrometheusScrapingEndpoint();
 
 app.UseSerilogRequestLogging(options =>
     options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>

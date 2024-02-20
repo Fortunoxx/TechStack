@@ -1,3 +1,5 @@
+docker-compose up -d vault
+
 $param2 = @{
     Method = "Get"
     Uri = "http://localhost:8200/v1/secret/data/url"

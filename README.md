@@ -3,3 +3,11 @@
 # Tech Stack
 
 A sample project to use a lot of tech
+
+## [Prometheus Alerting Rules](https://samber.github.io/awesome-prometheus-alerts/)
+
+### [RabbitMQ Prometheus](https://rabbitmq.com/prometheus.html)
+https://github.com/rabbitmq/rabbitmq-prometheus
+`rabbitmq-plugins enable rabbitmq_prometheus`
+
+- when using Masstransit/RabbitMQ: https://masstransit.io/documentation/configuration/observability
