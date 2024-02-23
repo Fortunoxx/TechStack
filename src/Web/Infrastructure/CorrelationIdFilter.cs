@@ -5,6 +5,8 @@ using TechStack.Application.Common.Interfaces;
 
 public class CorrelationIdFilter : IActionFilter
 {
+    private const string CorrelationIdHeader = "X-Correlation-Id";
+
     private readonly ICorrelationIdGenerator correlationIdGenerator;
 
     public CorrelationIdFilter(ICorrelationIdGenerator correlationIdGenerator)
@@ -16,8 +18,10 @@ public class CorrelationIdFilter : IActionFilter
 
     public void OnActionExecuting(ActionExecutingContext context)
     {
-        var correlationId = context.HttpContext.Request.Headers["X-Correlation-Id"];
+        var correlationId = context.HttpContext.Request.Headers[CorrelationIdHeader];
         if (!string.IsNullOrWhiteSpace(correlationId))
             correlationIdGenerator.Set(correlationId);
+        else
+            context.HttpContext.Request.Headers[CorrelationIdHeader] = correlationIdGenerator.Get();
     }
 }
