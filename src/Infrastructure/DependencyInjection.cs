@@ -28,6 +28,7 @@ public static class DependencyInjection
 
                 cfg.UseDelayedRedelivery(r => r.Intervals(TimeSpan.FromMinutes(5), TimeSpan.FromMinutes(15), TimeSpan.FromMinutes(30), TimeSpan.FromMinutes(60), TimeSpan.FromMinutes(120)));
 
+                cfg.UsePublishFilter(typeof(CorrelationIdPublishFilter<>), context);
                 cfg.UseConsumeFilter(typeof(CorrelationIdConsumeFilter<>), context);
 
                 cfg.ConfigureEndpoints(context);
