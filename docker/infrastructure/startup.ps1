@@ -1,17 +1,16 @@
-docker-compose up -d vault
+docker-compose down
 
-$param2 = @{
-    Method = "Get"
-    Uri = "http://localhost:8200/v1/secret/data/url"
-    ContentType = "application/json"}
+Install-Module Mdbc 
+Import-Module Mdbc 
 
-$headers = @{
-'X-Vault-Token' = 'root'}
+docker-compose up -d mongodb
 
-$secretVal = Invoke-RestMethod @param2 -Headers $headers #-OutFile output.json
-$webhook_url = $secretVal.data.data.webhook_url
-$webhook_url
+Connect-Mdbc . docker-compose config
+$data = Get-MdbcData @{key="prometheus.alertmanager.discord_webhook_url"}
+Write-Host "=> updating discord webhook url:" 
+Write-Host -ForegroundColor Magenta "=>" $data.value
 
-$env:DISCORD_WEBHOOK_URL='http://www.abc.de'
+Copy-Item ./templates/prometheus/alertmanager.template.yml ./prometheus/config/alertmanager.yml
+(Get-Content ./prometheus/config/alertmanager.yml).Replace('<replace_me_discord_webhook_url>', $data.value) | Set-Content ./prometheus/config/alertmanager.yml
 
 docker-compose up -d 

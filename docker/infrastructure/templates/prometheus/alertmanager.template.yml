@@ -23,4 +23,4 @@ receivers:
       - to: "developer@test.com"
   - name: discord
     discord_configs:
-      - webhook_url: '${DISCORD_WEBHOOK_URL}'
+      - webhook_url: <replace_me_discord_webhook_url>

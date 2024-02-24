@@ -75,12 +75,6 @@ services:
   alert-manager:
     image: prom/alertmanager
     container_name: alertmanager
-    depends_on:
-      - vault
-    # environment:
-      # - DISCORD_WEBHOOK_URL=$(vault kv-get -field=data secret/url -format=yaml)
-      # - DISCORD_WEBHOOK_URL='${DISCORD_WEBHOOK_URL}'
-      # - DISCORD_WEBHOOK_URL='https://www.google.de'
     volumes:
       - ./prometheus/config/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
     ports:
@@ -115,19 +109,15 @@ services:
       - 3110:80
     restart: unless-stopped
 
-  vault:
-    image: hashicorp/vault:latest
-    container_name: vault
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
     ports:
-      - "8200:8200"  # Vault API port
-    environment:
-      VAULT_DEV_ROOT_TOKEN_ID: "root"  # Use only in development mode
-      VAULT_ADDR: "http://localhost:8200"
+      - 27017:27017
     volumes:
-      - ./vault-data:/vault/data  # Persistent storage for Vault data
-    cap_add:
-      - IPC_LOCK  # Required for mlock to improve security
+      - mongo-data:/data/db
 
 volumes:
   grafana-storage:
     external: true
+  mongo-data:
