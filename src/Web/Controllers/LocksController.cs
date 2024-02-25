@@ -28,8 +28,12 @@ public class LocksController : ControllerBase
     [HttpPost("{id:int}", Name = "CreateLock")]
     public IActionResult CreateLock(int id)
     {
-        if (lockService.CreateLock(id))
-            return Created("", id);
+        var data = Guid.NewGuid();
+        if (lockService.CreateLock(id, data))
+        {
+            return CreatedAtRoute("GetById", id, new { Data = data });
+        }
+
         return BadRequest();
     }
 

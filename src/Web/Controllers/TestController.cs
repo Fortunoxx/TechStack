@@ -12,6 +12,7 @@ using TechStack.Application.Test.Queries;
 public class TestController : ControllerBase
 {
     private readonly IRequestClient<TestQuery> testQueryClient;
+
     private readonly IRequestClient<TestCommand> testCommandClient;
 
     public TestController(IRequestClient<TestQuery> testQueryClient, IRequestClient<TestCommand> testCommandClient)
@@ -41,19 +42,27 @@ public class TestController : ControllerBase
 
     [AllowAnonymous]
     [HttpPost("{id:int}", Name = "CreateTestLock")]
-    public async Task<IActionResult> CreateTestLock(int id)
+    public async Task<IActionResult> CreateTestLock(int id, [FromBody] UpsertLockCommand model)
     {
-        var command = new TestCommand(id);
-        var result = await testCommandClient.GetResponse<TestCommandResponse>(command);
+        var result = await testCommandClient.GetResponse<TestCommandResponse>(new TestCommand
+        {
+            Id = id,
+            Data = model,
+        });
 
         return Ok(result.Message);
     }
 
     [AllowAnonymous]
     [HttpPut("{id:int}", Name = "UpdateTestLock")]
-    public IActionResult UpdateTestLock(int id, [FromBody] UpsertLockCommand model)
+    public async Task<IActionResult> UpdateTestLock(int id, [FromBody] UpsertLockCommand model)
     {
-        // this doesn't really do anything - just wanted to see the logging
+        _ = await testCommandClient.GetResponse<TestCommandResponse>(new TestCommand
+        {
+            Id = id,
+            Data = model,
+        });
+
         return NoContent();
     }
 }

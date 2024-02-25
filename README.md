@@ -4,6 +4,8 @@
 
 A sample project to use a lot of tech
 
+## [Scoped Filters](https://github.com/MassTransit/Sample-ScopedFilters)
+
 ## [Prometheus Alerting Rules](https://samber.github.io/awesome-prometheus-alerts/)
 
 ### [RabbitMQ Prometheus](https://rabbitmq.com/prometheus.html)
