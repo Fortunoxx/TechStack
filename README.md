@@ -3,3 +3,5 @@
 # Tech Stack
 
 A sample project to use a lot of tech
+
+## [Scoped Filters](https://github.com/MassTransit/Sample-ScopedFilters)

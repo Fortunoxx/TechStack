@@ -3,7 +3,6 @@ namespace TechStack.Web.Controllers;
 using MassTransit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TechStack.Application.Common.Interfaces;
 using TechStack.Application.Test.Commands;
 using TechStack.Application.Test.Queries;
 
@@ -12,15 +11,12 @@ using TechStack.Application.Test.Queries;
 [Authorize]
 public class TestController : ControllerBase
 {
-    private readonly ICorrelationIdGenerator correlationIdGenerator;
-
     private readonly IRequestClient<TestQuery> testQueryClient;
 
     private readonly IRequestClient<TestCommand> testCommandClient;
 
-    public TestController(ICorrelationIdGenerator correlationIdGenerator, IRequestClient<TestQuery> testQueryClient, IRequestClient<TestCommand> testCommandClient)
+    public TestController(IRequestClient<TestQuery> testQueryClient, IRequestClient<TestCommand> testCommandClient)
     {
-        this.correlationIdGenerator = correlationIdGenerator;
         this.testQueryClient = testQueryClient;
         this.testCommandClient = testCommandClient;
     }
@@ -48,9 +44,10 @@ public class TestController : ControllerBase
     [HttpPost("{id:int}", Name = "CreateTestLock")]
     public async Task<IActionResult> CreateTestLock(int id, [FromBody] UpsertLockCommand model)
     {
-        var result = await testCommandClient.GetResponse<TestCommandResponse>(new 
+        var result = await testCommandClient.GetResponse<TestCommandResponse>(new TestCommand
         {
-            Id = id, Data = model, __CorrelationId = correlationIdGenerator.Get(),
+            Id = id,
+            Data = model,
         });
 
         return Ok(result.Message);
@@ -60,9 +57,10 @@ public class TestController : ControllerBase
     [HttpPut("{id:int}", Name = "UpdateTestLock")]
     public async Task<IActionResult> UpdateTestLock(int id, [FromBody] UpsertLockCommand model)
     {
-        _ = await testCommandClient.GetResponse<TestCommandResponse>(new 
+        _ = await testCommandClient.GetResponse<TestCommandResponse>(new TestCommand
         {
-            Id = id, Data = model, __CorrelationId = correlationIdGenerator.Get(),
+            Id = id,
+            Data = model,
         });
 
         return NoContent();

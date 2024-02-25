@@ -11,7 +11,6 @@ using Microsoft.AspNetCore.Diagnostics;
 using TechStack.Application.Common.Validation;
 using System.Text.Json;
 using System.Buffers;
-using TechStack.Web.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,7 +26,10 @@ builder.Services.AddTransient(typeof(IValidationFailurePipe<>), typeof(Validatio
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddControllers();
+// builder.Services.AddControllers();
+builder.Services.AddControllers(
+    options => options.Filters.Add(typeof(CorrelationIdFilter))
+);
 builder.Services.AddAuthentication(opt => opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
 builder.Services.AddAuthorization();
 builder.Services.AddOpenTelemetry()
@@ -54,7 +56,7 @@ builder.Services.AddOpenTelemetry()
 
 var app = builder.Build();
 
-app.AddCorrelationIdMiddleware();
+// app.AddCorrelationIdMiddleware();
 
 app.Use(async (context, next) =>
 {
