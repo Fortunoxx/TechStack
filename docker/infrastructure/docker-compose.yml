@@ -39,8 +39,11 @@ services:
     image: prom/prometheus
     container_name: prometheus
     volumes:
-      - "./prometheus.yml:/etc/prometheus/prometheus.yml"
-      - "./rules.yml:/etc/prometheus/rules.yml"
+      - ./prometheus/config/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus/rules/embedded-exporter.yml:/etc/prometheus/embedded-exporter.yml
+      - ./prometheus/rules/google-cadvisor.yml:/etc/prometheus/google-cadvisor.yml
+      - ./prometheus/rules/node-exporter.yml:/etc/prometheus/node-exporter.yml
+      - ./prometheus/rules/rules-example.yml:/etc/prometheus/rules-example.yml
     healthcheck:
       test: wget -q --tries=1 -O- http://localhost:9090/-/ready
       interval: 3s
@@ -73,7 +76,7 @@ services:
     image: prom/alertmanager
     container_name: alertmanager
     volumes:
-      - ./alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - ./prometheus/config/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
     ports:
       - 9093:9093
 
@@ -106,6 +109,15 @@ services:
       - 3110:80
     restart: unless-stopped
 
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - 27017:27017
+    volumes:
+      - mongo-data:/data/db
+
 volumes:
   grafana-storage:
     external: true
+  mongo-data:

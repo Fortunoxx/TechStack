@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Diagnostics;
 using TechStack.Application.Common.Validation;
 using System.Text.Json;
 using System.Buffers;
+using MassTransit.Monitoring;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,7 +27,6 @@ builder.Services.AddTransient(typeof(IValidationFailurePipe<>), typeof(Validatio
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-// builder.Services.AddControllers();
 builder.Services.AddControllers(
     options => options.Filters.Add(typeof(CorrelationIdFilter))
 );
@@ -34,7 +34,7 @@ builder.Services.AddAuthentication(opt => opt.DefaultAuthenticateScheme = JwtBea
 builder.Services.AddAuthorization();
 builder.Services.AddOpenTelemetry()
     .ConfigureResource(resource =>
-        resource.AddService(serviceName: builder.Environment.ApplicationName)
+        resource.AddService(serviceName: builder.Environment.ApplicationName, serviceVersion: "Version 0.1", serviceInstanceId: Environment.MachineName)
     )
     .WithTracing(tracing => tracing
         .AddAspNetCoreInstrumentation()
@@ -44,7 +44,7 @@ builder.Services.AddOpenTelemetry()
     )
     .WithMetrics(builder => builder
         .AddPrometheusExporter()
-        .AddMeter("Microsoft.AspNetCore.Hosting", "Microsoft.AspNetCore.Server.Kestrel")
+        .AddMeter("Microsoft.AspNetCore.Hosting", "Microsoft.AspNetCore.Server.Kestrel", InstrumentationOptions.MeterName)
         .AddView("http.server.request.duration",
             new ExplicitBucketHistogramConfiguration
             {
@@ -55,8 +55,6 @@ builder.Services.AddOpenTelemetry()
 
 
 var app = builder.Build();
-
-// app.AddCorrelationIdMiddleware();
 
 app.Use(async (context, next) =>
 {
@@ -78,12 +76,6 @@ app.UseSerilogRequestLogging(options =>
         {
             diagnosticContext.Set("RequestBody", requestBody);
         }
-
-        // var responseBody = await GetResponseBody(httpContext.Response);
-        // if (!string.IsNullOrEmpty(requestBody))
-        // {
-        //     diagnosticContext.Set("ResponseBody", requestBody);
-        // }
     };
 });
 
@@ -130,19 +122,14 @@ app.UseAuthorization();
 // Configure the Prometheus scraping endpoint
 app.MapPrometheusScrapingEndpoint();
 
-
 async Task<string?> GetRequestBody(HttpRequest httpRequest)
 {
     httpRequest.Body.Position = 0;
     var payload = await new StreamReader(httpRequest.Body).ReadToEndAsync();
-  
+
     if (!string.IsNullOrEmpty(payload))
     {
         var json = JsonSerializer.Deserialize<object>(payload);
-        // var json2 = JsonSerializer.Deserialize<UpsertLockCommand>(payload, new JsonSerializerOptions
-        // {
-        //     PropertyNameCaseInsensitive = true
-        // });
         return $"{JsonSerializer.Serialize(json)} ";
     }
 
