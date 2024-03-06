@@ -136,20 +136,6 @@ async Task<string?> GetRequestBody(HttpRequest httpRequest)
     return null;
 }
 
-async Task<string?> GetResponseBody(HttpResponse httpResponse)
-{
-    // httpResponse.Body.Position = 0;
-    var payload = await new StreamReader(httpResponse.Body).ReadToEndAsync();
-
-    if (!string.IsNullOrEmpty(payload))
-    {
-        var json = JsonSerializer.Deserialize<object>(payload);
-        return $"{JsonSerializer.Serialize(json)} ";
-    }
-
-    return null;
-}
-
 app.UseHttpsRedirection();
 app.MapControllers();
 app.MapHealthChecks("/health");

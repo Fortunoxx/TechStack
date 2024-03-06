@@ -2,11 +2,11 @@ using System.Net;
 
 namespace TechStack.Application.Common.Validation;
 
-public record FailureMessage(IDictionary<string, string[]> Errors);
+public record FailureMessage(IDictionary<string, string[]> Errors, string Message);
 
 public class ValidationException : Exception
 {
-    public ValidationException(IDictionary<string, string[]> errors, string detail = null, int statusCode = (int)HttpStatusCode.BadRequest) : base()
+    public ValidationException(IDictionary<string, string[]> errors, string detail, int statusCode = (int)HttpStatusCode.BadRequest) : base()
     {
         Detail = detail;
         Errors = errors;

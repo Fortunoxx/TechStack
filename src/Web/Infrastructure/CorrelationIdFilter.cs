@@ -18,10 +18,13 @@ public class CorrelationIdFilter : IActionFilter
 
     public void OnActionExecuting(ActionExecutingContext context)
     {
-        var correlationId = context.HttpContext.Request.Headers[CorrelationIdHeader];
-        if (!string.IsNullOrWhiteSpace(correlationId))
-            correlationIdGenerator.Set(correlationId);
+        if (context.HttpContext.Request.Headers.TryGetValue(CorrelationIdHeader, out var correlationId))
+        {
+            correlationIdGenerator.Set(correlationId!);
+        }
         else
-            context.HttpContext.Request.Headers[CorrelationIdHeader] = correlationIdGenerator.Get();
+        {
+            context.HttpContext.Request.Headers.Append(CorrelationIdHeader, correlationIdGenerator.Get());
+        }
     }
 }
