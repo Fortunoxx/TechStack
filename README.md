@@ -1,4 +1,5 @@
 [![Build Status](https://github.com/Fortunoxx/TechStack/actions/workflows/dotnet.yml/badge.svg)](https://github.com/Fortunoxx/TechStack/actions)
+[![codecov](https://codecov.io/gh/Fortunoxx/TechStack/graph/badge.svg?token=63GO5TB7KC)](https://codecov.io/gh/Fortunoxx/TechStack)
 
 # Tech Stack
 
