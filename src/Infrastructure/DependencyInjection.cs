@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TechStack.Application.Common.Interfaces;
+using TechStack.Application.Users.Commands;
 using TechStack.Application.Users.Queries;
 using TechStack.Infrastructure.Consumers;
 using TechStack.Infrastructure.Filter;
@@ -18,12 +19,14 @@ public static class DependencyInjection
         // custom services
         services.AddSingleton<ILockService, LockService>();
         services.AddScoped<ICorrelationIdGenerator, CorrelationIdGenerator>();
-        services.AddTransient<IApplicationDbContext, ApplicationDbContext>(); // ???
 
         services.AddMassTransit(options =>
         {
-            options.AddConsumer<TestBusConsumer>();
+            options.AddConsumer<AddUserCommandConsumer>();
+            options.AddConsumer<DeleteUserCommandConsumer>();
             options.AddConsumer<GetUserByIdQueryConsumer>();
+            options.AddConsumer<GetAllUsersQueryConsumer>();
+            options.AddConsumer<TestBusConsumer>();
 
             options.UsingRabbitMq((context, cfg) =>
             {
@@ -50,6 +53,8 @@ public static class DependencyInjection
             // options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
             options.UseSqlServer(connectionString);
         });
+
+        services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
 
         return services;
     }

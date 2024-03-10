@@ -3,6 +3,7 @@ namespace TechStack.Application.Users.Queries;
 using System.Net;
 using AutoMapper;
 using MassTransit;
+using Microsoft.EntityFrameworkCore;
 using TechStack.Application.Common.Interfaces;
 using TechStack.Application.Common.Models;
 
@@ -19,11 +20,11 @@ public class GetUserByIdQueryConsumer : IConsumer<GetUserByIdQuery>
 
     public async Task Consume(ConsumeContext<GetUserByIdQuery> context)
     {
-        var user = await applicationDbContext.Users.FindAsync(context.Message.Id);
+        var user = await applicationDbContext.Users.AsNoTracking().SingleAsync(x => x.Id == context.Message.Id);
 
         if (user == null)
         {
-            await context.RespondAsync(new FaultedMessage((int)HttpStatusCode.NotFound, new { Message = "User not found", }));
+            await context.RespondAsync(new FaultedResponse(HttpStatusCode.NotFound, new { Message = "User not found", }));
             return;
         }
 
