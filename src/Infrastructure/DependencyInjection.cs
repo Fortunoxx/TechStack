@@ -1,23 +1,29 @@
 namespace TechStack.Infrastructure;
 
+using Ardalis.GuardClauses;
 using MassTransit;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TechStack.Application.Common.Interfaces;
+using TechStack.Application.Users.Queries;
 using TechStack.Infrastructure.Consumers;
 using TechStack.Infrastructure.Filter;
 using TechStack.Infrastructure.Services;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddInfrastructureServices(this IServiceCollection services)
+    public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
         // custom services
         services.AddSingleton<ILockService, LockService>();
         services.AddScoped<ICorrelationIdGenerator, CorrelationIdGenerator>();
+        services.AddTransient<IApplicationDbContext, ApplicationDbContext>(); // ???
 
         services.AddMassTransit(options =>
         {
             options.AddConsumer<TestBusConsumer>();
+            options.AddConsumer<GetUserByIdQueryConsumer>();
 
             options.UsingRabbitMq((context, cfg) =>
             {
@@ -33,6 +39,16 @@ public static class DependencyInjection
 
                 cfg.ConfigureEndpoints(context);
             });
+        });
+
+        var connectionString = configuration.GetConnectionString("DefaultConnection");
+
+        Guard.Against.Null(connectionString, message: "Connection string 'DefaultConnection' not found.");
+
+        services.AddDbContext<ApplicationDbContext>((sp, options) =>
+        {
+            // options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
+            options.UseSqlServer(connectionString);
         });
 
         return services;

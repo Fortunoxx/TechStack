@@ -12,6 +12,7 @@ using TechStack.Application.Common.Validation;
 using System.Text.Json;
 using System.Buffers;
 using MassTransit.Monitoring;
+using TechStack.Web;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,7 +21,8 @@ builder.Host.UseSerilog((ctx, lc) => lc
     .ReadFrom.Configuration(ctx.Configuration));
 
 builder.Services.AddApplicationServices();
-builder.Services.AddInfrastructureServices();
+builder.Services.AddInfrastructureServices(builder.Configuration);
+builder.Services.AddWebServices();
 builder.Services.AddTransient(typeof(IValidationFailurePipe<>), typeof(ValidationFailurePipe<>));
 
 // Add services to the container.
@@ -138,7 +140,7 @@ async Task<string?> GetRequestBody(HttpRequest httpRequest)
 
 app.UseHttpsRedirection();
 app.MapControllers();
-app.MapHealthChecks("/health");
+app.MapHealthChecks("/healthz");
 
 var summaries = new[]
 {

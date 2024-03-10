@@ -1,6 +1,5 @@
 version: "3.4"
 services:
-
   rabbitmq:
     image: masstransit/rabbitmq:latest
     container_name: rabbitmq
@@ -59,12 +58,12 @@ services:
     image: gcr.io/cadvisor/cadvisor:latest
     container_name: cadvisor
     ports:
-    - 8080:8080
+      - 8080:8080
     volumes:
-    - /:/rootfs:ro
-    - /var/run:/var/run:rw
-    - /sys:/sys:ro
-    - /var/lib/docker/:/var/lib/docker:ro
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
 
   node-exporter:
     image: prom/node-exporter
@@ -99,7 +98,7 @@ services:
     ports:
       - "8025:8025"
 
-  seq: 
+  seq:
     image: datalust/seq:latest
     container_name: seq
     environment:
@@ -117,7 +116,19 @@ services:
     volumes:
       - mongo-data:/data/db
 
+  sql_server_2022:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=P@ssw0rd1!
+    ports:
+      - "1433:1433"
+    restart: unless-stopped
+    volumes:
+      - mssql-data:/var/opt/mssql
+
 volumes:
   grafana-storage:
     external: true
   mongo-data:
+  mssql-data:
