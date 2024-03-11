@@ -2,6 +2,7 @@ namespace TechStack.Application.Users.Queries;
 
 using AutoMapper;
 using MassTransit;
+using Microsoft.EntityFrameworkCore;
 using TechStack.Application.Common.Interfaces;
 
 public class GetAllUsersQueryConsumer : IConsumer<GetAllUsersQuery>
@@ -17,7 +18,8 @@ public class GetAllUsersQueryConsumer : IConsumer<GetAllUsersQuery>
 
     public async Task Consume(ConsumeContext<GetAllUsersQuery> context)
     {
-        var items = mapper.Map<IEnumerable<GetUserByIdQueryResult>>(applicationDbContext.Users.AsAsyncEnumerable());
-        await context.RespondAsync(new GetAllUsersQueryResult(items));
+        var items = await applicationDbContext.Users.ToListAsync();
+        var mapped = mapper.Map<IEnumerable<GetUserByIdQueryResult>>(items);
+        await context.RespondAsync(new GetAllUsersQueryResult(mapped));
     }
 }
