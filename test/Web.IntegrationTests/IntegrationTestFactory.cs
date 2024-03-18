@@ -19,6 +19,7 @@ public class IntegrationTestFactory<TProgram, TDbContext> : WebApplicationFactor
     // private const string PathToTestData = "../../../../Database/SeedData";
     // private readonly string deployScriptPath = "../../../../Database/data/deployment_script.temp.sql";
     private const string PathToInitialDacPac = "../../../../Assets/Database/StackOverflow2010.dacpac";
+    private const string PathToUpgradedDacPac = "../../../../Assets/Database/DatabaseProjectStackOverflow2010.dacpac";
     private readonly MsSqlContainer _container = new MsSqlBuilder().WithImage("mcr.microsoft.com/mssql/server:2022-latest").Build();
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
@@ -46,9 +47,9 @@ public class IntegrationTestFactory<TProgram, TDbContext> : WebApplicationFactor
     private void MigrateDatabase(string sqlConnectionString)
     {
         var builder = new SqlConnectionStringBuilder(sqlConnectionString);
-        var fileInfo = new FileInfo(PathToInitialDacPac);
         var initialCatalog = "TechStackDatabase";
-        FillFromDacFx(builder, fileInfo, initialCatalog);
+        FillFromDacFx(builder, new FileInfo(PathToInitialDacPac), initialCatalog);
+        FillFromDacFx(builder, new FileInfo(PathToUpgradedDacPac), initialCatalog);
     }
 
     public new async Task DisposeAsync() => await _container.DisposeAsync();

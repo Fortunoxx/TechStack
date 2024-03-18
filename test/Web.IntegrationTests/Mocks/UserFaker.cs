@@ -13,10 +13,13 @@ public class UserFaker : AutoFaker<User>
 
     public UserFaker(string domain) : base(Constants.Locale)
     {
-        RuleFor(fake => fake.AboutMe, x => x.Name.JobDescriptor());
-        RuleFor(fake => fake.DisplayName, x => x.Name.FullName());
-        RuleFor(fake => fake.EmailHash, x => x.Internet.Email(provider: domain).ClampLength(1,40));
-        RuleFor(fake => fake.Location, x => x.Address.City());
-        RuleFor(fake => fake.WebsiteUrl, x => x.Internet.Url());
+        RuleFor(x => x.AboutMe, faker => faker.Name.JobDescriptor());
+        RuleFor(x => x.Age, faker => faker.Random.Int(min: 10, max: 120));
+        RuleFor(x => x.DisplayName, faker => faker.Name.FullName());
+        RuleFor(x => x.EmailHash, faker => faker.Internet.Email(provider: domain).ClampLength(1, 40));
+        RuleFor(x => x.Location, faker => faker.Address.City());
+        RuleFor(x => x.WebsiteUrl, faker => faker.Internet.Url());
+        RuleFor(x => x.CreatedBy, faker => faker.Name.FirstName().ClampLength(max: 8));
+        RuleFor(x => x.LastModifiedBy, faker => faker.Name.FirstName().ClampLength(max: 8));
     }
 }
