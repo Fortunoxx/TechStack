@@ -20,10 +20,10 @@ public class AddUserCommandConsumer : IConsumer<AddUserCommand>
 
     public async Task Consume(ConsumeContext<AddUserCommand> context)
     {
-        var user = mapper.Map<User>(context.Message, opt => opt.AfterMap((_, dest) => dest.Created = DateTimeOffset.UtcNow));
+        var user = mapper.Map<User>(context.Message);
 
         applicationDbContext.Users.Add(user);
-        var rowsInserted = await applicationDbContext.SaveChangesAsync(context.CancellationToken);
+        var rowsInserted = await applicationDbContext.SaveChangesAsync(context.CancellationToken); // TODO: exception here during Integration Test
 
         if (rowsInserted > 0)
         {

@@ -3,12 +3,14 @@ namespace TechStack.Infrastructure;
 using Ardalis.GuardClauses;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TechStack.Application.Common.Interfaces;
 using TechStack.Application.Users.Commands;
 using TechStack.Application.Users.Queries;
 using TechStack.Infrastructure.Consumers;
+using TechStack.Infrastructure.Data.Interceptors;
 using TechStack.Infrastructure.Filter;
 using TechStack.Infrastructure.Services;
 
@@ -48,9 +50,12 @@ public static class DependencyInjection
 
         Guard.Against.Null(connectionString, message: "Connection string 'DefaultConnection' not found.");
 
+        services.AddScoped<ISaveChangesInterceptor, AuditableEntityInterceptor>();
+        // services.AddScoped<ISaveChangesInterceptor, DispatchDomainEventsInterceptor>();
+        
         services.AddDbContext<ApplicationDbContext>((sp, options) =>
         {
-            // options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
+            options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
             options.UseSqlServer(connectionString);
         });
 
