@@ -1,6 +1,5 @@
 namespace TechStack.Web.IntegrationTests;
 
-using System.Data.Common;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -16,7 +15,8 @@ using Testcontainers.MsSql;
 using Xunit;
 
 public class IntegrationTestFactory<TProgram, TDbContext> : WebApplicationFactory<TProgram>, IAsyncLifetime
-    where TProgram : class where TDbContext : DbContext
+    where TProgram : class
+    where TDbContext : DbContext
 {
     private const string DatabaseName = "TechStackDatabase";
 
@@ -24,11 +24,18 @@ public class IntegrationTestFactory<TProgram, TDbContext> : WebApplicationFactor
 
     private const string PathToUpgradedDacPac = "../../../../Assets/Database/DatabaseProjectStackOverflow2010.dacpac";
 
-    private readonly MsSqlContainer _container = new MsSqlBuilder().WithImage("mcr.microsoft.com/mssql/server:2022-latest").Build();
+    private readonly MsSqlContainer _container = new MsSqlBuilder().
+        WithImage("mcr.microsoft.com/mssql/server:2022-latest").
+        Build();
 
-    public TDbContext DataBaseContext { get; private set; } = null!;
+    public async Task InitializeAsync()
+    {
+        await _container.StartAsync();
+        MigrateDatabase(_container.GetConnectionString());
+    }
 
-    private DbConnection _connection = null!;
+    public new async Task DisposeAsync()
+        => await _container.DisposeAsync();
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -46,30 +53,14 @@ public class IntegrationTestFactory<TProgram, TDbContext> : WebApplicationFactor
         });
     }
 
-    public async Task InitializeAsync()
-    {
-        await _container.StartAsync();
-        DataBaseContext = Services.CreateAsyncScope().ServiceProvider.GetRequiredService<TDbContext>();
-        _connection = DataBaseContext.Database.GetDbConnection();
-        await _connection.OpenAsync();
-
-        MigrateDatabase(_container.GetConnectionString());
-    }
-
-    private void MigrateDatabase(string sqlConnectionString)
+    private static void MigrateDatabase(string sqlConnectionString)
     {
         var builder = new SqlConnectionStringBuilder(sqlConnectionString);
         FillFromDacFx(builder, new FileInfo(PathToInitialDacPac), DatabaseName);
         FillFromDacFx(builder, new FileInfo(PathToUpgradedDacPac), DatabaseName);
     }
 
-    public new async Task DisposeAsync()
-    {
-        await _connection.CloseAsync();
-        await _container.DisposeAsync();
-    }
-
-    private void FillFromDacFx(SqlConnectionStringBuilder connectionStringBuilder, FileInfo dacpacFile, string catalog)
+    private static void FillFromDacFx(SqlConnectionStringBuilder connectionStringBuilder, FileInfo dacpacFile, string catalog)
     {
         using var dacpacStream = dacpacFile.OpenRead();
         using DacPackage dacPackage = DacPackage.Load(dacpacStream);

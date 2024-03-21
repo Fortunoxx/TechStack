@@ -1,16 +1,17 @@
 namespace TechStack.Web.IntegrationTests.Users;
 
+using System.Net.Mime;
+using Microsoft.Extensions.DependencyInjection;
 using AutoBogus;
 using AutoBogus.Conventions;
+using AutoFixture;
 using FluentAssertions;
+using TechStack.Application.Users.Commands;
 using TechStack.Domain.Entities;
 using TechStack.Infrastructure;
 using TechStack.Web.IntegrationTests.Mocks;
 using TechStack.Web.IntegrationTests.Fixtures;
 using Xunit;
-using AutoFixture;
-using TechStack.Application.Users.Commands;
-using System.Net.Mime;
 
 public sealed class UsersControllerIntegrationTests : IAsyncLifetime,
     IClassFixture<IntegrationTestFactory<Program, ApplicationDbContext>>
@@ -22,9 +23,10 @@ public sealed class UsersControllerIntegrationTests : IAsyncLifetime,
     public UsersControllerIntegrationTests(IntegrationTestFactory<Program, ApplicationDbContext> factory)
     {
         _factory = factory;
-        _context = factory.DataBaseContext;
+        var scope = factory.Services.CreateAsyncScope();
+        _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     }
-    
+
     public async Task InitializeAsync() => await SeedDatabaseAsync();
 
     public Task DisposeAsync() => Task.CompletedTask;
