@@ -64,7 +64,11 @@ public sealed class UsersControllerIntegrationTests : IAsyncLifetime,
     {
         // Arrange 
         var cut = _factory.CreateClient();
-        var user = new Fixture().Create<AddUserCommand>();
+
+        var user = new Fixture().Build<AddUserCommand>()
+            .With(x => x.DisplayName, $"DisplayName-{Guid.NewGuid()}"[..40])
+            .With(x => x.EmailHash, $"EmailHash-{Guid.NewGuid()}"[..40])
+            .Create();
 
         var jsonBody = Newtonsoft.Json.JsonConvert.SerializeObject(user);
         var body = new StringContent(jsonBody, System.Text.Encoding.UTF8, MediaTypeNames.Application.Json);
