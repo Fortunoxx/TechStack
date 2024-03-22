@@ -1,6 +1,7 @@
 namespace TechStack.Web.IntegrationTests;
 
 using System.Threading.Tasks;
+using MassTransit;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -50,6 +51,7 @@ public class IntegrationTestFactory<TProgram, TDbContext> : WebApplicationFactor
             services.RemoveDbContext<TDbContext>();
             services.AddDbContext<TDbContext>(options => options.UseSqlServer(connectionStringBuilder.ConnectionString));
             services.EnsureDbCreated<TDbContext>();
+            services.AddMassTransitTestHarness();
         });
     }
 
