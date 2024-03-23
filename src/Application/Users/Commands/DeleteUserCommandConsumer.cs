@@ -5,11 +5,9 @@ using TechStack.Application.Common.Models;
 
 namespace TechStack.Application.Users.Commands;
 
-public class DeleteUserCommandConsumer : IConsumer<DeleteUserCommand>
+public class DeleteUserCommandConsumer(IApplicationDbContext applicationDbContext) : IConsumer<DeleteUserCommand>
 {
-    private readonly IApplicationDbContext applicationDbContext;
-
-    public DeleteUserCommandConsumer(IApplicationDbContext applicationDbContext) => this.applicationDbContext = applicationDbContext;
+    private readonly IApplicationDbContext applicationDbContext = applicationDbContext;
 
     public async Task Consume(ConsumeContext<DeleteUserCommand> context)
     {
