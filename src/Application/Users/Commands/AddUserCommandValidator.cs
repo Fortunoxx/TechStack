@@ -7,10 +7,10 @@ public class AddUserCommandValidator : AbstractValidator<AddUserCommand>
     public AddUserCommandValidator()
     {
         RuleFor(x => x.DisplayName).NotEmpty();
-        RuleFor(x => x.DownVotes).NotEmpty();
+        RuleFor(x => x.DownVotes).NotNull().GreaterThanOrEqualTo(0);
         RuleFor(x => x.LastAccessDate).NotEmpty();
-        RuleFor(x => x.Reputation).NotEmpty();
-        RuleFor(x => x.UpVotes).NotEmpty();
-        RuleFor(x => x.Views).NotEmpty();
+        RuleFor(x => x.Reputation).NotNull().GreaterThanOrEqualTo(0);
+        RuleFor(x => x.UpVotes).NotNull().GreaterThanOrEqualTo(0);
+        RuleFor(x => x.Views).NotNull().GreaterThanOrEqualTo(0);
     }
 }

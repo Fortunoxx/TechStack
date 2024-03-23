@@ -14,7 +14,7 @@ using TechStack.Application.Users.Commands;
 using TechStack.Domain.Entities;
 
 [Trait("Category", "UnitTest")]
-public class AddUserCommandConsumerUnitTests
+public class UserCommandConsumerUnitTests
 {
     [Fact]
     public async Task AddUserCommandConsumer_AddUser_ShouldSucceedAsync()
@@ -50,7 +50,7 @@ public class AddUserCommandConsumerUnitTests
         (await testHarness.Sent.Any<AddUserCommandResponse>()).Should().BeTrue();
     }
 
-        [Fact]
+    [Fact]
     public async Task AddUserCommandConsumer_AddUserFallback_ShouldReturnFaultedResponsedAsync()
     {
         // Arrange
