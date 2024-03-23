@@ -13,6 +13,7 @@ using TechStack.Web.IntegrationTests.Mocks;
 using TechStack.Web.IntegrationTests.Fixtures;
 using Xunit;
 
+[Trait("Category", "IntegrationTest")]
 public sealed class UsersControllerIntegrationTests : IAsyncLifetime,
     IClassFixture<IntegrationTestFactory<Program, ApplicationDbContext>>
 {
