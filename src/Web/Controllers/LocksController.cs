@@ -18,8 +18,8 @@ public class LocksController : ControllerBase
         return Ok(lockService.GetAllLocks());
     }
 
-    [HttpGet("{id:int}", Name = "GetById")]
-    public IActionResult GetById(int id)
+    [HttpGet("{id:int}", Name = "GetLockById")]
+    public IActionResult GetLockById(int id)
     {
         var result = lockService.GetById(id);
         return result != null ? Ok(result) : NotFound();
@@ -31,7 +31,7 @@ public class LocksController : ControllerBase
         var data = Guid.NewGuid();
         if (lockService.CreateLock(id, data))
         {
-            return CreatedAtRoute("GetById", id, new { Data = data });
+            return CreatedAtRoute("GetLockById", id, new { Data = data });
         }
 
         return BadRequest();

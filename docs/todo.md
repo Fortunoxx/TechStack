@@ -2,12 +2,12 @@
 - [ ] MassTransit
   - [x] MassTransit Mediator (Architecture)
   - [x] ConsumeFilter
-  - [ ] SendFilter
+  - [x] SendFilter
   - [ ] Authorization Filter (API Key)
   - [x] MassTransit Retry (Architecture)
-    - [ ] MassTransit Circuit Breaker (Architecture) (replaced by KillSwitch)
-    - [ ] MassTransit KillSwitch (Architecture)
-    - [ ] MassTransit Delayed Redelivery (Architecture)
+    - [x] MassTransit Circuit Breaker (Architecture) (replaced by KillSwitch)
+    - [x] MassTransit KillSwitch (Architecture)
+    - [x] MassTransit Delayed Redelivery (Architecture)
   - [x] Request-Response
   - [ ] RoutingSlips (Courier)
   - [ ] Saga
@@ -24,11 +24,13 @@
 - [ ] Blazor Frontend (with SignalR)
 - [ ] SignalR
 - [ ] MongoDB or PostgreSQL for Saga Persistence
-- [ ] UnitTests
-- [ ] IntegrationTests (with TestContainers)
-- [ ] TestContainers
+- [x] UnitTests
+- [ ] IntegrationTests
+  - [ ] TestContainers for SQL Server Database
 - [ ] AutoMapper
-- [ ] KeyVault (secrets)
+- [ ] ~~Vault (secrets)~~
+  - [x] Hashicorp Vault in DEV-Version does not allow persistence
+  - [x] used a MongoDB for a secret
 - [ ] SQLite
 - [x] FluentValidation (in Masstransit Mediator as ConsumeFilter)
 
@@ -38,20 +40,21 @@
   - [x] MassTransit: 
     - [ ] Contracts
     - [ ] Components 
-      - company.accounting.billing.components
-      - routing slips
-      - sagas
-      - statemachinestates 
+      - [ ] company.accounting.billing.components
+      - [ ] routing slips
+      - [ ] sagas
+      - [ ] statemachinestates 
     - [x] Services/Inrastructure
-      - addmasstransit
-      - usingrabbitmq
+      - [x] addmasstransit
+      - [x] usingrabbitmq
+      - [ ] usingsqlserver transport
 - [x] CQRS
 
 # CI/CD
 - [ ] Bicep / Terraform
-- [ ] Github Actions
-  - [ ] build
+- [x] Github Actions
+  - [x] build
     - [ ] multiple versions
-  - [ ] analyze
+  - [x] analyze
 - [ ] Staging / Live Environments
-- [ ] CodeCov
+- [ ] CodeCov (together with unit tests and integration tests)

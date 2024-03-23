@@ -4,5 +4,5 @@ public record TestCommand
 {
     public int Id { get; init; }
 
-    public object Data { get; init; }
+    public required object Data { get; init; }
 }

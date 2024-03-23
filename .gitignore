@@ -482,4 +482,6 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# alertmanager generated file from template
 **/alertmanager.yml

@@ -1,15 +1,22 @@
 namespace TechStack.Infrastructure;
 
+using Ardalis.GuardClauses;
 using MassTransit;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TechStack.Application.Common.Interfaces;
+using TechStack.Application.Users.Commands;
+using TechStack.Application.Users.Queries;
 using TechStack.Infrastructure.Consumers;
+using TechStack.Infrastructure.Data.Interceptors;
 using TechStack.Infrastructure.Filter;
 using TechStack.Infrastructure.Services;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddInfrastructureServices(this IServiceCollection services)
+    public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
         // custom services
         services.AddSingleton<ILockService, LockService>();
@@ -17,6 +24,10 @@ public static class DependencyInjection
 
         services.AddMassTransit(options =>
         {
+            options.AddConsumer<AddUserCommandConsumer>();
+            options.AddConsumer<DeleteUserCommandConsumer>();
+            options.AddConsumer<GetUserByIdQueryConsumer>();
+            options.AddConsumer<GetAllUsersQueryConsumer>();
             options.AddConsumer<TestBusConsumer>();
 
             options.UsingRabbitMq((context, cfg) =>
@@ -34,6 +45,21 @@ public static class DependencyInjection
                 cfg.ConfigureEndpoints(context);
             });
         });
+
+        var connectionString = configuration.GetConnectionString("DefaultConnection");
+
+        Guard.Against.Null(connectionString, message: "Connection string 'DefaultConnection' not found.");
+
+        services.AddScoped<ISaveChangesInterceptor, AuditableEntityInterceptor>();
+        // services.AddScoped<ISaveChangesInterceptor, DispatchDomainEventsInterceptor>();
+        
+        services.AddDbContext<ApplicationDbContext>((serviceProvider, options) =>
+        {
+            options.AddInterceptors(serviceProvider.GetServices<ISaveChangesInterceptor>());
+            options.UseSqlServer(connectionString);
+        });
+
+        services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
 
         return services;
     }

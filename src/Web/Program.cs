@@ -12,6 +12,7 @@ using TechStack.Application.Common.Validation;
 using System.Text.Json;
 using System.Buffers;
 using MassTransit.Monitoring;
+using TechStack.Web;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,7 +21,8 @@ builder.Host.UseSerilog((ctx, lc) => lc
     .ReadFrom.Configuration(ctx.Configuration));
 
 builder.Services.AddApplicationServices();
-builder.Services.AddInfrastructureServices();
+builder.Services.AddInfrastructureServices(builder.Configuration);
+builder.Services.AddWebServices();
 builder.Services.AddTransient(typeof(IValidationFailurePipe<>), typeof(ValidationFailurePipe<>));
 
 // Add services to the container.
@@ -44,7 +46,13 @@ builder.Services.AddOpenTelemetry()
     )
     .WithMetrics(builder => builder
         .AddPrometheusExporter()
-        .AddMeter("Microsoft.AspNetCore.Hosting", "Microsoft.AspNetCore.Server.Kestrel", InstrumentationOptions.MeterName)
+        .AddRuntimeInstrumentation()
+        .AddMeter(
+            "Microsoft.AspNetCore.Hosting", 
+            "Microsoft.AspNetCore.Server.Kestrel",
+            "System.Net.Http",
+            "TechStack.Web",
+            InstrumentationOptions.MeterName)
         .AddView("http.server.request.duration",
             new ExplicitBucketHistogramConfiguration
             {
@@ -136,23 +144,9 @@ async Task<string?> GetRequestBody(HttpRequest httpRequest)
     return null;
 }
 
-async Task<string?> GetResponseBody(HttpResponse httpResponse)
-{
-    // httpResponse.Body.Position = 0;
-    var payload = await new StreamReader(httpResponse.Body).ReadToEndAsync();
-
-    if (!string.IsNullOrEmpty(payload))
-    {
-        var json = JsonSerializer.Deserialize<object>(payload);
-        return $"{JsonSerializer.Serialize(json)} ";
-    }
-
-    return null;
-}
-
 app.UseHttpsRedirection();
 app.MapControllers();
-app.MapHealthChecks("/health");
+app.MapHealthChecks("/healthz");
 
 var summaries = new[]
 {
@@ -180,3 +174,5 @@ record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 {
     public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
 }
+
+public partial class Program { } //* for integration tests

@@ -37,9 +37,11 @@ public class CorrelationIdConsumeFilter<T> : IFilter<ConsumeContext<T>>
 
     public async Task Send(ConsumeContext<T> context, IPipe<ConsumeContext<T>> next)
     {
-        var dictionary = new Dictionary<string, object>
+        var dictionary = new Dictionary<string, object>();
+
+        if (context.Headers.TryGetHeader("X-Correlation-Id", out var correlationId))
         {
-            ["CorrelationId"] = context.Headers.Get<string>("X-Correlation-Id"),
+            dictionary["CorrelationId"] = correlationId;
         };
 
         using (logger.BeginScope(dictionary))

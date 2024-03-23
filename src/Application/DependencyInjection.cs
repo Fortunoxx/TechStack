@@ -20,6 +20,8 @@ public static class DependencyInjection
             options.ConfigureMediator((context, mediator) => mediator.UseConsumeFilter(typeof(FluentValidationFilter<>), context));
         });
 
+        services.AddAutoMapper(Assembly.GetExecutingAssembly());
+
         return services;
     }
 }

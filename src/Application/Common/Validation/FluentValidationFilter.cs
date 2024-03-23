@@ -39,10 +39,8 @@ public class FluentValidationFilter<TMessage> : IFilter<ConsumeContext<TMessage>
             return;
         }
 
-        // var validationProblems = validationResult.Errors.ToErrorDictionary();
-        var validationProblems = new FailureMessage(validationResult.Errors.ToErrorDictionary());
+        var validationProblems = new FailureMessage(validationResult.Errors.ToErrorDictionary(), "Validation error");
 
-        // var failureContext = new ValidationFailureContext<TMessage>(context, validationProblems);
         var failureContext = new ValidationFailureContext<TMessage>(context, validationProblems);
         await _failurePipe.Send(failureContext);
     }
