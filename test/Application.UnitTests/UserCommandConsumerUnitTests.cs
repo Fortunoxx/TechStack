@@ -4,7 +4,6 @@ using AutoFixture;
 using FluentAssertions;
 using MassTransit;
 using MassTransit.Testing;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using TechStack.Application.Common.Interfaces;
@@ -49,7 +48,7 @@ public class UserCommandConsumerUnitTests
     }
 
     [Fact]
-    public async Task AddUserCommandConsumer_AddUserFallback_ShouldReturnFaultedResponsedAsync()
+    public async Task AddUserCommandConsumer_AddUserFallback_ShouldReturnFaultedResponseAsync()
     {
         // Arrange
         var dbContext = Substitute.For<IApplicationDbContext>();
@@ -112,7 +111,7 @@ public class UserCommandConsumerUnitTests
     }
 
     [Fact]
-    public async Task DeleteUserCommandConsumer_RemoveUserFallback_ShouldReturnFaultedResponsedAsync()
+    public async Task DeleteUserCommandConsumer_RemoveUserFallback_ShouldReturnFaultedResponseAsync()
     {
         // Arrange
         var dbContext = Substitute.For<IApplicationDbContext>();
