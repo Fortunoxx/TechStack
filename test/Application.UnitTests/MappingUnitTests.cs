@@ -10,7 +10,7 @@ public class MappingUnitTests
     public void Application_Mapping_ShouldWorkAsync()
     {
         // Arrange 
-        var cut = new MapperConfiguration(cfg => cfg.AddProfile<UserMapping>());
+        var cut = new MapperConfiguration(cfg => cfg.AddProfile<UserMappingProfile>());
 
         // Act & Assert
         cut.AssertConfigurationIsValid();

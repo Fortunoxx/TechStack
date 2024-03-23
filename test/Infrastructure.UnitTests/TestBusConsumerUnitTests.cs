@@ -36,7 +36,7 @@ public class TestBusConsumerUnitTests
         var command = new Fixture().Create<TestCommand>();
 
         // Act
-        var act = cut.GetResponse<TestCommandResponse>(command);
+        var act = await cut.GetResponse<TestCommandResponse>(command);
 
         // Assert
         act.Should().NotBeNull();

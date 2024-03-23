@@ -5,9 +5,9 @@ using TechStack.Application.Users.Commands;
 using TechStack.Application.Users.Queries;
 using TechStack.Domain.Entities;
 
-public class UserMapping : Profile
+public class UserMappingProfile : Profile
 {
-    public UserMapping()
+    public UserMappingProfile()
     {
         CreateMap<User, GetUserByIdQueryResult>().
             ForMember(dest => dest.Id, opt => opt.Ignore()).

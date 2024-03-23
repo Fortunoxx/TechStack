@@ -31,7 +31,7 @@ public class TestQueryMediatorConsumerUnitTests
         var query = new Fixture().Create<TestQuery>();
 
         // Act
-        var act = cut.GetResponse<TestQueryResult>(query);
+        var act = await cut.GetResponse<TestQueryResult>(query);
 
         // Assert
         act.Should().NotBeNull();
