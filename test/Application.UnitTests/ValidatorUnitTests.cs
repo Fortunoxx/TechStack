@@ -2,6 +2,8 @@ namespace Application.UnitTests;
 
 using AutoFixture;
 using FluentAssertions;
+using TechStack.Application.Test.Commands;
+using TechStack.Application.Test.Queries;
 using TechStack.Application.Users.Commands;
 using TechStack.Application.Users.Queries;
 
@@ -66,6 +68,42 @@ public class ValidatorUnitTests
         // Arrage
         var cut = new GetUserByIdQueryValidator();
         var query = new Fixture().Build<GetUserByIdQuery>().With(x => x.Id, id).Create();
+
+        // Act
+        var act = await cut.ValidateAsync(query);
+
+        // Assert
+        act.Should().NotBeNull();
+        act.IsValid.Should().Be(expected, description);
+    }
+
+    [Theory]
+    [InlineData("valid id", 1, true)]
+    [InlineData("invalid id", 0, false)]
+    [InlineData("invalid id", -1, false)]
+    public async Task TestCommandValidator_DifferentIds_ShouldReturnExpectedResultAsync(string description, int id, bool expected)
+    {
+        // Arrage
+        var cut = new TestCommandValidator();
+        var command = new Fixture().Build<TestCommand>().With(x => x.Id, id).Create();
+
+        // Act
+        var act = await cut.ValidateAsync(command);
+
+        // Assert
+        act.Should().NotBeNull();
+        act.IsValid.Should().Be(expected, description);
+    }
+
+    [Theory]
+    [InlineData("valid id", 1, true)]
+    [InlineData("invalid id", 0, false)]
+    [InlineData("invalid id", -1, false)]
+    public async Task TestQueryValidator_DifferentIds_ShouldReturnExpectedResultAsync(string description, int id, bool expected)
+    {
+        // Arrage
+        var cut = new TestQueryValidator();
+        var query = new Fixture().Build<TestQuery>().With(x => x.Id, id).Create();
 
         // Act
         var act = await cut.ValidateAsync(query);
