@@ -5,13 +5,12 @@ using FluentAssertions;
 using MassTransit;
 using MassTransit.Testing;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.DependencyInjection;
-using NSubstitute;
 using TechStack.Application.Common.Interfaces;
 using TechStack.Application.Mappings;
 using TechStack.Application.Users.Queries;
 using TechStack.Domain.Entities;
+using TechStack.Infrastructure;
 
 [Trait("Category", "UnitTest")]
 public class UserQueryConsumerUnitTests
@@ -20,9 +19,7 @@ public class UserQueryConsumerUnitTests
     public async Task GetAllUsersQueryConsumer_GetAllUsers_ShouldSuceedAsync()
     {
         // Arrange
-        var dbContext = Substitute.For<IApplicationDbContext>();
-        var dbSetUser = Substitute.For<DbSet<User>, IQueryable<User>, IAsyncEnumerable<User>>();
-        dbContext.Users.Returns(dbSetUser);
+        var dbContext = await GetDefaultApplicationDbContext();
 
         await using var provider = new ServiceCollection()
             .AddMassTransitTestHarness(x =>
@@ -53,11 +50,7 @@ public class UserQueryConsumerUnitTests
     public async Task GetUserByIdQueryConsumer1_GetUser_ShouldSuceedAsync()
     {
         // Arrange
-        var dbContext = Substitute.For<IApplicationDbContext>();
-        var dbSetUser = Substitute.For<DbSet<User>, IQueryable<User>, IAsyncEnumerable<User>>();
-        var users = new Fixture().CreateMany<User>();
-        dbSetUser.AsNoTracking().Returns(users.AsQueryable());
-        dbContext.Users.Returns(dbSetUser);
+        var dbContext = await GetDefaultApplicationDbContext();
 
         await using var provider = new ServiceCollection()
             .AddMassTransitTestHarness(x =>
@@ -73,14 +66,31 @@ public class UserQueryConsumerUnitTests
         await testHarness.Start();
 
         var cut = testHarness.GetRequestClient<GetUserByIdQuery>();
-        var query = new Fixture().Create<GetUserByIdQuery>();
+        var query = new Fixture().Build<GetUserByIdQuery>().
+            With(x => x.Id, dbContext.Users.First().Id).
+            Create();
 
         // Act
         var act = await cut.GetResponse<GetUserByIdQueryResult>(query);
 
         // Assert
         act.Should().NotBeNull();
-        (await testHarness.Consumed.Any<GetAllUsersQuery>()).Should().BeTrue();
+        (await testHarness.Consumed.Any<GetUserByIdQuery>()).Should().BeTrue();
         (await testHarness.Sent.Any<GetUserByIdQueryResult>()).Should().BeTrue();
+    }
+
+    private async static Task<IApplicationDbContext> GetDefaultApplicationDbContext()
+    {
+        var dbContextOptions = new DbContextOptionsBuilder<ApplicationDbContext>()
+            .UseInMemoryDatabase(databaseName: "TechStackUnitTestDb")
+            .Options;
+
+        var dbContext = new ApplicationDbContext(dbContextOptions);
+
+        var users = new Fixture().CreateMany<User>();
+        await dbContext.Users.AddRangeAsync(users);
+        await dbContext.SaveChangesAsync(new CancellationTokenSource().Token);
+
+        return dbContext;
     }
 }
