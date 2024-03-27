@@ -14,8 +14,7 @@ public class GetUserByIdQueryConsumer(IApplicationDbContext applicationDbContext
 
     public async Task Consume(ConsumeContext<GetUserByIdQuery> context)
     {
-        var nt = applicationDbContext.Users.AsNoTracking();
-        var user = await nt.SingleAsync(x => x.Id == context.Message.Id);
+        var user = await applicationDbContext.Users.AsNoTracking().SingleOrDefaultAsync(x => x.Id == context.Message.Id);
 
         if (user == null)
         {
