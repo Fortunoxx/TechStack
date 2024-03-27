@@ -32,7 +32,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddControllers(
     options => options.Filters.Add(typeof(CorrelationIdFilter))
 );
-builder.Services.AddAuthentication(opt => opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
 builder.Services.AddAuthorization();
 builder.Services.AddOpenTelemetry()
     .ConfigureResource(resource =>
