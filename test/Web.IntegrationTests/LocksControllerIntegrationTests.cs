@@ -1,4 +1,4 @@
-namespace TechStack.Web.IntegrationTests.Locks;
+namespace TechStack.Web.IntegrationTests;
 
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;

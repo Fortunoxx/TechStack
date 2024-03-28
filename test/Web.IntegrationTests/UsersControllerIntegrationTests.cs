@@ -1,4 +1,4 @@
-namespace TechStack.Web.IntegrationTests.Users;
+namespace TechStack.Web.IntegrationTests;
 
 using System.Net.Mime;
 using Microsoft.Extensions.DependencyInjection;
@@ -92,7 +92,29 @@ public sealed class UsersControllerIntegrationTests : IAsyncLifetime,
         var act = await cut.DeleteAsync("api/users/2");
 
         // Assert
-        act.StatusCode.Should().Be(System.Net.HttpStatusCode.NoContent, "user should be deleted");
+        act.StatusCode.Should().Be(System.Net.HttpStatusCode.OK, "user should be deleted");
+        act.EnsureSuccessStatusCode();
+    }
+    
+    [Fact]
+    internal async Task UsersApi_UpdatePersonById_ShouldReturnValidResultAsync()
+    {
+        // Arrange 
+        var cut = _factory.CreateClient();
+
+        var user = new Fixture().Build<AlterUserCommandPart>()
+            .With(x => x.DisplayName, $"DisplayName-{Guid.NewGuid()}"[..40])
+            .With(x => x.EmailHash, $"EmailHash-{Guid.NewGuid()}"[..40])
+            .Create();
+
+        var jsonBody = Newtonsoft.Json.JsonConvert.SerializeObject(user);
+        var body = new StringContent(jsonBody, System.Text.Encoding.UTF8, MediaTypeNames.Application.Json);
+
+        // Act
+        var act = await cut.PutAsync("api/users/1", body);
+
+        // Assert
+        act.StatusCode.Should().Be(System.Net.HttpStatusCode.NoContent, "user should be updated");
         act.EnsureSuccessStatusCode();
     }
 

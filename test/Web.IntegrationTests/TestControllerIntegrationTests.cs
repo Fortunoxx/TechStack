@@ -1,4 +1,4 @@
-namespace TechStack.Web.IntegrationTests.Test;
+namespace TechStack.Web.IntegrationTests;
 
 using System.Net.Http.Headers;
 using System.Net.Http.Json;

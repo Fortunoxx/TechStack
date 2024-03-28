@@ -20,5 +20,13 @@ public class UserMappingProfile : Profile
             ForMember(dest => dest.LastModified, opt => opt.Ignore()).
             ForMember(dest => dest.LastModifiedBy, opt => opt.Ignore()).
             ForMember(dest => dest.DomainEvents, opt => opt.Ignore());
+
+        CreateMap<AlterUserCommandPart, User>().
+            ForMember(dest => dest.Id, opt => opt.Ignore()).
+            ForMember(dest => dest.Created, opt => opt.Ignore()).
+            ForMember(dest => dest.CreatedBy, opt => opt.Ignore()).
+            ForMember(dest => dest.LastModified, opt => opt.Ignore()).
+            ForMember(dest => dest.LastModifiedBy, opt => opt.Ignore()).
+            ForMember(dest => dest.DomainEvents, opt => opt.Ignore());
     }
 }
