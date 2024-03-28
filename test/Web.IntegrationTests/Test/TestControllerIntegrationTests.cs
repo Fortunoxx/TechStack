@@ -1,4 +1,4 @@
-namespace TechStack.Web.IntegrationTests.Users;
+namespace TechStack.Web.IntegrationTests.Test;
 
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -68,8 +68,6 @@ public sealed class TestControllerIntegrationTests(IntegrationTestFactoryWithout
     {
         // Arrange 
         var cut = factory.CreateClient();
-        // cut.DefaultRequestHeaders.Authorization =
-        //     new AuthenticationHeaderValue(scheme: TestAuthHandler.AuthenticationScheme);
 
         // Act
         var act = await cut.GetAsync("api/test/anonymous/1");
@@ -78,5 +76,4 @@ public sealed class TestControllerIntegrationTests(IntegrationTestFactoryWithout
         act.StatusCode.Should().Be(System.Net.HttpStatusCode.OK, "there should be some data");
         act.EnsureSuccessStatusCode();
     }
-
 }
