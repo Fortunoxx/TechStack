@@ -6,8 +6,7 @@ using TechStack.Application.Common.Interfaces;
 using TechStack.Application.Test.Commands;
 
 public class TestBusConsumer :
-    IConsumer<TestCommand>,
-    IConsumer<Fault<TestCommand>>
+    IConsumer<TestCommand>
 {
     private readonly ILockService lockService;
     private readonly ILogger<TestBusConsumer> logger;
@@ -31,12 +30,5 @@ public class TestBusConsumer :
         }
 
         await context.RespondAsync(new TestCommandResponse(true));
-    }
-
-    // Why is there no Fault<TestCommand> message, that can be consumed here?
-    public async Task Consume(ConsumeContext<Fault<TestCommand>> context)
-    {
-        logger.LogError("Encountered error {message}", context.Message);
-        await context.RespondAsync(new TestCommandResponse(false));
     }
 }

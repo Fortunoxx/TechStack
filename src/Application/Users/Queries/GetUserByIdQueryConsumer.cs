@@ -7,20 +7,14 @@ using Microsoft.EntityFrameworkCore;
 using TechStack.Application.Common.Interfaces;
 using TechStack.Application.Common.Models;
 
-public class GetUserByIdQueryConsumer : IConsumer<GetUserByIdQuery>
+public class GetUserByIdQueryConsumer(IApplicationDbContext applicationDbContext, IMapper mapper) : IConsumer<GetUserByIdQuery>
 {
-    private readonly IApplicationDbContext applicationDbContext;
-    private readonly IMapper mapper;
-
-    public GetUserByIdQueryConsumer(IApplicationDbContext applicationDbContext, IMapper mapper)
-    {
-        this.applicationDbContext = applicationDbContext;
-        this.mapper = mapper;
-    }
+    private readonly IApplicationDbContext applicationDbContext = applicationDbContext;
+    private readonly IMapper mapper = mapper;
 
     public async Task Consume(ConsumeContext<GetUserByIdQuery> context)
     {
-        var user = await applicationDbContext.Users.AsNoTracking().SingleAsync(x => x.Id == context.Message.Id);
+        var user = await applicationDbContext.Users.AsNoTracking().SingleOrDefaultAsync(x => x.Id == context.Message.Id);
 
         if (user == null)
         {

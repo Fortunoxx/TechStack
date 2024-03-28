@@ -2,9 +2,9 @@ using FluentValidation;
 
 namespace TechStack.Application.Users.Commands;
 
-public class AddUserCommandValidator : AbstractValidator<AddUserCommand>
+public class AlterUserCommandPartValidator : AbstractValidator<AlterUserCommandPart>
 {
-    public AddUserCommandValidator()
+    public AlterUserCommandPartValidator()
     {
         RuleFor(x => x.DisplayName).NotEmpty();
         RuleFor(x => x.DownVotes).NotNull().GreaterThanOrEqualTo(0);

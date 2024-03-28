@@ -22,12 +22,11 @@ public class LockService : ILockService
         return false;
     }
 
-    public IEnumerable<int> GetAllLocks() => dataDictionary.Select(x => x.Key);
+    public IDictionary<int, object> GetAllLocks()
+        => dataDictionary;
 
-    public int? GetById(int id)
-    {
-        if (dataDictionary.Any(x => x.Key == id))
-            return id;
-        return null;
-    }
+    public KeyValuePair<int, object>? GetById(int id)
+        => dataDictionary.Any(x => x.Key == id) 
+            ? dataDictionary.Single(x => x.Key == id) 
+            : null;
 }

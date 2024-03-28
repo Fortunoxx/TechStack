@@ -4,6 +4,6 @@ public interface ILockService
 {
     bool CreateLock(int id, object data);
     bool DeleteLock(int id);
-    IEnumerable<int> GetAllLocks();
-    int? GetById(int id);
+    IDictionary<int, object> GetAllLocks();
+    KeyValuePair<int, object>? GetById(int id);
 }

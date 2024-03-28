@@ -1,3 +1,4 @@
+using System.Data;
 using System.Net;
 using AutoMapper;
 using MassTransit;
@@ -7,23 +8,17 @@ using TechStack.Domain.Entities;
 
 namespace TechStack.Application.Users.Commands;
 
-public class AddUserCommandConsumer : IConsumer<AddUserCommand>
+public class AddUserCommandConsumer(IApplicationDbContext applicationDbContext, IMapper mapper) : IConsumer<AddUserCommand>
 {
-    private readonly IApplicationDbContext applicationDbContext;
-    private readonly IMapper mapper;
-
-    public AddUserCommandConsumer(IApplicationDbContext applicationDbContext, IMapper mapper)
-    {
-        this.applicationDbContext = applicationDbContext;
-        this.mapper = mapper;
-    }
+    private readonly IApplicationDbContext applicationDbContext = applicationDbContext;
+    private readonly IMapper mapper = mapper;
 
     public async Task Consume(ConsumeContext<AddUserCommand> context)
     {
         var user = mapper.Map<User>(context.Message);
 
         applicationDbContext.Users.Add(user);
-        var rowsInserted = await applicationDbContext.SaveChangesAsync(context.CancellationToken); // TODO: exception here during Integration Test
+        var rowsInserted = await applicationDbContext.SaveChangesAsync(context.CancellationToken);
 
         if (rowsInserted > 0)
         {

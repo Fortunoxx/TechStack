@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.SqlServer.Dac;
@@ -49,7 +50,11 @@ public class IntegrationTestFactory<TProgram, TDbContext> : WebApplicationFactor
         {
             services.RemoveAll<DbContextOptions<ApplicationDbContext>>();
             services.RemoveDbContext<TDbContext>();
-            services.AddDbContext<TDbContext>(options => options.UseSqlServer(connectionStringBuilder.ConnectionString));
+            services.AddDbContext<TDbContext>((serviceProvider, options)  =>
+            {
+                options.AddInterceptors(serviceProvider.GetServices<ISaveChangesInterceptor>());
+                options.UseSqlServer(connectionStringBuilder.ConnectionString);
+            });
             services.EnsureDbCreated<TDbContext>();
             services.AddMassTransitTestHarness();
         });

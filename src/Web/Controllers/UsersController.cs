@@ -14,17 +14,20 @@ public class UsersController : ControllerBase
     private readonly IRequestClient<DeleteUserCommand> deleteUserCommandClient;
     private readonly IRequestClient<GetUserByIdQuery> getUserByIdQueryClient;
     private readonly IRequestClient<GetAllUsersQuery> getAllUsersQueryClient;
+    private readonly IRequestClient<AlterUserCommand> alterUserCommandClient;
 
     public UsersController(
         IRequestClient<AddUserCommand> addUserCommandClient,
         IRequestClient<DeleteUserCommand> deleteUserCommandClient,
         IRequestClient<GetUserByIdQuery> getUserByIdQueryClient,
-        IRequestClient<GetAllUsersQuery> getAllUsersQueryClient)
+        IRequestClient<GetAllUsersQuery> getAllUsersQueryClient,
+        IRequestClient<AlterUserCommand> alterUserCommandClient)
     {
         this.addUserCommandClient = addUserCommandClient;
         this.deleteUserCommandClient = deleteUserCommandClient;
         this.getUserByIdQueryClient = getUserByIdQueryClient;
         this.getAllUsersQueryClient = getAllUsersQueryClient;
+        this.alterUserCommandClient = alterUserCommandClient;
     }
 
     [HttpGet("{id}", Name = "GetUserById")]
@@ -95,6 +98,27 @@ public class UsersController : ControllerBase
     public async Task<IActionResult> DeleteUser(int id)
     {
         var result = await deleteUserCommandClient.GetResponse<AcceptedResponse, FaultedResponse>(new DeleteUserCommand(id));
+
+        if (result.Is<AcceptedResponse>(out _))
+        {
+            return Ok();
+        }
+
+        if (result.Is<FaultedResponse>(out var faultedMessage))
+        {
+            return new ObjectResult(faultedMessage.Message.Payload)
+            {
+                StatusCode = (int)faultedMessage.Message.HttpStatusCode,
+            };
+        }
+
+        return BadRequest();
+    }
+
+    [HttpPut("{id}", Name = "AlterUser")]
+    public async Task<IActionResult> AlterUser(int id, [FromBody] AlterUserCommandPart user)
+    {
+        var result = await alterUserCommandClient.GetResponse<AcceptedResponse, FaultedResponse>(new AlterUserCommand(id, user));
 
         if (result.Is<AcceptedResponse>(out _))
         {

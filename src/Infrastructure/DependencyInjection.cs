@@ -25,6 +25,7 @@ public static class DependencyInjection
         services.AddMassTransit(options =>
         {
             options.AddConsumer<AddUserCommandConsumer>();
+            options.AddConsumer<AlterUserCommandConsumer>();
             options.AddConsumer<DeleteUserCommandConsumer>();
             options.AddConsumer<GetUserByIdQueryConsumer>();
             options.AddConsumer<GetAllUsersQueryConsumer>();
