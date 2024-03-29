@@ -133,10 +133,10 @@ public sealed class UsersControllerIntegrationTests : IAsyncLifetime,
         var body = new StringContent(jsonBody, System.Text.Encoding.UTF8, MediaTypeNames.Application.Json);
 
         // Act
-        var act = await cut.PutAsync("api/users/420", body);
+        var act = await cut.PutAsync("api/users/-1", body);
 
         // Assert
-        act.StatusCode.Should().Be(System.Net.HttpStatusCode.InternalServerError, "no user with this id should exist");
+        act.StatusCode.Should().Be(System.Net.HttpStatusCode.NotFound, "no user with this id should exist");
     }
 
     private async Task SeedDatabaseAsync()

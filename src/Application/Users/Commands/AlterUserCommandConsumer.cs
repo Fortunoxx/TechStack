@@ -14,6 +14,13 @@ public class AlterUserCommandConsumer(IApplicationDbContext applicationDbContext
     public async Task Consume(ConsumeContext<AlterUserCommand> context)
     {
         var user = await applicationDbContext.Users.FindAsync(context.Message.Id);
+
+        if (user is null)
+        {
+            await context.RespondAsync(new FaultedResponse(HttpStatusCode.NotFound, new { Message = "User does not exist", }));
+            return;
+        }
+
         var _ = mapper.Map(context.Message.User, user!);
 
         var rowsAffected = await applicationDbContext.SaveChangesAsync(context.CancellationToken);
