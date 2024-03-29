@@ -41,6 +41,70 @@ public class ValidatorUnitTests
         act.Should().NotBeNull();
         act.IsValid.Should().Be(expected, description);
     }
+    
+    [Theory]
+    [InlineData("valid id", 1, true)]
+    [InlineData("invalid id", 0, false)]
+    [InlineData("invalid id", -1, false)]
+    public async Task AlterUserCommandValidator_DifferentIds_ShouldReturnExpectedResultAsync(string description, int id, bool expected)
+    {
+        // Arrage
+        var cut = new AlterUserCommandValidator();
+        var cmd = new Fixture().
+            Build<AlterUserCommand>().
+            With(x => x.Id, id).
+            Create();
+
+        // Act
+        var act = await cut.ValidateAsync(cmd);
+
+        // Assert
+        act.Should().NotBeNull();
+        act.IsValid.Should().Be(expected, description);
+    }
+
+    [Theory]
+    [InlineData(0, "Valid Object", true)]
+    [InlineData(1, "No DisplayName", false)]
+    [InlineData(2, "Invalid DownVotes", false)]
+    [InlineData(3, "No DownVotes", false)]
+    [InlineData(4, "No LastAccessDate", false)]
+    [InlineData(5, "Invalid Reputation", false)]
+    [InlineData(6, "No Reputation", false)]
+    [InlineData(7, "Invalid UpVotes", false)]
+    [InlineData(8, "No UpVotes", false)]
+    [InlineData(9, "Invalid Views", false)]
+    [InlineData(10, "No Views", false)]
+    public async Task AlterUserCommandPartValidator_DifferentScenarios_ShouldBeExpectedResultAsync(short scenario, string description, bool expected)
+    {
+        // Arrage
+        var cut = new AlterUserCommandPartValidator();
+        var builder = new Fixture().
+            Build<AlterUserCommandPart>();
+            
+        var cmd = scenario switch
+        {
+            1 => builder.Without(x => x.DisplayName).Create(),
+            2 => builder.With(x => x.DownVotes, -1).Create(),
+            3 => builder.Without(x => x.DownVotes).Create(),
+            4 => builder.Without(x => x.LastAccessDate).Create(),
+            5 => builder.With(x => x.Reputation, -1).Create(),
+            6 => builder.Without(x => x.Reputation).Create(),
+            7 => builder.With(x => x.UpVotes, -1).Create(),
+            8 => builder.Without(x => x.UpVotes).Create(),
+            9 => builder.With(x => x.Views, -1).Create(),
+            10 => builder.Without(x => x.Views).Create(),
+            _ => builder.Create(),
+        };
+
+        // Act
+        var act = await cut.ValidateAsync(cmd);
+
+        // Assert
+        act.Should().NotBeNull();
+        act.IsValid.Should().Be(expected, description);
+    }
+    
     [Theory]
     [InlineData("valid id", 1, true)]
     [InlineData("invalid id", 0, false)]

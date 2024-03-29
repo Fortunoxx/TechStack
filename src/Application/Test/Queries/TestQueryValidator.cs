@@ -1,6 +1,6 @@
-using FluentValidation;
-
 namespace TechStack.Application.Test.Queries;
+
+using FluentValidation;
 
 public class TestQueryValidator : AbstractValidator<TestQuery>
 {
