@@ -33,6 +33,7 @@
   - [x] used a MongoDB for a secret
 - [ ] SQLite
 - [x] FluentValidation (in Masstransit Mediator as ConsumeFilter)
+- [ ] [Redaction while logging](https://www.youtube.com/watch?v=rK3-tO7K6i8)
 
 # Patterns
 - [x] Mediator
