@@ -5,12 +5,13 @@ using TechStack.Application.Common.Interfaces;
 
 [ApiController]
 [Route("api/[controller]")]
-public class LocksController : ControllerBase
+public class LocksController(IConfidentialDataService confidentialDataService,
+    ILockService lockService,
+    ILogger<LocksController> logger) : ControllerBase
 {
-    private readonly ILockService lockService;
-
-    public LocksController(ILockService lockService)
-        => this.lockService = lockService;
+    private readonly IConfidentialDataService confidentialDataService = confidentialDataService;
+    private readonly ILockService lockService = lockService;
+    private readonly ILogger<LocksController> logger = logger;
 
     [HttpGet(Name = "GetAll")]
     public IActionResult GetAll()
@@ -28,10 +29,12 @@ public class LocksController : ControllerBase
     [HttpPost("{id:int}", Name = "CreateLock")]
     public IActionResult CreateLock(int id)
     {
-        var data = Guid.NewGuid();
+        var data = confidentialDataService.CreateEntry();
+        logger.LogConfidentialDataCreated(data);
+
         if (lockService.CreateLock(id, data))
         {
-            return CreatedAtRoute("GetLockById", id, new { Data = data });
+            return CreatedAtRoute("GetLockById", new { id, }, new { Data = data });
         }
 
         return BadRequest();

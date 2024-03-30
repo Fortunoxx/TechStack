@@ -21,6 +21,7 @@ public static class DependencyInjection
         // custom services
         services.AddSingleton<ILockService, LockService>();
         services.AddScoped<ICorrelationIdGenerator, CorrelationIdGenerator>();
+        services.AddScoped<IConfidentialDataService, ConfidentialDataService>();
 
         services.AddMassTransit(options =>
         {

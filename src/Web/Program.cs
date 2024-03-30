@@ -13,8 +13,22 @@ using System.Text.Json;
 using System.Buffers;
 using MassTransit.Monitoring;
 using TechStack.Web;
+using Microsoft.Extensions.Compliance.Redaction;
+using Microsoft.Extensions.Compliance.Classification;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Logging.EnableRedaction();
+builder.Services.AddRedaction(x => 
+{
+    // x.SetRedactor<ErasingRedactor>(new DataClassificationSet(DataTaxonomy.SensitiveData));
+    x.SetRedactor<RedactedRedactor>(new DataClassificationSet(DataTaxonomy.SensitiveData));
+    x.SetHmacRedactor(options => 
+    {
+        options.Key = Convert.ToBase64String("VerySecretKeyDon'tHardcodeThisLoadFromSecureSource"u8);
+        options.KeyId = 420; // also store and load from somewhere safe
+    }, new DataClassificationSet(DataTaxonomy.PiiData));
+});
 
 builder.Host.UseSerilog((ctx, lc) => lc
     .WriteTo.Console()
