@@ -50,7 +50,7 @@ public class IntegrationTestFactory<TProgram, TDbContext> : WebApplicationFactor
         {
             services.RemoveAll<DbContextOptions<ApplicationDbContext>>();
             services.RemoveDbContext<TDbContext>();
-            services.AddDbContext<TDbContext>((serviceProvider, options)  =>
+            services.AddDbContext<TDbContext>((serviceProvider, options) =>
             {
                 options.AddInterceptors(serviceProvider.GetServices<ISaveChangesInterceptor>());
                 options.UseSqlServer(connectionStringBuilder.ConnectionString);
@@ -64,13 +64,14 @@ public class IntegrationTestFactory<TProgram, TDbContext> : WebApplicationFactor
     {
         var builder = new SqlConnectionStringBuilder(sqlConnectionString);
         FillFromDacFx(builder, new FileInfo(PathToInitialDacPac), DatabaseName);
+        GenerateScripts(builder, new FileInfo(PathToUpgradedDacPac), DatabaseName);
         FillFromDacFx(builder, new FileInfo(PathToUpgradedDacPac), DatabaseName);
     }
 
     private static void FillFromDacFx(SqlConnectionStringBuilder connectionStringBuilder, FileInfo dacpacFile, string catalog)
     {
         using var dacpacStream = dacpacFile.OpenRead();
-        using DacPackage dacPackage = DacPackage.Load(dacpacStream);
+        using var dacPackage = DacPackage.Load(dacpacStream);
         connectionStringBuilder.InitialCatalog = catalog;
 
         var dacpacService = new DacServices(connectionStringBuilder.ConnectionString);
@@ -78,7 +79,49 @@ public class IntegrationTestFactory<TProgram, TDbContext> : WebApplicationFactor
         try
         {
             var dacDeployOptions = new DacDeployOptions { IgnorePermissions = true, };
-            dacpacService.Deploy(dacPackage, connectionStringBuilder.InitialCatalog, true, dacDeployOptions);
+            dacpacService.Deploy(dacPackage, catalog, true, dacDeployOptions);
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Generates Scripts and Reports to see what can be generated
+    /// </summary>
+    /// <param name="connectionStringBuilder"></param>
+    /// <param name="dacpacFile"></param>
+    /// <param name="catalog"></param>
+    private static async void GenerateScripts(SqlConnectionStringBuilder connectionStringBuilder, FileInfo dacpacFile, string catalog)
+    {
+        const string path = "../../../../temp";
+        using var dacpacStream = dacpacFile.OpenRead();
+        using var dacPackage = DacPackage.Load(dacpacStream);
+        connectionStringBuilder.InitialCatalog = catalog;
+
+        var dacpacService = new DacServices(connectionStringBuilder.ConnectionString);
+
+        try
+        {
+            if (!Directory.Exists(path))
+            {
+                new DirectoryInfo(path).Create();
+            }
+
+            var dacDeployOptions = new DacDeployOptions { IgnorePermissions = true, };
+            var deployScript = dacpacService.GenerateDeployScript(dacPackage, catalog, dacDeployOptions);
+            var driftReport = dacpacService.GenerateDriftReport(catalog);
+            var deployReport = dacpacService.GenerateDeployReport(dacPackage, catalog, dacDeployOptions);
+
+            using StreamWriter deployScriptFile = new(Path.Combine(path, "deploy_script.sql"));
+            await deployScriptFile.WriteAsync(deployScript);
+
+            using StreamWriter driftReportFile = new(Path.Combine(path, "drift_report.txt"));
+            await driftReportFile.WriteAsync(driftReport);
+
+            using StreamWriter deployReportFile = new(Path.Combine(path, "deploy_report.xml"));
+            await deployReportFile.WriteAsync(deployReport);
         }
         catch
         {
