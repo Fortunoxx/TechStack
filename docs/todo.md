@@ -23,11 +23,12 @@
 - [x] k6.io parallel load test (Testing)
 - [ ] Blazor Frontend (with SignalR)
 - [ ] SignalR
-- [ ] MongoDB or PostgreSQL for Saga Persistence
+- [x] MongoDB or PostgreSQL for Saga Persistence
+  - [x] secrets
 - [x] UnitTests
-- [ ] IntegrationTests
-  - [ ] TestContainers for SQL Server Database
-- [ ] AutoMapper
+- [x] IntegrationTests
+  - [x] TestContainers for SQL Server Database
+- [x] AutoMapper
 - [ ] ~~Vault (secrets)~~
   - [x] Hashicorp Vault in DEV-Version does not allow persistence
   - [x] used a MongoDB for a secret
@@ -57,4 +58,4 @@
     - [ ] multiple versions
   - [x] analyze
 - [ ] Staging / Live Environments
-- [ ] CodeCov (together with unit tests and integration tests)
+- [x] CodeCov (together with unit tests and integration tests)
