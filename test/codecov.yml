@@ -1,2 +1,3 @@
 ignore:
   - "src/Domain/Common"
+  - "TechStack/src/Application/Common/Validation"
