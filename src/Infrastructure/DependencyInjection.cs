@@ -9,7 +9,8 @@ using Microsoft.Extensions.DependencyInjection;
 using TechStack.Application.Common.Interfaces;
 using TechStack.Application.Users.Commands;
 using TechStack.Application.Users.Queries;
-using TechStack.Infrastructure.Consumers;
+using TechStack.Infrastructure.Components.Activities;
+using TechStack.Infrastructure.Components.Consumers;
 using TechStack.Infrastructure.Data.Interceptors;
 using TechStack.Infrastructure.Filter;
 using TechStack.Infrastructure.Services;
@@ -26,10 +27,11 @@ public static class DependencyInjection
         {
             options.AddConsumer<AddUserCommandConsumer>();
             options.AddConsumer<DeleteUserCommandConsumer>();
-            options.AddConsumer<DistributedTransactionCommandConsumer>();
             options.AddConsumer<GetUserByIdQueryConsumer>();
             options.AddConsumer<GetAllUsersQueryConsumer>();
             options.AddConsumer<TestBusConsumer>();
+
+            options.AddActivitiesFromNamespaceContaining<ActivityMarker>();
 
             options.UsingRabbitMq((context, cfg) =>
             {

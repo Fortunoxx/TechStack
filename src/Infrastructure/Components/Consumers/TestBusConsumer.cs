@@ -1,4 +1,4 @@
-namespace TechStack.Infrastructure.Consumers;
+namespace TechStack.Infrastructure.Components.Consumers;
 
 using MassTransit;
 using Microsoft.Extensions.Logging;
