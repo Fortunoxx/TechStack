@@ -26,6 +26,7 @@ public static class DependencyInjection
         {
             options.AddConsumer<AddUserCommandConsumer>();
             options.AddConsumer<DeleteUserCommandConsumer>();
+            options.AddConsumer<DistributedTransactionCommandConsumer>();
             options.AddConsumer<GetUserByIdQueryConsumer>();
             options.AddConsumer<GetAllUsersQueryConsumer>();
             options.AddConsumer<TestBusConsumer>();
