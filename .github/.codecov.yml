@@ -1,3 +1,3 @@
 ignore:
   - "src/Domain/Common"
-  - "/src/Application/Common/Validation"
+  - "src/Application/Common/Validation"

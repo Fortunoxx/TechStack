@@ -16,7 +16,7 @@ public static class LogHelper
     private static bool IsMetricsEndpoint(HttpContext context)
     {
         var endpoint = context.GetEndpoint();
-        if (endpoint is object) // same as !(endpoint is null)
+        if (endpoint is not null)
         {
             return string.Equals(
                 endpoint.DisplayName,
@@ -30,7 +30,7 @@ public static class LogHelper
     private static bool IsHealthCheckEndpoint(HttpContext context)
     {
         var endpoint = context.GetEndpoint();
-        if (endpoint is object) // same as !(endpoint is null)
+        if (endpoint is not null)
         {
             return string.Equals(
                 endpoint.DisplayName,
