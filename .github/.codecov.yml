@@ -1,0 +1,3 @@
+ignore:
+  - "src/Domain/Common"
+  - "/src/Application/Common/Validation"

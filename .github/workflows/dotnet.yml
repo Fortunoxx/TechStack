@@ -76,4 +76,3 @@ jobs:
         slug: Fortunoxx/TechStack
         verbose: true
         name: codecov-umbrella
-        codecov_yml_path: ./test/codecov.yml
