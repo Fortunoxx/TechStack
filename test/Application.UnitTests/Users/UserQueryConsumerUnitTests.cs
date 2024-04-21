@@ -115,15 +115,17 @@ public class UserQueryConsumerUnitTests
 
     private async static Task<IApplicationDbContext> GetDefaultApplicationDbContext(bool createUsers = true)
     {
-        var dbContextOptions = new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseInMemoryDatabase(databaseName: "TechStackUnitTestDb")
-            .Options;
+        var dbContextBuilder = new DbContextOptionsBuilder<ApplicationDbContext>().
+            UseInMemoryDatabase(databaseName: "TechStackUnitTestDb");
 
-        var dbContext = new ApplicationDbContext(dbContextOptions);
+        var dbContext = new ApplicationDbContext(dbContextBuilder.Options);
 
         if (createUsers)
         {
-            var users = new Fixture().CreateMany<User>();
+            var users = new Fixture().
+                Build<User>().
+                Without(x => x.Id).
+                CreateMany();
             await dbContext.Users.AddRangeAsync(users);
             await dbContext.SaveChangesAsync(new CancellationTokenSource().Token);
         }

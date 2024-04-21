@@ -1,6 +1,5 @@
 namespace Infrastructure.UnitTests;
 
-using System.Security.Cryptography;
 using FluentAssertions;
 using TechStack.Infrastructure.Services;
 using Xunit;
