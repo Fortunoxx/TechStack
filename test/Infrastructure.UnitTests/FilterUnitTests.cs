@@ -5,6 +5,7 @@ using Infrastructure.UnitTests.Mocks;
 using MassTransit;
 using MassTransit.Testing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using TechStack.Application.Common.Interfaces;
 using TechStack.Application.Common.Models;
@@ -48,7 +49,7 @@ public class FilterUnitTests
     }
 
     [Fact]
-    internal async Task CorrelationIdPublishFilter_Send_ShouldGenerateCorrelationId()
+    internal async Task CorrelationIdPublishFilter_Send_BeCalledAndWork()
     {
         // Arrange
         var correlationIdGenerator = Substitute.For<ICorrelationIdGenerator>();
@@ -66,5 +67,23 @@ public class FilterUnitTests
         correlationIdGenerator.Received(1);
         publishContext.Received(1);
         sendContext.Headers.Should().NotBeNull();
+    }    
+    
+    [Fact]
+    internal async Task CorrelationIdConsumeFilter_Consume_ShouldBeCalledAndWork()
+    {
+        // Arrange
+        var pipeConsumeContext = Substitute.For<IPipe<ConsumeContext<MockMessage>>>();
+        var consumeContext = Substitute.For<ConsumeContext<MockMessage>>();
+        var logger = new NullLogger<CorrelationIdConsumeFilter<MockMessage>>();
+        
+        var cut = new CorrelationIdConsumeFilter<MockMessage>(logger);
+
+        // Act
+        await cut.Send(consumeContext, pipeConsumeContext);
+
+        // Assert
+        pipeConsumeContext.Received(1);
+        consumeContext.Headers.Should().NotBeNull();
     }
 }
