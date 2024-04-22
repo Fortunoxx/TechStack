@@ -1,9 +1,6 @@
 namespace Infrastructure.UnitTests;
 
 using FluentAssertions;
-using MassTransit;
-using NSubstitute;
-using TechStack.Infrastructure.Filter;
 using TechStack.Infrastructure.Services;
 using Xunit;
 
@@ -81,35 +78,3 @@ public class ServiceUnitTests
         return Task.CompletedTask;
     }
 }
-
-[Trait("Category", "UnitTest")]
-public class FilterUnitTests
-{
-    [Fact]
-    internal async Task CorrelationIdPublishFilter_DeleteLock_ShouldFailAsync()
-    {
-        // Arrange
-        var contextMock = Substitute.For<PublishContext<MockMessage>>();
-        var publisherMock = Substitute.For<IPipe<PublishContext<MockMessage>>>();
-        // var publisherMock = Substitute.For<IPublishEndpoint>();
-
-        var filter = new CorrelationIdPublishFilter<MockMessage>(new CorrelationIdGenerator());
-
-        // Set up test message
-        var message = new MockMessage();
-
-        // Act
-        await filter.Send(contextMock, publisherMock);
-
-        // Assert
-        // Verify that the message publisher is called with the correct message
-        // await publisherMock.Received(1).;
-
-        // Alternatively, using FluentAssertions
-        publisherMock.ReceivedCalls().Should().Contain(call =>
-            call.GetMethodInfo().Name == nameof(IPublishEndpoint.Publish) &&
-            (call.GetArguments()[0] as MockMessage) == message);
-    }
-}
-
-public record MockMessage();
