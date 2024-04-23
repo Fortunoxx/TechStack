@@ -78,6 +78,8 @@ public class FilterUnitTests
         var logger = new NullLogger<CorrelationIdConsumeFilter<MockMessage>>();
         
         var cut = new CorrelationIdConsumeFilter<MockMessage>(logger);
+        var headerValue = new HeaderValue("X-Correlation-Id", "test");
+        _ = consumeContext.Headers.Append(headerValue);
 
         // Act
         await cut.Send(consumeContext, pipeConsumeContext);
