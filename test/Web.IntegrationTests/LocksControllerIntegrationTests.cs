@@ -39,6 +39,22 @@ public sealed class LocksControllerIntegrationTests(IntegrationTestFactoryWithou
     }
 
     [Fact]
+    internal async Task LocksApi_CreateLock_ShouldReturnBadRequestAsync()
+    {
+        // Arrange 
+        var cut = factory.CreateClient();
+        var scope = factory.Services.CreateAsyncScope();
+        var lockService = scope.ServiceProvider.GetRequiredService<ILockService>();
+        _ = lockService.CreateLock(3, Guid.NewGuid());
+
+        // Act
+        var act = await cut.PostAsync("api/locks/3", null);
+
+        // Assert
+        act.StatusCode.Should().Be(System.Net.HttpStatusCode.BadGateway);
+    }
+
+    [Fact]
     internal async Task LocksApi_GetLockById_ShouldReturnValidResultAsync()
     {
         // Arrange 
@@ -70,5 +86,18 @@ public sealed class LocksControllerIntegrationTests(IntegrationTestFactoryWithou
         // Assert
         act.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
         act.EnsureSuccessStatusCode();
+    }
+
+    [Fact]
+    internal async Task LocksApi_DeleteLock_ShouldReturnNotFoundAsync()
+    {
+        // Arrange 
+        var cut = factory.CreateClient();
+
+        // Act
+        var act = await cut.DeleteAsync("api/locks/11");
+
+        // Assert
+        act.StatusCode.Should().Be(System.Net.HttpStatusCode.NotFound);
     }
 }
