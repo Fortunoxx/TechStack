@@ -39,7 +39,7 @@ public sealed class LocksControllerIntegrationTests(IntegrationTestFactoryWithou
     }
 
     [Fact]
-    internal async Task LocksApi_CreateLock_ShouldReturnBadRequestAsync()
+    internal async Task LocksApi_CreateLock_ShouldReturnFaultedResponseAsync()
     {
         // Arrange 
         var cut = factory.CreateClient();

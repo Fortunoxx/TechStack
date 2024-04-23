@@ -32,14 +32,6 @@ public class UsersController(
             return Ok(getUserByIdQueryResult.Message);
         }
 
-        if (result.Is<FaultedResponse>(out var faultedMessage))
-        {
-            return new ObjectResult(faultedMessage.Message.Payload)
-            {
-                StatusCode = (int)faultedMessage.Message.HttpStatusCode,
-            };
-        }
-
         return BadRequest();
     }
 
@@ -51,14 +43,6 @@ public class UsersController(
         if (result.Is<GetAllUsersQueryResult>(out var getAllUsersQueryResult))
         {
             return Ok(getAllUsersQueryResult.Message);
-        }
-
-        if (result.Is<FaultedResponse>(out var faultedMessage))
-        {
-            return new ObjectResult(faultedMessage.Message.Payload)
-            {
-                StatusCode = (int)faultedMessage.Message.HttpStatusCode,
-            };
         }
 
         return BadRequest();

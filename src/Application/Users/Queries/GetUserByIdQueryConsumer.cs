@@ -7,7 +7,8 @@ using Microsoft.EntityFrameworkCore;
 using TechStack.Application.Common.Interfaces;
 using TechStack.Application.Common.Models;
 
-public class GetUserByIdQueryConsumer(IApplicationDbContext applicationDbContext, IMapper mapper) : IConsumer<GetUserByIdQuery>
+public class GetUserByIdQueryConsumer(IApplicationDbContext applicationDbContext, IMapper mapper) 
+    : IConsumer<GetUserByIdQuery>
 {
     private readonly IApplicationDbContext applicationDbContext = applicationDbContext;
     private readonly IMapper mapper = mapper;
