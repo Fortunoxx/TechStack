@@ -8,27 +8,18 @@ using TechStack.Application.Users.Queries;
 
 [ApiController]
 [Route("api/[controller]")]
-public class UsersController : ControllerBase
+public class UsersController(
+    IRequestClient<AddUserCommand> addUserCommandClient,
+    IRequestClient<DeleteUserCommand> deleteUserCommandClient,
+    IRequestClient<GetUserByIdQuery> getUserByIdQueryClient,
+    IRequestClient<GetAllUsersQuery> getAllUsersQueryClient,
+    IRequestClient<AlterUserCommand> alterUserCommandClient) : ControllerBase
 {
-    private readonly IRequestClient<AddUserCommand> addUserCommandClient;
-    private readonly IRequestClient<DeleteUserCommand> deleteUserCommandClient;
-    private readonly IRequestClient<GetUserByIdQuery> getUserByIdQueryClient;
-    private readonly IRequestClient<GetAllUsersQuery> getAllUsersQueryClient;
-    private readonly IRequestClient<AlterUserCommand> alterUserCommandClient;
-
-    public UsersController(
-        IRequestClient<AddUserCommand> addUserCommandClient,
-        IRequestClient<DeleteUserCommand> deleteUserCommandClient,
-        IRequestClient<GetUserByIdQuery> getUserByIdQueryClient,
-        IRequestClient<GetAllUsersQuery> getAllUsersQueryClient,
-        IRequestClient<AlterUserCommand> alterUserCommandClient)
-    {
-        this.addUserCommandClient = addUserCommandClient;
-        this.deleteUserCommandClient = deleteUserCommandClient;
-        this.getUserByIdQueryClient = getUserByIdQueryClient;
-        this.getAllUsersQueryClient = getAllUsersQueryClient;
-        this.alterUserCommandClient = alterUserCommandClient;
-    }
+    private readonly IRequestClient<AddUserCommand> addUserCommandClient = addUserCommandClient;
+    private readonly IRequestClient<DeleteUserCommand> deleteUserCommandClient = deleteUserCommandClient;
+    private readonly IRequestClient<GetUserByIdQuery> getUserByIdQueryClient = getUserByIdQueryClient;
+    private readonly IRequestClient<GetAllUsersQuery> getAllUsersQueryClient = getAllUsersQueryClient;
+    private readonly IRequestClient<AlterUserCommand> alterUserCommandClient = alterUserCommandClient;
 
     [HttpGet("{id}", Name = "GetUserById")]
     public async Task<ActionResult<GetUserByIdQueryResult>> GetUserById(int id)

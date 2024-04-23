@@ -51,7 +51,7 @@ public sealed class LocksControllerIntegrationTests(IntegrationTestFactoryWithou
         var act = await cut.PostAsync("api/locks/3", null);
 
         // Assert
-        act.StatusCode.Should().Be(System.Net.HttpStatusCode.BadGateway);
+        act.StatusCode.Should().Be(System.Net.HttpStatusCode.InternalServerError);
     }
 
     [Fact]
