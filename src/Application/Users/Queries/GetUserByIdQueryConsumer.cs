@@ -1,5 +1,6 @@
 namespace TechStack.Application.Users.Queries;
 
+using System.Diagnostics;
 using System.Net;
 using AutoMapper;
 using MassTransit;
@@ -15,7 +16,9 @@ public class GetUserByIdQueryConsumer(IApplicationDbContext applicationDbContext
 
     public async Task Consume(ConsumeContext<GetUserByIdQuery> context)
     {
+        Activity.Current?.AddEvent(new ActivityEvent("Getting Users from DB"));
         var user = await applicationDbContext.Users.AsNoTracking().SingleOrDefaultAsync(x => x.Id == context.Message.Id);
+        Activity.Current?.AddEvent(new ActivityEvent("Retrieved Users from DB"));
 
         if (user == null)
         {

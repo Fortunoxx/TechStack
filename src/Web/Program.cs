@@ -41,6 +41,7 @@ builder.Services.AddOpenTelemetry()
     .WithTracing(tracing => tracing
         .AddAspNetCoreInstrumentation()
         .AddHttpClientInstrumentation()
+        .AddEntityFrameworkCoreInstrumentation()
         .AddJaegerExporter()
         .AddSource("MassTransit")
     )
