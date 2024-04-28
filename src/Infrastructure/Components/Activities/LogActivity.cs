@@ -1,7 +1,7 @@
+namespace TechStack.Infrastructure.Components.Activities;
+
 using MassTransit;
 using Microsoft.Extensions.Logging;
-
-namespace TechStack.Infrastructure.Components.Activities;
 
 public class LogActivity : IActivity<LogActivityArguments, LogActivityLog>
 {

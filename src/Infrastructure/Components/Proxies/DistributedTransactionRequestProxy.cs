@@ -1,12 +1,15 @@
+namespace TechStack.Infrastructure.Components.Proxies;
+
 using MassTransit;
 using MassTransit.Courier;
 using TechStack.Application.Common.Models;
 using TechStack.Infrastructure.Components.Activities;
+using TechStack.Infrastructure.Components.Messaging;
 
-namespace TechStack.Infrastructure.Components.Proxies;
-
-public class DistributedTransactionRequestProxy : RoutingSlipRequestProxy<DistributedTransactionCommand>
+public class DistributedTransactionRequestProxy(IEndpointNameFormatter endpointNameFormatter) : RoutingSlipRequestProxy<DistributedTransactionCommand>
 {
+    private readonly RabbitMqEndpointAddressProvider endpointAddressProvider = new(endpointNameFormatter);
+
     protected override Task BuildRoutingSlip(RoutingSlipBuilder builder, ConsumeContext<DistributedTransactionCommand> request)
     {
         builder.SetVariables(
@@ -16,8 +19,9 @@ public class DistributedTransactionRequestProxy : RoutingSlipRequestProxy<Distri
             }
         );
 
-        builder.AddActivity(nameof(LogActivity), endpointNameFormatter<LogActivity, LogActivityArguments>());
+        builder.AddActivity(nameof(LogActivity), endpointAddressProvider.GetExecuteEndpoint<LogActivity, LogActivityArguments>());
 
         return Task.CompletedTask;
     }
 }
+

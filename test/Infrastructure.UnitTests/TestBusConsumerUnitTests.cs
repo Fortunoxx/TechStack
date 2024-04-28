@@ -2,13 +2,13 @@ namespace Infrastructure.UnitTests;
 
 using AutoFixture;
 using FluentAssertions;
-using Infrastructure.Components.Consumers;
 using MassTransit;
 using MassTransit.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using TechStack.Application.Common.Interfaces;
 using TechStack.Application.Test.Commands;
+using TechStack.Infrastructure.Components.Consumers;
 using TechStack.Infrastructure.Services;
 using Xunit;
 
