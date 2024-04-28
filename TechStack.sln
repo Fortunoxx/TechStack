@@ -5,23 +5,23 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{CF1DE2D1-EDC2-4019-8154-0DE6072E7C45}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Web", "src\Web\Web.csproj", "{58649CE8-8616-439D-9596-86A6375CF0B7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TechStack.Web", "src\TechStack.Web\TechStack.Web.csproj", "{58649CE8-8616-439D-9596-86A6375CF0B7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "src\Domain\Domain.csproj", "{3F947FFB-F100-40DA-A7CE-7661E57A7542}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TechStack.Domain", "src\TechStack.Domain\TechStack.Domain.csproj", "{3F947FFB-F100-40DA-A7CE-7661E57A7542}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "src\Infrastructure\Infrastructure.csproj", "{13844F65-93AC-46F1-8495-5AF0BC84C0E2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TechStack.Infrastructure", "src\TechStack.Infrastructure\TechStack.Infrastructure.csproj", "{13844F65-93AC-46F1-8495-5AF0BC84C0E2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "src\Application\Application.csproj", "{EBC87EB2-DA4F-47B8-A954-2A910D6145FB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TechStack.Application", "src\TechStack.Application\TechStack.Application.csproj", "{EBC87EB2-DA4F-47B8-A954-2A910D6145FB}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{BAB3C505-BFE2-4A7C-BDDE-89758C9AA814}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Web.UnitTests", "test\Web.UnitTests\Web.UnitTests.csproj", "{74DE4F33-802C-4FD7-A82F-71B7F4306869}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TechStack.Web.UnitTests", "test\TechStack.Web.UnitTests\TechStack.Web.UnitTests.csproj", "{74DE4F33-802C-4FD7-A82F-71B7F4306869}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure.UnitTests", "test\Infrastructure.UnitTests\Infrastructure.UnitTests.csproj", "{E2F204DC-19E8-42E1-8AB0-6EC283E51331}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TechStack.Infrastructure.UnitTests", "test\TechStack.Infrastructure.UnitTests\TechStack.Infrastructure.UnitTests.csproj", "{E2F204DC-19E8-42E1-8AB0-6EC283E51331}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application.UnitTests", "test\Application.UnitTests\Application.UnitTests.csproj", "{E4FE3123-1295-4723-B5A5-8E6931F8AB3A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TechStack.Application.UnitTests", "test\TechStack.Application.UnitTests\TechStack.Application.UnitTests.csproj", "{E4FE3123-1295-4723-B5A5-8E6931F8AB3A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Web.IntegrationTests", "test\Web.IntegrationTests\Web.IntegrationTests.csproj", "{7EC4C645-EDE2-4422-92D0-FEB407DC8B8A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TechStack.Web.IntegrationTests", "test\TechStack.Web.IntegrationTests\TechStack.Web.IntegrationTests.csproj", "{7EC4C645-EDE2-4422-92D0-FEB407DC8B8A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

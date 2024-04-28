@@ -34,8 +34,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Application\Application.csproj" />
-    <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
+    <ProjectReference Include="..\TechStack.Application\TechStack.Application.csproj" />
+    <ProjectReference Include="..\TechStack.Infrastructure\TechStack.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

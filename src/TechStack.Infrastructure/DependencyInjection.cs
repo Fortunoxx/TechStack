@@ -1,3 +1,4 @@
+namespace TechStack.Infrastructure;
 
 using System.Reflection;
 using Ardalis.GuardClauses;
@@ -18,7 +19,6 @@ using TechStack.Infrastructure.Components.Messaging;
 using TechStack.Infrastructure.Components.Proxies;
 using Microsoft.Extensions.Logging;
 
-namespace TechStack.Infrastructure;
 public static class DependencyInjection
 {
     // TODO: to make this work, we have to rename a lot of stuff...
@@ -71,18 +71,18 @@ public static class DependencyInjection
                     _ = methodInfo?.Invoke(classInstance, parametersArray);
                 }
 
-                // this static configuration is obsolete once the namespaces are fixed
-                busFactoryConfigurator.ReceiveEndpoint(
-                    context.EndpointNameFormatter.Consumer<DistributedTransactionRequestProxy>(),
-                    e =>
-                    {
-                        var routingSlipProxy = new DistributedTransactionRequestProxy(context.EndpointNameFormatter);
-                        var routingSlipResponseProxy = new DistributedTransactionResponseProxy();
-                        e.Instance(routingSlipProxy);
-                        e.Instance(routingSlipResponseProxy);
-                        e.UseMessageRetry(r => r.Interval(5, 420));
-                    }
-                );
+                // // this static configuration is obsolete once the namespaces are fixed
+                // busFactoryConfigurator.ReceiveEndpoint(
+                //     context.EndpointNameFormatter.Consumer<DistributedTransactionRequestProxy>(),
+                //     e =>
+                //     {
+                //         var routingSlipProxy = new DistributedTransactionRequestProxy(context.EndpointNameFormatter);
+                //         var routingSlipResponseProxy = new DistributedTransactionResponseProxy();
+                //         e.Instance(routingSlipProxy);
+                //         e.Instance(routingSlipResponseProxy);
+                //         e.UseMessageRetry(r => r.Interval(5, 420));
+                //     }
+                // );
             });
         });
 

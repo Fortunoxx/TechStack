@@ -26,7 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Web\Web.csproj" />
+    <ProjectReference Include="..\..\src\TechStack.Web\TechStack.Web.csproj" />
   </ItemGroup>
 
 </Project>
