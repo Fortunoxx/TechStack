@@ -7,21 +7,19 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using TechStack.Application.Common.Interfaces;
 using TechStack.Application.Users.Commands;
 using TechStack.Application.Users.Queries;
-using TechStack.Application.Common.Interfaces;
 using TechStack.Infrastructure.Components.Activities;
 using TechStack.Infrastructure.Components.Consumers;
+using TechStack.Infrastructure.Components.Messaging;
 using TechStack.Infrastructure.Data.Interceptors;
 using TechStack.Infrastructure.Filter;
 using TechStack.Infrastructure.Services;
-using TechStack.Infrastructure.Components.Messaging;
-using TechStack.Infrastructure.Components.Proxies;
-using Microsoft.Extensions.Logging;
 
 public static class DependencyInjection
 {
-    // TODO: to make this work, we have to rename a lot of stuff...
     private const string AssemblyNamespace = "TechStack";
 
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
@@ -70,19 +68,6 @@ public static class DependencyInjection
 
                     _ = methodInfo?.Invoke(classInstance, parametersArray);
                 }
-
-                // // this static configuration is obsolete once the namespaces are fixed
-                // busFactoryConfigurator.ReceiveEndpoint(
-                //     context.EndpointNameFormatter.Consumer<DistributedTransactionRequestProxy>(),
-                //     e =>
-                //     {
-                //         var routingSlipProxy = new DistributedTransactionRequestProxy(context.EndpointNameFormatter);
-                //         var routingSlipResponseProxy = new DistributedTransactionResponseProxy();
-                //         e.Instance(routingSlipProxy);
-                //         e.Instance(routingSlipResponseProxy);
-                //         e.UseMessageRetry(r => r.Interval(5, 420));
-                //     }
-                // );
             });
         });
 
@@ -91,7 +76,7 @@ public static class DependencyInjection
         Guard.Against.Null(connectionString, message: "Connection string 'DefaultConnection' not found.");
 
         services.AddScoped<ISaveChangesInterceptor, AuditableEntityInterceptor>();
-        // services.AddScoped<ISaveChangesInterceptor, DispatchDomainEventsInterceptor>();
+        services.AddScoped<ISaveChangesInterceptor, DispatchDomainEventsInterceptor>();
 
         services.AddDbContext<ApplicationDbContext>((serviceProvider, options) =>
         {
