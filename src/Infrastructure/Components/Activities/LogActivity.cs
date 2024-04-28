@@ -3,25 +3,31 @@ namespace TechStack.Infrastructure.Components.Activities;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 
-public class LogActivity : IActivity<LogActivityArguments, LogActivityLog>
+public class LogActivity(ILogger<LogActivity> logger) : IActivity<LogActivityArguments, LogActivityLog>
 {
-    private readonly ILogger<LogActivity> logger;
+    private readonly ILogger<LogActivity> logger = logger;
 
-    public LogActivity(ILogger<LogActivity> logger)
-        => this.logger = logger;
-
-    public async Task<CompensationResult> Compensate(CompensateContext<LogActivityLog> context)
+    public Task<CompensationResult> Compensate(CompensateContext<LogActivityLog> context)
     {
         logger.LogError("Cannot compensate {@Entries}", context.Log.Entries);
-        return context.Compensated();
+        return Task.FromResult(context.Compensated());
     }
 
-    public async Task<ExecutionResult> Execute(ExecuteContext<LogActivityArguments> context)
+    public Task<ExecutionResult> Execute(ExecuteContext<LogActivityArguments> context)
     {
         var (message, level) = context.Arguments;
-        logger.Log(level, message);
-        var entries = new[] { message, };
-        return context.Completed(new LogActivityLog(entries));
+        
+        var entries = new List<string>();
+        if(logger.IsEnabled(level))
+        {
+            #pragma warning disable CA2254 // This behavior is intended here
+            logger.Log(level, message);
+            #pragma warning restore CA2254 // This behavior is intended here
+
+            entries.Add(message);
+        }
+
+        return Task.FromResult(context.Completed(new LogActivityLog(entries)));
     }
 }
 

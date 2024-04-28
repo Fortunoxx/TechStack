@@ -15,6 +15,8 @@ using TechStack.Infrastructure.Data.Interceptors;
 using TechStack.Infrastructure.Filter;
 using TechStack.Infrastructure.Services;
 using TechStack.Infrastructure.Components.Messaging;
+using TechStack.Infrastructure.Components.Proxies;
+using Microsoft.Extensions.Logging;
 
 namespace TechStack.Infrastructure;
 public static class DependencyInjection
@@ -42,19 +44,19 @@ public static class DependencyInjection
             var assemblies = LoadAssemblies(baseDir, AssemblyNamespace);
             var rabbitMqOptionTypes = GetTypesFromBaseClass<MessageBrokerRabbitMqOption>(assemblies);
 
-            options.UsingRabbitMq((context, cfg) =>
+            options.UsingRabbitMq((context, busFactoryConfigurator) =>
             {
-                cfg.UseKillSwitch(opt => opt
+                busFactoryConfigurator.UseKillSwitch(opt => opt
                     .SetActivationThreshold(3)
                     .SetTripThreshold(0.15)
                     .SetRestartTimeout(s: 10));
 
-                cfg.UseDelayedRedelivery(r => r.Intervals(TimeSpan.FromMinutes(5), TimeSpan.FromMinutes(15), TimeSpan.FromMinutes(30), TimeSpan.FromMinutes(60), TimeSpan.FromMinutes(120)));
+                busFactoryConfigurator.UseDelayedRedelivery(r => r.Intervals(TimeSpan.FromMinutes(5), TimeSpan.FromMinutes(15), TimeSpan.FromMinutes(30), TimeSpan.FromMinutes(60), TimeSpan.FromMinutes(120)));
 
-                cfg.UsePublishFilter(typeof(CorrelationIdPublishFilter<>), context);
-                cfg.UseConsumeFilter(typeof(CorrelationIdConsumeFilter<>), context);
+                busFactoryConfigurator.UsePublishFilter(typeof(CorrelationIdPublishFilter<>), context);
+                busFactoryConfigurator.UseConsumeFilter(typeof(CorrelationIdConsumeFilter<>), context);
 
-                cfg.ConfigureEndpoints(context);
+                busFactoryConfigurator.ConfigureEndpoints(context);
 
                 foreach (var rabbitMqOptionType in rabbitMqOptionTypes)
                 {
@@ -63,11 +65,24 @@ public static class DependencyInjection
 
                     var parametersArray = new object[]
                     {
-                        context, cfg, configuration,
+                        context, busFactoryConfigurator, configuration,
                     };
 
                     _ = methodInfo?.Invoke(classInstance, parametersArray);
                 }
+
+                // this static configuration is obsolete once the namespaces are fixed
+                busFactoryConfigurator.ReceiveEndpoint(
+                    context.EndpointNameFormatter.Consumer<DistributedTransactionRequestProxy>(),
+                    e =>
+                    {
+                        var routingSlipProxy = new DistributedTransactionRequestProxy(context.EndpointNameFormatter);
+                        var routingSlipResponseProxy = new DistributedTransactionResponseProxy();
+                        e.Instance(routingSlipProxy);
+                        e.Instance(routingSlipResponseProxy);
+                        e.UseMessageRetry(r => r.Interval(5, 420));
+                    }
+                );
             });
         });
 
