@@ -108,10 +108,7 @@ public static class DependencyInjection
     {
         try
         {
-            return (from assembly in assemblies
-                    from type in assembly.GetTypes()
-                    where type.IsClass && (type.BaseType == typeof(T))
-                    select type).ToList();
+            return assemblies.SelectMany(x => x.GetTypes()).Where(x => x.IsClass && x.BaseType == typeof(T)).ToList();
         }
         catch (ReflectionTypeLoadException)
         {
