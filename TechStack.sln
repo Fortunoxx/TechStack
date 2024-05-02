@@ -23,7 +23,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TechStack.Application.UnitT
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TechStack.Web.IntegrationTests", "test\TechStack.Web.IntegrationTests\TechStack.Web.IntegrationTests.csproj", "{7EC4C645-EDE2-4422-92D0-FEB407DC8B8A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure.IntegrationTests", "test\Infrastructure.IntegrationTests\Infrastructure.IntegrationTests.csproj", "{621CA9E3-2593-4E38-9A3F-AB14C60C48F6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TechStack.Infrastructure.IntegrationTests", "test\TechStack.Infrastructure.IntegrationTests\TechStack.Infrastructure.IntegrationTests.csproj", "{621CA9E3-2593-4E38-9A3F-AB14C60C48F6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
