@@ -1,4 +1,4 @@
-namespace Infrastructure.IntegrationTests.Mocks;
+namespace TechStack.Infrastructure.IntegrationTests.Mocks;
 
 using TechStack.Application.Common.Interfaces;
 

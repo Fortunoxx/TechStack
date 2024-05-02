@@ -1,17 +1,15 @@
-namespace Infrastructure.IntegrationTests;
+namespace TechStack.Infrastructure.IntegrationTests;
 
 using AutoFixture;
 using FluentAssertions;
 using Infrastructure.IntegrationTests.Fixtures;
 using Infrastructure.IntegrationTests.Mocks;
-using MassTransit;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using System.Threading.Tasks;
 using TechStack.Application.Common.Interfaces;
-using TechStack.Application.Users.Commands;
 using TechStack.Domain.Entities;
 using TechStack.Infrastructure;
 using TechStack.Infrastructure.Data.Interceptors;

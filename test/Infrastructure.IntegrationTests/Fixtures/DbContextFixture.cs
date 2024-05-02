@@ -1,4 +1,4 @@
-namespace Infrastructure.IntegrationTests.Fixtures;
+namespace TechStack.Infrastructure.IntegrationTests.Fixtures;
 
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Dac;
