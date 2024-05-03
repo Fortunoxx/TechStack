@@ -33,11 +33,11 @@ dotnet tool install -g microsoft.sqlpackage
 Create a script - SqlPackage will warn you if there data loss or removed columns are detected!
 
 ```bash
-SqlPackage /a:Script /sf:{dacpac_file} /tsn:{db_server} /tdn:}db_name} /ttsc:True /tu:{user_name} /tp:{secret_password}
+SqlPackage /a:Script /sf:{dacpac_file} /tsn:{db_server} /tdn:{db_name} /ttsc:True /tu:{user_name} /tp:{secret_password}
 ```
 
 Create a drift report in XML
 
 ```bash
-SqlPackage /a:DeployReport /sf:{dacpac_file} /tsn:{db_server} /tdn:}db_name} /ttsc:True /tu:{user_name} /tp:{secret_password}
+SqlPackage /a:DeployReport /sf:{dacpac_file} /tsn:{db_server} /tdn:{db_name} /ttsc:True /tu:{user_name} /tp:{secret_password}
 ```
