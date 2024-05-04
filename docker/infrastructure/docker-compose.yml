@@ -70,6 +70,23 @@ services:
     ports:
       - 9100:9100
 
+  blackbox-exporter:
+    image: prom/blackbox-exporter
+    container_name: blackbox-exporter
+    ports:
+      - 9115:9115
+    volumes:
+      - ./blackbox:/config
+    command:
+      - '--config.file=/config/blackbox.yml'
+
+  speedtest-exporter:
+    image: miguelndecarvalho/speedtest-exporter
+    container_name: speedtest-exporter
+    ports:
+      - 9798:9798
+    restart: unless-stopped
+
   alert-manager:
     image: prom/alertmanager
     container_name: alertmanager
