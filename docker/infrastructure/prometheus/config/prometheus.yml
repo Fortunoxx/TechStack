@@ -38,6 +38,12 @@ scrape_configs:
     static_configs:
       - targets:
           - cadvisor:8080
+  - job_name: speedtest-exporter
+    scrape_interval: 15m
+    scrape_timeout: 1m
+    static_configs:
+      - targets:
+          - speedtest-exporter:9798
   - job_name: blackbox # To get metrics about the exporter itself
     # metrics_path: /metrics # default
     static_configs:
@@ -49,13 +55,13 @@ scrape_configs:
       module: [http_2xx]
     static_configs:
       - targets:
-        - http://prometheus.io    # Target to probe with http
-        - https://prometheus.io   # Target to probe with https
-        - http://example.com:8080 # Target to probe with http on port 8080
+          - http://prometheus.io # Target to probe with http
+          - https://prometheus.io # Target to probe with https
+          - http://example.com:8080 # Target to probe with http on port 8080
     relabel_configs:
       - source_labels: [__address__]
         target_label: __param_target
       - source_labels: [__param_target]
         target_label: instance
       - target_label: __address__
-        replacement: blackbox-exporter:9115  # The blackbox exporter’s real hostname:port. For Windows and macOS replace with - host.docker.internal:9115
+        replacement: blackbox-exporter:9115 # The blackbox exporter’s real hostname:port. For Windows and macOS replace with - host.docker.internal:9115
