@@ -34,7 +34,7 @@ services:
       start_period: 10s
 
   prometheus:
-    image: prom/prometheus
+    image: prom/prometheus:latest
     container_name: prometheus
     volumes:
       - ./prometheus/config/prometheus.yml:/etc/prometheus/prometheus.yml
@@ -65,13 +65,13 @@ services:
       - /var/lib/docker/:/var/lib/docker:ro
 
   node-exporter:
-    image: prom/node-exporter
+    image: prom/node-exporter:latest
     container_name: node-exporter
     ports:
       - 9100:9100
 
   blackbox-exporter:
-    image: prom/blackbox-exporter
+    image: prom/blackbox-exporter:latest
     container_name: blackbox-exporter
     ports:
       - 9115:9115
@@ -81,14 +81,14 @@ services:
       - '--config.file=/config/blackbox.yml'
 
   speedtest-exporter:
-    image: miguelndecarvalho/speedtest-exporter
+    image: miguelndecarvalho/speedtest-exporter:latest
     container_name: speedtest-exporter
     ports:
       - 9798:9798
     restart: unless-stopped
 
   alert-manager:
-    image: prom/alertmanager
+    image: prom/alertmanager:latest
     container_name: alertmanager
     volumes:
       - ./prometheus/config/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
@@ -109,7 +109,7 @@ services:
       - grafana-storage:/var/lib/grafana
 
   mailhog:
-    image: mailhog/mailhog:v1.0.1
+    image: mailhog/mailhog:latest
     container_name: mailhog
     ports:
       - "8025:8025"
