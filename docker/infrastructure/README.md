@@ -4,3 +4,7 @@
 use grafana dashboard #13665
 ## cadvisor
 ## loki
+use grafana dashboard #14055
+## jaeger
+[Link](https://www.jaegertracing.io/docs/1.25/monitoring/)
+use grafana dashboard #10001

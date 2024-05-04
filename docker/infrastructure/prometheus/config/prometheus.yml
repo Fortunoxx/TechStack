@@ -65,3 +65,11 @@ scrape_configs:
         target_label: instance
       - target_label: __address__
         replacement: blackbox-exporter:9115 # The blackbox exporter’s real hostname:port. For Windows and macOS replace with - host.docker.internal:9115
+  - job_name: jaeger-all-in-one
+    static_configs:
+      - targets:
+          - jaeger:14269
+  - job_name: loki
+    static_configs:
+      - targets:
+          - loki:3100

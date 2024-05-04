@@ -107,7 +107,7 @@ services:
         condition: service_healthy
     volumes:
       - grafana-storage:/var/lib/grafana
-
+      
   mailhog:
     image: mailhog/mailhog:latest
     container_name: mailhog
