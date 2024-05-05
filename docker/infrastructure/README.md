@@ -8,3 +8,6 @@ use grafana dashboard #14055
 ## jaeger
 [Link](https://www.jaegertracing.io/docs/1.25/monitoring/)
 use grafana dashboard #10001
+## blackbox
+https://grafana.com/grafana/dashboards/?search=blackbox
+use grafana dashboard #7587 or #13659
