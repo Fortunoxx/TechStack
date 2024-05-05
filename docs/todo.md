@@ -3,13 +3,13 @@
   - [x] MassTransit Mediator (Architecture)
   - [x] ConsumeFilter
   - [x] SendFilter
-  - [ ] Authorization Filter (API Key)
+  - [x] Authorization Filter (API Key)
   - [x] MassTransit Retry (Architecture)
     - [x] MassTransit Circuit Breaker (Architecture) (replaced by KillSwitch)
     - [x] MassTransit KillSwitch (Architecture)
     - [x] MassTransit Delayed Redelivery (Architecture)
   - [x] Request-Response
-  - [ ] RoutingSlips (Courier)
+  - [x] RoutingSlips (Courier)
   - [ ] Saga
 - [x] rabbitmq (Architecture) (everyday I'm shoveling)
 - [x] Seq (Logging)
@@ -42,7 +42,7 @@
     - [ ] Contracts
     - [ ] Components 
       - [ ] company.accounting.billing.components
-      - [ ] routing slips
+      - [x] routing slips
       - [ ] sagas
       - [ ] statemachinestates 
     - [x] Services/Inrastructure

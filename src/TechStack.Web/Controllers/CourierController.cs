@@ -4,8 +4,10 @@ using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 using TechStack.Application.Common.Interfaces;
 using TechStack.Application.Common.Models;
+using TechStack.Web.Authentication;
 
 [ApiController]
+[ApiKeyAuthentication]
 [Route("api/[controller]")]
 public class CourierController(ICorrelationIdGenerator correlationIdGenerator, IRequestClient<DistributedTransactionCommand> requestClient) : ControllerBase
 {
