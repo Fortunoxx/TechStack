@@ -3,14 +3,11 @@ namespace TechStack.Web.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Filters;
 using TechStack.Application.Common.Interfaces;
 
-public class CorrelationIdFilter : IActionFilter
+public class CorrelationIdFilter(ICorrelationIdGenerator correlationIdGenerator) : IActionFilter
 {
     private const string CorrelationIdHeader = "X-Correlation-Id";
 
-    private readonly ICorrelationIdGenerator correlationIdGenerator;
-
-    public CorrelationIdFilter(ICorrelationIdGenerator correlationIdGenerator)
-        => this.correlationIdGenerator = correlationIdGenerator;
+    private readonly ICorrelationIdGenerator correlationIdGenerator = correlationIdGenerator;
 
     public void OnActionExecuted(ActionExecutedContext context)
     {

@@ -3,15 +3,10 @@ namespace TechStack.Web.Infrastructure;
 using Microsoft.Extensions.Primitives;
 using TechStack.Application.Common.Interfaces;
 
-public class CorrelationIdMiddleware
+public class CorrelationIdMiddleware(RequestDelegate next)
 {
-    private readonly RequestDelegate _next;
+    private readonly RequestDelegate _next = next;
     private const string _correlationIdHeader = "X-Correlation-Id";
-
-    public CorrelationIdMiddleware(RequestDelegate next)
-    {
-        _next = next;
-    }
 
     public async Task Invoke(HttpContext context, ICorrelationIdGenerator correlationIdGenerator)
     {
