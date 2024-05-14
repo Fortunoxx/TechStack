@@ -25,6 +25,7 @@ public static class DependencyInjection
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
         // custom services
+        services.AddSingleton<IEndpointNameFormatter>(new SnakeCaseEndpointNameFormatter(includeNamespace: true));
         services.AddSingleton<ILockService, LockService>();
         services.AddScoped<ICorrelationIdGenerator, CorrelationIdGenerator>();
 
