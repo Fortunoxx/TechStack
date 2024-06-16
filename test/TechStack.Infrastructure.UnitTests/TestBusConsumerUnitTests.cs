@@ -1,4 +1,4 @@
-namespace Infrastructure.UnitTests;
+namespace TechStack.Infrastructure.UnitTests;
 
 using AutoFixture;
 using FluentAssertions;
@@ -12,6 +12,7 @@ using TechStack.Infrastructure.Components.Consumers;
 using TechStack.Infrastructure.Services;
 using Xunit;
 
+[Trait("Category", "UnitTest")]
 public class TestBusConsumerUnitTests
 {
     [Fact]
@@ -35,7 +36,7 @@ public class TestBusConsumerUnitTests
         var command = new Fixture().Create<TestCommand>();
 
         // Act
-        var act = cut.GetResponse<TestCommandResponse>(command);
+        var act = await cut.GetResponse<TestCommandResponse>(command);
 
         // Assert
         act.Should().NotBeNull();

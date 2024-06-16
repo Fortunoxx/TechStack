@@ -6,18 +6,12 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using TechStack.Application.Common.Interfaces;
 using TechStack.Domain.Common;
 
-public class AuditableEntityInterceptor : SaveChangesInterceptor
+public class AuditableEntityInterceptor(
+    IUser user,
+    TimeProvider dateTime) : SaveChangesInterceptor
 {
-    private readonly IUser _user;
-    private readonly TimeProvider _dateTime;
-
-    public AuditableEntityInterceptor(
-        IUser user,
-        TimeProvider dateTime)
-    {
-        _user = user;
-        _dateTime = dateTime;
-    }
+    private readonly IUser _user = user;
+    private readonly TimeProvider _dateTime = dateTime;
 
     public override InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
     {

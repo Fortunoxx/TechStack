@@ -31,7 +31,7 @@ public class LocksController : ControllerBase
         var data = Guid.NewGuid();
         if (lockService.CreateLock(id, data))
         {
-            return CreatedAtRoute("GetLockById", id, new { Data = data });
+            return CreatedAtRoute("GetLockById", new { id, }, new { Data = data, });
         }
 
         return BadRequest();

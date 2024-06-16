@@ -8,24 +8,18 @@ using TechStack.Application.Users.Queries;
 
 [ApiController]
 [Route("api/[controller]")]
-public class UsersController : ControllerBase
+public class UsersController(
+    IRequestClient<AddUserCommand> addUserCommandClient,
+    IRequestClient<DeleteUserCommand> deleteUserCommandClient,
+    IRequestClient<GetUserByIdQuery> getUserByIdQueryClient,
+    IRequestClient<GetAllUsersQuery> getAllUsersQueryClient,
+    IRequestClient<AlterUserCommand> alterUserCommandClient) : ControllerBase
 {
-    private readonly IRequestClient<AddUserCommand> addUserCommandClient;
-    private readonly IRequestClient<DeleteUserCommand> deleteUserCommandClient;
-    private readonly IRequestClient<GetUserByIdQuery> getUserByIdQueryClient;
-    private readonly IRequestClient<GetAllUsersQuery> getAllUsersQueryClient;
-
-    public UsersController(
-        IRequestClient<AddUserCommand> addUserCommandClient,
-        IRequestClient<DeleteUserCommand> deleteUserCommandClient,
-        IRequestClient<GetUserByIdQuery> getUserByIdQueryClient,
-        IRequestClient<GetAllUsersQuery> getAllUsersQueryClient)
-    {
-        this.addUserCommandClient = addUserCommandClient;
-        this.deleteUserCommandClient = deleteUserCommandClient;
-        this.getUserByIdQueryClient = getUserByIdQueryClient;
-        this.getAllUsersQueryClient = getAllUsersQueryClient;
-    }
+    private readonly IRequestClient<AddUserCommand> addUserCommandClient = addUserCommandClient;
+    private readonly IRequestClient<DeleteUserCommand> deleteUserCommandClient = deleteUserCommandClient;
+    private readonly IRequestClient<GetUserByIdQuery> getUserByIdQueryClient = getUserByIdQueryClient;
+    private readonly IRequestClient<GetAllUsersQuery> getAllUsersQueryClient = getAllUsersQueryClient;
+    private readonly IRequestClient<AlterUserCommand> alterUserCommandClient = alterUserCommandClient;
 
     [HttpGet("{id}", Name = "GetUserById")]
     public async Task<ActionResult<GetUserByIdQueryResult>> GetUserById(int id)
@@ -36,14 +30,6 @@ public class UsersController : ControllerBase
         if (result.Is<GetUserByIdQueryResult>(out var getUserByIdQueryResult))
         {
             return Ok(getUserByIdQueryResult.Message);
-        }
-
-        if (result.Is<FaultedResponse>(out var faultedMessage))
-        {
-            return new ObjectResult(faultedMessage.Message.Payload)
-            {
-                StatusCode = (int)faultedMessage.Message.HttpStatusCode,
-            };
         }
 
         return BadRequest();
@@ -57,14 +43,6 @@ public class UsersController : ControllerBase
         if (result.Is<GetAllUsersQueryResult>(out var getAllUsersQueryResult))
         {
             return Ok(getAllUsersQueryResult.Message);
-        }
-
-        if (result.Is<FaultedResponse>(out var faultedMessage))
-        {
-            return new ObjectResult(faultedMessage.Message.Payload)
-            {
-                StatusCode = (int)faultedMessage.Message.HttpStatusCode,
-            };
         }
 
         return BadRequest();
@@ -95,6 +73,27 @@ public class UsersController : ControllerBase
     public async Task<IActionResult> DeleteUser(int id)
     {
         var result = await deleteUserCommandClient.GetResponse<AcceptedResponse, FaultedResponse>(new DeleteUserCommand(id));
+
+        if (result.Is<AcceptedResponse>(out _))
+        {
+            return Ok();
+        }
+
+        if (result.Is<FaultedResponse>(out var faultedMessage))
+        {
+            return new ObjectResult(faultedMessage.Message.Payload)
+            {
+                StatusCode = (int)faultedMessage.Message.HttpStatusCode,
+            };
+        }
+
+        return BadRequest();
+    }
+
+    [HttpPut("{id}", Name = "AlterUser")]
+    public async Task<IActionResult> AlterUser(int id, [FromBody] AlterUserCommandPart user)
+    {
+        var result = await alterUserCommandClient.GetResponse<AcceptedResponse, FaultedResponse>(new AlterUserCommand(id, user));
 
         if (result.Is<AcceptedResponse>(out _))
         {

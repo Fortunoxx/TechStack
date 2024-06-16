@@ -16,7 +16,5 @@ public class CorrelationIdPublishFilter<T>(ICorrelationIdGenerator correlationId
         return next.Send(context);
     }
 
-    public void Probe(ProbeContext context)
-    {
-    }
+    public void Probe(ProbeContext context) { }
 }

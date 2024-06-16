@@ -5,16 +5,12 @@ using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using TechStack.Application.Common.Interfaces;
 
-public class GetAllUsersQueryConsumer : IConsumer<GetAllUsersQuery>
+public class GetAllUsersQueryConsumer(IApplicationDbContext applicationDbContext, IMapper mapper) 
+    : IConsumer<GetAllUsersQuery>
 {
-    private readonly IApplicationDbContext applicationDbContext;
-    private readonly IMapper mapper;
-
-    public GetAllUsersQueryConsumer(IApplicationDbContext applicationDbContext, IMapper mapper)
-    {
-        this.applicationDbContext = applicationDbContext;
-        this.mapper = mapper;
-    }
+    private readonly IApplicationDbContext applicationDbContext = applicationDbContext;
+    
+    private readonly IMapper mapper = mapper;
 
     public async Task Consume(ConsumeContext<GetAllUsersQuery> context)
     {
