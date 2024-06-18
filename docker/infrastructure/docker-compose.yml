@@ -5,6 +5,11 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+    healthcheck:
+      test: rabbitmq-diagnostics check_port_connectivity
+      interval: 30s
+      timeout: 30s
+      retries: 10
 
   jaeger:
     image: jaegertracing/all-in-one:latest
@@ -43,16 +48,29 @@ services:
       - ./prometheus/rules/google-cadvisor.yml:/etc/prometheus/google-cadvisor.yml
       - ./prometheus/rules/node-exporter.yml:/etc/prometheus/node-exporter.yml
       - ./prometheus/rules/rules-example.yml:/etc/prometheus/rules-example.yml
+      - ./prometheus/config/web-config.yml:/prometheus/web-config.yml
+      - ./certificates/keyout.key:/home/prometheus/certs/local/keyout.key
+      - ./certificates/certout.crt:/home/prometheus/certs/local/certout.crt
     healthcheck:
       test: wget -q --tries=1 -O- http://localhost:9090/-/ready
       interval: 3s
       timeout: 3s
       retries: 10
       start_period: 10s
+    command:
+      - "--config.file=:/etc/prometheus/prometheus.yml"
+      - "--web.config.file=/prometheus/web-config.yml"
     ports:
       - 9090:9090
-    depends_on:
-      - cadvisor
+    # depends_on:
+    #   loki:
+    #     condition: service_healthy
+    #   cadvisor:
+    #     condition: service_healthy
+    #   rabbitmq:
+    #     condition: service_healthy
+    #   alert-manager:
+    #     condition: service_healthy
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
@@ -71,10 +89,10 @@ services:
       - /var/lib/docker/:/var/lib/docker:ro
     healthcheck:
       test: wget -q --tries=1 -O- http://localhost:8080/healthz || exit 1
-      interval: 15s
-      timeout: 15s
-      retries: 5
-      start_period: 30s
+      interval: 3s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
 
   node-exporter:
     image: prom/node-exporter:latest
@@ -106,6 +124,12 @@ services:
       - ./prometheus/config/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
     ports:
       - 9093:9093
+    healthcheck:
+      test: wget -q --tries=1 -O- http://localhost:9093/-/ready
+      interval: 3s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
 
   grafana:
     image: grafana/grafana:latest
@@ -113,11 +137,7 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      loki:
-        condition: service_healthy
       prometheus:
-        condition: service_healthy
-      cadvisor:
         condition: service_healthy
     volumes:
       - grafana-storage:/var/lib/grafana
