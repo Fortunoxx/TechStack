@@ -1,8 +1,11 @@
 namespace TechStack.Web;
 
+using Microsoft.Extensions.Options;
+using Swashbuckle.AspNetCore.SwaggerGen;
 using TechStack.Application.Common.Interfaces;
 using TechStack.Infrastructure;
 using TechStack.Web.Authentication;
+using TechStack.Web.Infrastructure;
 using TechStack.Web.Services;
 
 public static class DependencyInjection
@@ -15,6 +18,8 @@ public static class DependencyInjection
 
         services.AddHealthChecks()
             .AddDbContextCheck<ApplicationDbContext>();
+
+        services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
 
         return services;
     }

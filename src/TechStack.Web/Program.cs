@@ -14,6 +14,8 @@ using System.Buffers;
 using MassTransit.Monitoring;
 using TechStack.Web;
 
+const string TechStackApiName = "TechStack";
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.UseSerilog((ctx, lc) => lc
@@ -28,7 +30,24 @@ builder.Services.AddTransient(typeof(IValidationFailurePipe<>), typeof(Validatio
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.
+    AddSwaggerGen(options => options.OperationFilter<DeprecatedHeaderFilter>()).
+    AddSwaggerGenNewtonsoftSupport();
+
+builder.Services.
+    AddApiVersioning(options =>
+    {
+        options.AssumeDefaultVersionWhenUnspecified = true;
+        options.DefaultApiVersion = new(1, 0);
+        options.ReportApiVersions = true;
+    }).
+    AddApiExplorer(options =>
+    {
+        options.AssumeDefaultVersionWhenUnspecified = true;
+        options.GroupNameFormat = "'v'VVV";
+        // options.SubstituteApiVersionInUrl = true; // only needed for route versioning
+    });
+
 builder.Services.AddControllers(
     options => options.Filters.Add(typeof(CorrelationIdFilter))
 );
@@ -48,7 +67,7 @@ builder.Services.AddOpenTelemetry()
         .AddPrometheusExporter()
         .AddRuntimeInstrumentation()
         .AddMeter(
-            "Microsoft.AspNetCore.Hosting", 
+            "Microsoft.AspNetCore.Hosting",
             "Microsoft.AspNetCore.Server.Kestrel",
             "System.Net.Http",
             "TechStack.Web",
@@ -121,7 +140,16 @@ app.UseExceptionHandler(exceptionHandlerApp =>
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(
+        options =>
+        {
+            var descriptions = app.DescribeApiVersions();
+
+            foreach (var description in descriptions)
+            {
+                options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", $"{TechStackApiName} {description.GroupName.ToUpperInvariant()}");
+            }
+        });
 }
 
 // app.UseMiddleware<ApiKeyAuthMiddleware>();
@@ -131,7 +159,7 @@ app.UseAuthorization();
 // Configure the Prometheus scraping endpoint
 app.MapPrometheusScrapingEndpoint();
 
-async Task<string?> GetRequestBody(HttpRequest httpRequest)
+static async Task<string?> GetRequestBody(HttpRequest httpRequest)
 {
     httpRequest.Body.Position = 0;
     var payload = await new StreamReader(httpRequest.Body).ReadToEndAsync();
