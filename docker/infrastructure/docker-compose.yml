@@ -38,6 +38,7 @@ services:
     container_name: prometheus
     volumes:
       - ./prometheus/config/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus/rules/blackbox-exporter.yml:/etc/prometheus/blackbox-exporter.yml
       - ./prometheus/rules/embedded-exporter.yml:/etc/prometheus/embedded-exporter.yml
       - ./prometheus/rules/google-cadvisor.yml:/etc/prometheus/google-cadvisor.yml
       - ./prometheus/rules/node-exporter.yml:/etc/prometheus/node-exporter.yml
