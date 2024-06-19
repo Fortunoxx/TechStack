@@ -17,6 +17,7 @@ alerting:
 
 scrape_configs:
   - job_name: prometheus
+    scheme: https
     static_configs:
       - targets:
           - prometheus:9090
@@ -46,7 +47,6 @@ scrape_configs:
       - targets:
           - speedtest-exporter:9798
   - job_name: blackbox # To get metrics about the exporter itself
-    # metrics_path: /metrics # default
     static_configs:
       - targets:
           - blackbox-exporter:9115

@@ -1,0 +1,14 @@
+[ req ]
+default_bits       = 2048
+default_md         = sha256
+prompt             = no
+distinguished_name = req_distinguished_name
+
+[ req_distinguished_name ]
+C  = DE
+ST = Northrine Westphalia
+L  = Düsseldorf
+O  = private
+OU = private
+CN = prometheus
+emailAddress = mail@example.com

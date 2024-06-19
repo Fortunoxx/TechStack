@@ -1,0 +1,2 @@
+openssl req -new -nodes -keyout prometheus.key -out prometheus.csr -days 3650 -subj "/C=DE/ST=Northrine Westphalia/L=Düsseldorf/O=private/OU=private/CN=Rob Gates" -config ./prometheus.extfile.cnf -extensions v3_req
+openssl x509 -req -days 3650 -in test.csr -CA cacert.pem -CAkey rootCA.key -CAcreateserial -out prometheus.pem -extfile ./prometheus.extfile.cnf -extensions v3_req

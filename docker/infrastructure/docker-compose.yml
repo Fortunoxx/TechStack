@@ -49,17 +49,17 @@ services:
       - ./prometheus/rules/node-exporter.yml:/etc/prometheus/node-exporter.yml
       - ./prometheus/rules/rules-example.yml:/etc/prometheus/rules-example.yml
       - ./prometheus/config/web-config.yml:/prometheus/web-config.yml
-      - ./certificates/keyout.key:/home/prometheus/certs/local/keyout.key
-      - ./certificates/certout.crt:/home/prometheus/certs/local/certout.crt
-    healthcheck:
-      test: wget -q --tries=1 -O- http://localhost:9090/-/ready
-      interval: 3s
-      timeout: 3s
-      retries: 10
-      start_period: 10s
+      - ./certificates/prometheus/prometheus.key:/home/prometheus/certs/local/prometheus.key
+      - ./certificates/prometheus/prometheus.crt:/home/prometheus/certs/local/prometheus.crt
+    # healthcheck:
+    #   test: wget -q --tries=1 -O- https://localhost:9090/-/ready
+    #   interval: 3s
+    #   timeout: 3s
+    #   retries: 10
+    #   start_period: 10s
     command:
-      - "--config.file=:/etc/prometheus/prometheus.yml"
       - "--web.config.file=/prometheus/web-config.yml"
+      - "--config.file=/etc/prometheus/prometheus.yml"
     ports:
       - 9090:9090
     # depends_on:
