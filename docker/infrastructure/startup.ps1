@@ -21,10 +21,16 @@ $mssql_pw = Get-MdbcData @{key="mssql.new_sa_password"}
 Write-Host "=> updating sql server password:"
 Write-Host -ForegroundColor Magenta "=>" $mssql_pw.value
 
-$pwd = "P@ssw0rd1!" # old password, we want to change that now
+$password = "P@ssw0rd1!" # old password, we want to change that now
 $query = "USE [master]; ALTER LOGIN [sa] WITH PASSWORD=N'$($mssql_pw.value)';"
 $query
 
-Invoke-Sqlcmd -Query $query -ServerInstance "localhost,1433" -Username "sa" -Password $pwd -TrustServerCertificate
+Invoke-Sqlcmd -Query $query -ServerInstance "localhost,1433" -Username "sa" -Password $password -TrustServerCertificate
 
+$location = $pwd
+Write-Host "Generating Prometheus certificates..."
+Set-Location ./certificates/prometheus
+& ".\generate-certs.ps1"
+
+Set-Location $location
 docker-compose up -d 

@@ -10,6 +10,7 @@ services:
       interval: 30s
       timeout: 30s
       retries: 10
+    restart: unless-stopped
 
   jaeger:
     image: jaegertracing/all-in-one:latest
@@ -24,6 +25,7 @@ services:
       - "14268:14268"
       - "14269:14269"
       - "9411:9411"
+    restart: unless-stopped
 
   loki:
     image: grafana/loki:latest
@@ -37,6 +39,7 @@ services:
       timeout: 3s
       retries: 10
       start_period: 10s
+    restart: unless-stopped
 
   prometheus:
     image: prom/prometheus:latest
@@ -52,7 +55,7 @@ services:
       - ./certificates/prometheus/prometheus.key:/home/prometheus/certs/local/prometheus.key
       - ./certificates/prometheus/prometheus.crt:/home/prometheus/certs/local/prometheus.crt
     # healthcheck:
-    #   test: wget -q --tries=1 -O- https://localhost:9090/-/ready
+    #   test: wget -q --tries=1 --no-check-certificate -O- https://localhost:9090/-/ready
     #   interval: 3s
     #   timeout: 3s
     #   retries: 10
@@ -62,15 +65,7 @@ services:
       - "--config.file=/etc/prometheus/prometheus.yml"
     ports:
       - 9090:9090
-    # depends_on:
-    #   loki:
-    #     condition: service_healthy
-    #   cadvisor:
-    #     condition: service_healthy
-    #   rabbitmq:
-    #     condition: service_healthy
-    #   alert-manager:
-    #     condition: service_healthy
+    restart: unless-stopped
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
@@ -93,12 +88,14 @@ services:
       timeout: 3s
       retries: 10
       start_period: 10s
+    restart: unless-stopped
 
   node-exporter:
     image: prom/node-exporter:latest
     container_name: node-exporter
     ports:
       - 9100:9100
+    restart: unless-stopped
 
   blackbox-exporter:
     image: prom/blackbox-exporter:latest
@@ -109,6 +106,7 @@ services:
       - ./blackbox:/config
     command:
       - '--config.file=/config/blackbox.yml'
+    restart: unless-stopped
 
   speedtest-exporter:
     image: miguelndecarvalho/speedtest-exporter:latest
@@ -130,6 +128,7 @@ services:
       timeout: 3s
       retries: 10
       start_period: 10s
+    restart: unless-stopped
 
   grafana:
     image: grafana/grafana:latest
@@ -137,16 +136,17 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      prometheus:
-        condition: service_healthy
+      - prometheus
     volumes:
       - grafana-storage:/var/lib/grafana
+    restart: unless-stopped
       
   mailhog:
     image: mailhog/mailhog:latest
     container_name: mailhog
     ports:
       - "8025:8025"
+    restart: unless-stopped
 
   seq:
     image: datalust/seq:latest
@@ -165,6 +165,7 @@ services:
       - 27017:27017
     volumes:
       - mongo-data:/data/db
+    restart: unless-stopped
 
   mssql:
     image: mcr.microsoft.com/mssql/server:2022-latest

@@ -485,3 +485,9 @@ $RECYCLE.BIN/
 
 # alertmanager generated file from template
 **/alertmanager.yml
+# certificates
+*.csr
+*.crt
+*.key
+*.pem
+*.pfx
