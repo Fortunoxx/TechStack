@@ -1,6 +1,6 @@
 openssl genrsa -out prometheus.key 2048
-openssl req -new -key prometheus.key -out prometheus.csr -config prometheus.csr.cnf
-openssl x509 -req -in prometheus.csr -signkey prometheus.key -out prometheus.crt -days 365 -extfile prometheus.extfile.cnf
+openssl req -new -key prometheus.key -out prometheus.csr -config prometheus.csr.cfg
+openssl x509 -req -in prometheus.csr -signkey prometheus.key -out prometheus.crt -days 365 -extfile prometheus.extfile.cfg
 
 # check the files, the hashes should match
 openssl rsa -noout -modulus -in .\prometheus.key | openssl md5
