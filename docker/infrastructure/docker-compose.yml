@@ -63,7 +63,7 @@ services:
       - "--port=8080"
       - "--housekeeping_interval=30s"
       - "--docker_only=true"
-      - "--disable_metrics=percpu,sched,tcp,udp,disk,diskIO,accelerator,hugetlb,referenced_memory,cpu_topology,resctrl"
+      - "--disable_metrics=percpu,sched,tcp,udp,disk,diskIO,hugetlb,referenced_memory,cpu_topology,resctrl"
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:rw
@@ -151,12 +151,12 @@ services:
     container_name: mssql
     environment:
       - ACCEPT_EULA=Y
-      - SA_PASSWORD=P@ssw0rd1!
+      - MSSQL_SA_PASSWORD=P@ssw0rd1!
     ports:
       - "1433:1433"
     restart: unless-stopped
     volumes:
-      - mssql-data:/var/opt/mssql
+      - mssql-data:/mssql/data
 
 volumes:
   grafana-storage:
