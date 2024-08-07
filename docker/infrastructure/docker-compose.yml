@@ -24,7 +24,9 @@ services:
     image: grafana/promtail:latest
     container_name: promtail
     volumes:
-      - ./promtail/promtail.yaml:/etc/promtail/docker-config.yaml
+      - ./promtail/promtail.yaml:/etc/promtail/docker-config.yaml:ro
+      - ./promtail/log:/var/log
+      # - /var/lib/docker/containers:/var/lib/docker/containers:ro
     depends_on:
       - loki
 
@@ -34,7 +36,8 @@ services:
     ports:
       - 3100:3100
     volumes:
-      - ./loki-config.yml:/etc/loki/loki-config.yaml
+      - ./loki/loki-config.yml:/etc/loki/loki-config.yaml
+      - loki-data:/tmp/loki
     healthcheck:
       test: wget -q --tries=1 -O- http://localhost:3100/ready
       interval: 3s
@@ -172,3 +175,4 @@ volumes:
     external: true
   mongo-data:
   mssql-data:
+  loki-data:
