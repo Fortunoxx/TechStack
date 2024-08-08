@@ -1,4 +1,4 @@
-namespace Web.UnitTests;
+namespace TechStack.Web.UnitTests;
 
 using System.Threading.Tasks;
 using AutoFixture;

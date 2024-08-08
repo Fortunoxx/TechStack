@@ -1,4 +1,4 @@
-namespace Infrastructure.UnitTests;
+namespace TechStack.Infrastructure.UnitTests;
 
 using AutoFixture;
 using FluentAssertions;
