@@ -1,4 +1,4 @@
-namespace Application.UnitTests;
+namespace TechStack.Application.UnitTests;
 
 using AutoMapper;
 using TechStack.Application.Mappings;
