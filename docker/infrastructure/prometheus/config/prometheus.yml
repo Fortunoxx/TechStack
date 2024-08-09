@@ -6,7 +6,6 @@ rule_files:
   - rules/blackbox-exporter.yml
   - rules/embedded-exporter.yml
   - rules/google-cadvisor.yml
-  - rules/kbudde-rabbitmq-exporter.yml
   - rules/node-exporter.yml
   - rules/percona-mongodb-exporter.yml
   - rules/rabbitmq-exporter.yml
@@ -69,6 +68,15 @@ scrape_configs:
       - targets:
           - prometheus:9090  
   - job_name: rabbitmq
+    static_configs:
+      - targets:
+          - rabbitmq:15692
+  - job_name: rabbitmq-detailed
+    metrics_path: /metrics/detailed
+    params: 
+      family:
+        - queue_coarse_metrics
+        - queue_consumer_count
     static_configs:
       - targets:
           - rabbitmq:15692

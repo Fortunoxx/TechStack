@@ -32,3 +32,14 @@ groups:
         annotations:
           title: "High 5xx rate for {{ $labels.method }} on {{ $labels.path }}"
           description: 'The 5xx error rate for path {{$labels.path}} with method {{ $labels.method }} in {{ $labels.job }} is {{ printf "%.2f" $value }}%.'
+
+  - name: rabbit-mq-errors
+    rules:
+      - alert: RabbitMqTooManyErrorQueueMessages
+        expr: rabbitmq_detailed_queue_messages{queue=~".+_error"} > 0
+        for: 15s
+        labels:
+          severity: warning
+        annotations:
+          summary: RabbitMQ error queues filling up (instance {{ $labels.instance }})
+          description: "An error queue is building up\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
