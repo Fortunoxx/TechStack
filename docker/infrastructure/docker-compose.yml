@@ -50,11 +50,7 @@ services:
     container_name: prometheus
     volumes:
       - ./prometheus/config/prometheus.yml:/etc/prometheus/prometheus.yml
-      - ./prometheus/rules/blackbox-exporter.yml:/etc/prometheus/blackbox-exporter.yml
-      - ./prometheus/rules/embedded-exporter.yml:/etc/prometheus/embedded-exporter.yml
-      - ./prometheus/rules/google-cadvisor.yml:/etc/prometheus/google-cadvisor.yml
-      - ./prometheus/rules/node-exporter.yml:/etc/prometheus/node-exporter.yml
-      - ./prometheus/rules/rules-example.yml:/etc/prometheus/rules-example.yml
+      - ./prometheus/rules/:/etc/prometheus/rules/
     healthcheck:
       test: wget -q --tries=1 -O- http://localhost:9090/-/ready
       interval: 3s
@@ -102,7 +98,7 @@ services:
     volumes:
       - ./blackbox:/config
     command:
-      - '--config.file=/config/blackbox.yml'
+      - "--config.file=/config/blackbox.yml"
 
   speedtest-exporter:
     image: miguelndecarvalho/speedtest-exporter:latest
@@ -133,22 +129,12 @@ services:
         condition: service_healthy
     volumes:
       - grafana-storage:/var/lib/grafana
-      
+
   mailhog:
     image: mailhog/mailhog:latest
     container_name: mailhog
     ports:
       - "8025:8025"
-
-  seq:
-    image: datalust/seq:latest
-    container_name: seq
-    environment:
-      - ACCEPT_EULA=Y
-    ports:
-      - 5341:5341
-      - 3110:80
-    restart: unless-stopped
 
   mongodb:
     image: mongo:latest
@@ -157,6 +143,15 @@ services:
       - 27017:27017
     volumes:
       - mongo-data:/data/db
+
+  mongodb-exporter:
+    image: percona/mongodb_exporter:0.40
+    container_name: mongodb-exporter
+    env_file: .env
+    ports:
+      - 9216:9216
+    command:
+      - --mongodb.uri=mongodb://exporter:${MONGODB_EXPORTER_PASSWORD}@mongodb:27017/
 
   mssql:
     image: mcr.microsoft.com/mssql/server:2022-CU13-ubuntu-22.04
@@ -169,6 +164,16 @@ services:
     restart: unless-stopped
     volumes:
       - mssql-data:/mssql/data
+
+  seq:
+    image: datalust/seq:latest
+    container_name: seq
+    environment:
+      - ACCEPT_EULA=Y
+    ports:
+      - 5341:5341
+      - 3110:80
+    restart: unless-stopped
 
 volumes:
   grafana-storage:

@@ -3,11 +3,14 @@ global:
   evaluation_interval: 15s
 
 rule_files:
-  - blackbox-exporter.yml
-  - embedded-exporter.yml
-  - google-cadvisor.yml
-  - node-exporter.yml
-  - rules-example.yml
+  - rules/blackbox-exporter.yml
+  - rules/embedded-exporter.yml
+  - rules/google-cadvisor.yml
+  - rules/kbudde-rabbitmq-exporter.yml
+  - rules/node-exporter.yml
+  - rules/percona-mongodb-exporter.yml
+  - rules/rabbitmq-exporter.yml
+  - rules/rules-example.yml
 
 alerting:
   alertmanagers:
@@ -16,35 +19,10 @@ alerting:
             - alert-manager:9093
 
 scrape_configs:
-  - job_name: prometheus
-    static_configs:
-      - targets:
-          - prometheus:9090
   - job_name: alertmanager
     static_configs:
       - targets:
           - alertmanager:9093
-  - job_name: node
-    static_configs:
-      - targets:
-          - node-exporter:9100
-  - job_name: techstack
-    # metrics_path defaults to '/metrics'
-    # scheme defaults to 'http'.
-    scrape_interval: 5s # poll very quickly for a more responsive demo
-    static_configs:
-      - targets:
-          - host.docker.internal:5131 # this is our custom Service: API
-  - job_name: cadvisor
-    static_configs:
-      - targets:
-          - cadvisor:8080
-  - job_name: speedtest-exporter
-    scrape_interval: 15m
-    scrape_timeout: 1m
-    static_configs:
-      - targets:
-          - speedtest-exporter:9798
   - job_name: blackbox # To get metrics about the exporter itself
     # metrics_path: /metrics # default
     static_configs:
@@ -66,6 +44,10 @@ scrape_configs:
         target_label: instance
       - target_label: __address__
         replacement: blackbox-exporter:9115 # The blackbox exporter’s real hostname:port. For Windows and macOS replace with - host.docker.internal:9115
+  - job_name: cadvisor
+    static_configs:
+      - targets:
+          - cadvisor:8080
   - job_name: jaeger-all-in-one
     static_configs:
       - targets:
@@ -74,3 +56,32 @@ scrape_configs:
     static_configs:
       - targets:
           - loki:3100
+  - job_name: mongodb-exporter
+    static_configs:
+      - targets:
+          - mongodb-exporter:9216
+  - job_name: node
+    static_configs:
+      - targets:
+          - node-exporter:9100
+  - job_name: prometheus
+    static_configs:
+      - targets:
+          - prometheus:9090  
+  - job_name: rabbitmq
+    static_configs:
+      - targets:
+          - rabbitmq:15692
+  - job_name: speedtest-exporter
+    scrape_interval: 15m
+    scrape_timeout: 1m
+    static_configs:
+      - targets:
+          - speedtest-exporter:9798
+  - job_name: techstack
+    # metrics_path defaults to '/metrics'
+    # scheme defaults to 'http'.
+    scrape_interval: 5s # poll very quickly for a more responsive demo
+    static_configs:
+      - targets:
+          - host.docker.internal:5131 # this is our custom Service: API
