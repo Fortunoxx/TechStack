@@ -1,4 +1,3 @@
-namespace TechStack.Infrastructure;
 
 using System.Reflection;
 using Ardalis.GuardClauses;
@@ -9,15 +8,14 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using TechStack.Application.Common.Interfaces;
-using TechStack.Application.Users.Commands;
-using TechStack.Application.Users.Queries;
+using TechStack.Infrastructure.Components;
 using TechStack.Infrastructure.Components.Activities;
-using TechStack.Infrastructure.Components.Consumers;
 using TechStack.Infrastructure.Components.Messaging;
 using TechStack.Infrastructure.Data.Interceptors;
 using TechStack.Infrastructure.Filter;
 using TechStack.Infrastructure.Services;
 
+namespace TechStack.Infrastructure;
 public static class DependencyInjection
 {
     private const string AssemblyNamespace = "TechStack";
@@ -31,13 +29,10 @@ public static class DependencyInjection
 
         services.AddMassTransit(options =>
         {
-            options.AddConsumer<AddUserCommandConsumer>();
-            options.AddConsumer<DeleteUserCommandConsumer>();
-            options.AddConsumer<GetUserByIdQueryConsumer>();
-            options.AddConsumer<GetAllUsersQueryConsumer>();
-            options.AddConsumer<TestBusConsumer>();
-
-            options.AddActivitiesFromNamespaceContaining<ActivityMarker>();
+            options.AddConsumersFromNamespaceContaining<Application.ComponentsNamespace>();
+            options.AddActivitiesFromNamespaceContaining<ComponentsNamespace>();
+            // options.AddConsumersFromNamespaceContaining<ComponentsNamespace>(); // fails!?
+            options.AddSagaStateMachinesFromNamespaceContaining<ComponentsNamespace>();
 
             var baseDir = AppDomain.CurrentDomain.BaseDirectory;
             var assemblies = LoadAssemblies(baseDir, AssemblyNamespace);
