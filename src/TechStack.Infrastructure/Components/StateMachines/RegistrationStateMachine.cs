@@ -15,10 +15,6 @@ public class RegistrationStateMachine :
             x.OnMissingInstance(m => m.Fault());
         });
 
-        Event(() => EventRegistrationReceived, x =>
-             x.CorrelateById(context => context.Message.SubmissionId)
-              .SelectId(context => context.Message.SubmissionId));  // Create a new saga if not found
-
         Schedule(() => RetryDelayExpired, saga => saga.ScheduleRetryToken, x =>
         {
             x.Received = r =>
