@@ -2,7 +2,7 @@ namespace TechStack.Infrastructure.Components.StateMachines;
 
 using MassTransit;
 
-public class RegistrationState : SagaStateMachineInstance
+public class RegistrationState : SagaStateMachineInstance, ISagaVersion
 {
     public string ParticipantEmailAddress { get; set; }
     public string ParticipantLicenseNumber { get; set; }
@@ -24,4 +24,6 @@ public class RegistrationState : SagaStateMachineInstance
     public Guid? ScheduleRetryToken { get; set; }
 
     public Guid CorrelationId { get; set; }
+    
+    public int Version { get; set; }
 }

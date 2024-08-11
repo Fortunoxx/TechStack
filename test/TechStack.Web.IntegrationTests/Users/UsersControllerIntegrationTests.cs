@@ -8,10 +8,10 @@ using AutoFixture;
 using FluentAssertions;
 using TechStack.Application.Users.Commands;
 using TechStack.Domain.Entities;
-using TechStack.Infrastructure;
 using TechStack.Web.IntegrationTests.Mocks;
 using TechStack.Web.IntegrationTests.Fixtures;
 using Xunit;
+using TechStack.Infrastructure.Data;
 
 public sealed class UsersControllerIntegrationTests : IAsyncLifetime,
     IClassFixture<IntegrationTestFactory<Program, ApplicationDbContext>>

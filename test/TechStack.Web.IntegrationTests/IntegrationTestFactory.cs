@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.SqlServer.Dac;
-using TechStack.Infrastructure;
+using TechStack.Infrastructure.Data;
 using TechStack.Web.IntegrationTests.Extensions;
 using Testcontainers.MsSql;
 using Xunit;

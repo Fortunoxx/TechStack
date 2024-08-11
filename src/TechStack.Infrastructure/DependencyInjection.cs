@@ -9,8 +9,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using TechStack.Application.Common.Interfaces;
 using TechStack.Infrastructure.Components;
-using TechStack.Infrastructure.Components.Activities;
 using TechStack.Infrastructure.Components.Messaging;
+using TechStack.Infrastructure.Components.StateMachines;
+using TechStack.Infrastructure.Data;
 using TechStack.Infrastructure.Data.Interceptors;
 using TechStack.Infrastructure.Filter;
 using TechStack.Infrastructure.Services;
@@ -29,10 +30,20 @@ public static class DependencyInjection
 
         services.AddMassTransit(options =>
         {
+            // options.SetEntityFrameworkSagaRepositoryProvider(r =>
+            // {
+            //     r.ExistingDbContext<RegistrationDbContext>();
+            //     r.UseSqlServer();
+            // });
+
             options.AddConsumersFromNamespaceContaining<Application.ComponentsNamespace>();
             options.AddActivitiesFromNamespaceContaining<ComponentsNamespace>();
-            // options.AddConsumersFromNamespaceContaining<ComponentsNamespace>(); // fails!?
             options.AddSagaStateMachinesFromNamespaceContaining<ComponentsNamespace>();
+            options.AddSagaStateMachine<RegistrationStateMachine, RegistrationState>().MongoDbRepository(r =>
+            {
+                r.Connection = "mongodb://localhost:27017";
+                r.DatabaseName = "masstransit";
+            });
 
             var baseDir = AppDomain.CurrentDomain.BaseDirectory;
             var assemblies = LoadAssemblies(baseDir, AssemblyNamespace);
@@ -79,6 +90,17 @@ public static class DependencyInjection
             options.AddInterceptors(serviceProvider.GetServices<ISaveChangesInterceptor>());
             options.UseSqlServer(connectionString);
         });
+
+        // services.AddDbContext<RegistrationDbContext>(r =>
+        // {
+        //     var sagaConnectionString = configuration.GetConnectionString("Sagas");
+
+        //     r.UseSqlServer(sagaConnectionString, m =>
+        //     {
+        //         m.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name);
+        //         m.MigrationsHistoryTable($"__{nameof(RegistrationDbContext)}");
+        //     });
+        // });
 
         services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
 

@@ -1,14 +1,13 @@
-namespace TechStack.Infrastructure;
+namespace TechStack.Infrastructure.Data;
 
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using TechStack.Application.Common.Interfaces;
 using TechStack.Domain.Entities;
 
-public class ApplicationDbContext : DbContext, IApplicationDbContext
+public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) 
+    : DbContext(options), IApplicationDbContext
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
-
     public DbSet<User> Users => Set<User>();
 
     protected override void OnModelCreating(ModelBuilder builder)

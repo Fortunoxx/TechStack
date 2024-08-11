@@ -8,6 +8,8 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.7" />
+    <!-- <PackageReference Include="MassTransit.EntityFrameworkCore" Version="8.2.4" /> -->
+    <PackageReference Include="MassTransit.MongoDb" Version="8.2.4" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TechStack.Application\TechStack.Application.csproj" />
