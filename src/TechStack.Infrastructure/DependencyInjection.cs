@@ -50,7 +50,8 @@ public static class DependencyInjection
                     .SetTripThreshold(0.15)
                     .SetRestartTimeout(s: 10));
 
-                busFactoryConfigurator.UseDelayedRedelivery(r => r.Intervals(TimeSpan.FromMinutes(5), TimeSpan.FromMinutes(15), TimeSpan.FromMinutes(30), TimeSpan.FromMinutes(60), TimeSpan.FromMinutes(120)));
+                busFactoryConfigurator.UseMessageRetry(r => r.Incremental(3, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(1)));
+                // busFactoryConfigurator.UseDelayedRedelivery(r => r.Intervals(TimeSpan.FromMinutes(5), TimeSpan.FromMinutes(15), TimeSpan.FromMinutes(30), TimeSpan.FromMinutes(60), TimeSpan.FromMinutes(120)));
 
                 busFactoryConfigurator.UsePublishFilter(typeof(CorrelationIdPublishFilter<>), context);
                 busFactoryConfigurator.UseConsumeFilter(typeof(CorrelationIdConsumeFilter<>), context);
