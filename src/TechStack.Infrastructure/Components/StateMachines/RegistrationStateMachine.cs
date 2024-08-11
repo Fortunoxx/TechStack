@@ -68,8 +68,8 @@ public class RegistrationStateMachine :
         );
 
         // could easily be configured via options
-        const int retryCount = 5;
-        var retryDelay = TimeSpan.FromSeconds(10);
+        const int retryCount = 3;
+        var retryDelay = TimeSpan.FromSeconds(5);
 
         WhenEnter(Suspended, x => x
             .If(context => context.Saga.RetryAttempt < retryCount,

@@ -28,10 +28,12 @@ public static class DependencyInjection
         services.AddSingleton<IEndpointNameFormatter>(new SnakeCaseEndpointNameFormatter(includeNamespace: true));
         services.AddSingleton<ILockService, LockService>();
         services.AddScoped<ICorrelationIdGenerator, CorrelationIdGenerator>();
+        services.AddSingleton<IEndpointAddressProvider, RabbitMqEndpointAddressProvider>();
 
         services.AddMassTransit(options =>
         {
             options.AddConsumer<TestBusConsumer>();
+            options.AddConsumer<ProcessRegistrationConsumer>();
             options.AddConsumer<SubmitRegistrationConsumer>();
 
             options.AddConsumersFromNamespaceContaining<Application.ComponentsNamespace>();
@@ -49,12 +51,12 @@ public static class DependencyInjection
 
             options.UsingRabbitMq((context, busFactoryConfigurator) =>
             {
-                busFactoryConfigurator.UseKillSwitch(opt => opt
-                    .SetActivationThreshold(3)
-                    .SetTripThreshold(0.15)
-                    .SetRestartTimeout(s: 10));
+                // busFactoryConfigurator.UseKillSwitch(opt => opt
+                //     .SetActivationThreshold(3)
+                //     .SetTripThreshold(0.15)
+                //     .SetRestartTimeout(s: 10));
 
-                busFactoryConfigurator.UseDelayedRedelivery(r => r.Intervals(TimeSpan.FromMinutes(5), TimeSpan.FromMinutes(15), TimeSpan.FromMinutes(30), TimeSpan.FromMinutes(60), TimeSpan.FromMinutes(120)));
+                // busFactoryConfigurator.UseDelayedRedelivery(r => r.Intervals(TimeSpan.FromMinutes(5), TimeSpan.FromMinutes(15), TimeSpan.FromMinutes(30), TimeSpan.FromMinutes(60), TimeSpan.FromMinutes(120)));
 
                 busFactoryConfigurator.UsePublishFilter(typeof(CorrelationIdPublishFilter<>), context);
                 busFactoryConfigurator.UseConsumeFilter(typeof(CorrelationIdConsumeFilter<>), context);
@@ -64,7 +66,7 @@ public static class DependencyInjection
                 foreach (var rabbitMqOptionType in rabbitMqOptionTypes)
                 {
                     var methodInfo = rabbitMqOptionType.GetMethod(nameof(MessageBrokerRabbitMqOption.Configure));
-                    var classInstance = Activator.CreateInstance(rabbitMqOptionType, null);
+                    var classInstance = Activator.CreateInstance(rabbitMqOptionType, services);
 
                     var parametersArray = new object[]
                     {
