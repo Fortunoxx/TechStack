@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using TechStack.Application.Common.Interfaces;
 using TechStack.Infrastructure.Components;
+using TechStack.Infrastructure.Components.Consumers;
 using TechStack.Infrastructure.Components.Messaging;
 using TechStack.Infrastructure.Components.StateMachines;
 using TechStack.Infrastructure.Data;
@@ -30,11 +31,8 @@ public static class DependencyInjection
 
         services.AddMassTransit(options =>
         {
-            // options.SetEntityFrameworkSagaRepositoryProvider(r =>
-            // {
-            //     r.ExistingDbContext<RegistrationDbContext>();
-            //     r.UseSqlServer();
-            // });
+            options.AddConsumer<TestBusConsumer>();
+            options.AddConsumer<SubmitRegistrationConsumer>();
 
             options.AddConsumersFromNamespaceContaining<Application.ComponentsNamespace>();
             options.AddActivitiesFromNamespaceContaining<ComponentsNamespace>();
