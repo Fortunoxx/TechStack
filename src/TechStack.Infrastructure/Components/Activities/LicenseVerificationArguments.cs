@@ -5,8 +5,9 @@ public record LicenseVerificationArguments
     /// <summary>
     /// Racer's license number
     /// </summary>
-    public string ParticipantLicenseNumber { get; init; }
+    public required string ParticipantLicenseNumber { get; init; }
 
-    public string EventType { get; init; }
-    public string ParticipantCategory { get; init; }
+    public required string EventType { get; init; }
+    
+    public required string ParticipantCategory { get; init; }
 }

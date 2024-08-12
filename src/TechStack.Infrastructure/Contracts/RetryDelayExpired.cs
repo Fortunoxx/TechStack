@@ -1,3 +1,3 @@
 namespace TechStack.Infrastructure.Contracts;
 
-public record RetryDelayExpired(Guid RegistrationId);
+public record RetryDelayExpired(Guid SubmissionId);

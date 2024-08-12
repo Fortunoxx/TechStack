@@ -6,5 +6,5 @@ public record RegistrationLicenseVerificationFailed
 {
     public Guid SubmissionId { get; init; }
 
-    public ExceptionInfo ExceptionInfo { get; init; }
+    public required ExceptionInfo ExceptionInfo { get; init; }
 }

@@ -24,7 +24,7 @@ public class RegistrationController : ControllerBase
         var response = new
         {
             registration.SubmissionId,
-            Actions = new Dictionary<string, string> { { "Status", Url.Link("RegistrationStatus", new { submissionId = registration.SubmissionId }) } }
+            Actions = new Dictionary<string, string> { { "Status", Url.Link("RegistrationStatus", new { submissionId = registration.SubmissionId, })! } }
         };
 
         return Ok(response);

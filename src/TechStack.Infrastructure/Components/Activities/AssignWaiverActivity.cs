@@ -28,7 +28,6 @@ public class AssignWaiverActivity :
         if (emailAddress == "joey@friends.tv")
             throw new RoutingSlipException($"The document server failed to respond: {emailAddress}");
 
-
         return context.Completed();
     }
 }

@@ -13,7 +13,7 @@ public record ProcessPaymentLog
     /// <summary>
     /// The authorization code received from the payment provider
     /// </summary>
-    public string AuthorizationCode { get; init; }
+    public string? AuthorizationCode { get; init; }
 
     /// <summary>
     /// The amount charged

@@ -18,5 +18,6 @@ public static class CorrelationInitializer
         MessageCorrelation.UseCorrelationId<RegistrationPaymentFailed>(x => x.SubmissionId);
         MessageCorrelation.UseCorrelationId<RegistrationReceived>(x => x.SubmissionId);
         MessageCorrelation.UseCorrelationId<SubmitRegistration>(x => x.SubmissionId);
+        MessageCorrelation.UseCorrelationId<RetryLimitReached>(x => x.SubmissionId);
     }
 }
