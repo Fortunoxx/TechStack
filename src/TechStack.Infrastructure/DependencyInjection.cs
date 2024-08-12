@@ -1,3 +1,4 @@
+namespace TechStack.Infrastructure;
 
 using System.Reflection;
 using Ardalis.GuardClauses;
@@ -17,7 +18,6 @@ using TechStack.Infrastructure.Data.Interceptors;
 using TechStack.Infrastructure.Filter;
 using TechStack.Infrastructure.Services;
 
-namespace TechStack.Infrastructure;
 public static class DependencyInjection
 {
     private const string AssemblyNamespace = "TechStack";
@@ -39,11 +39,13 @@ public static class DependencyInjection
             options.AddConsumersFromNamespaceContaining<Application.ComponentsNamespace>();
             options.AddActivitiesFromNamespaceContaining<ComponentsNamespace>();
             options.AddSagaStateMachinesFromNamespaceContaining<ComponentsNamespace>();
-            options.AddSagaStateMachine<RegistrationStateMachine, RegistrationState>().MongoDbRepository(r =>
-            {
-                r.Connection = "mongodb://localhost:27017";
-                r.DatabaseName = "masstransit";
-            });
+            options.AddSagaStateMachine<RegistrationStateMachine, RegistrationState>().
+                MongoDbRepository(repo =>
+                {
+                    repo.Connection = "mongodb://localhost:27017";
+                    repo.DatabaseName = "masstransit";
+                    // repo.CollectionName = $"sagas-{NewId.NextGuid()}"; // to easily test, we start with a clear repo everytime
+                });
 
             var baseDir = AppDomain.CurrentDomain.BaseDirectory;
             var assemblies = LoadAssemblies(baseDir, AssemblyNamespace);
@@ -57,6 +59,8 @@ public static class DependencyInjection
                 //     .SetRestartTimeout(s: 10));
 
                 // busFactoryConfigurator.UseDelayedRedelivery(r => r.Intervals(TimeSpan.FromMinutes(5), TimeSpan.FromMinutes(15), TimeSpan.FromMinutes(30), TimeSpan.FromMinutes(60), TimeSpan.FromMinutes(120)));
+
+                busFactoryConfigurator.UseDelayedMessageScheduler(); // ! this is important to have a scheduler in statemachine
 
                 busFactoryConfigurator.UsePublishFilter(typeof(CorrelationIdPublishFilter<>), context);
                 busFactoryConfigurator.UseConsumeFilter(typeof(CorrelationIdConsumeFilter<>), context);
