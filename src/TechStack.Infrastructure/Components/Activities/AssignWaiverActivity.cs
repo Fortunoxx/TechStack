@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 
-
 public class AssignWaiverActivity :
     IExecuteActivity<AssignWaiverArguments>
 {

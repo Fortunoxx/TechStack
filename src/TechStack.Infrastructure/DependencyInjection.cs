@@ -35,6 +35,7 @@ public static class DependencyInjection
             options.AddConsumer<TestBusConsumer>();
             options.AddConsumer<ProcessRegistrationConsumer>();
             options.AddConsumer<SubmitRegistrationConsumer>();
+            options.AddConsumer<CreateTicketRequestConsumer>();
 
             options.AddConsumersFromNamespaceContaining<Application.ComponentsNamespace>();
             options.AddActivitiesFromNamespaceContaining<ComponentsNamespace>();

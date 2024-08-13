@@ -8,6 +8,8 @@ public class RegistrationStateMachine :
     public RegistrationStateMachine()
     {
         InstanceState(x => x.CurrentState);
+        
+        SetCompletedWhenFinalized();
 
         Event(() => RegistrationStatusRequested, x =>
         {
@@ -47,11 +49,6 @@ public class RegistrationStateMachine :
                 .InitiateProcessing()
                 .TransitionTo(Received));
 
-        During(Moved,
-            When(EventRetryLimitReached)
-                .CreateTicket()
-                .Finalize());
-
         During(WaitingToRetry,
             When(RetryDelayExpired?.Received)
                 .RetryProcessing()
@@ -80,19 +77,24 @@ public class RegistrationStateMachine :
 
         WhenEnter(Suspended, x => x
             .Then(y => LogContext.Info?.Log("Rob Logs: retrying {@Saga}", y.Saga))
-            .If(context => context.Saga.RetryAttempt < retryCount,
+            .IfElse(context => context.Saga.RetryAttempt < retryCount,
                 retry => retry
                     .Schedule(RetryDelayExpired, context => new RetryDelayExpired(context.Saga.CorrelationId), _ => retryDelay)
-                    .TransitionTo(WaitingToRetry)
-            )
-            .If(context => context.Saga.RetryAttempt >= retryCount,
-                action => action
-                    .Then(context => LogContext.Info?.Log("Rob Logs: moving 1 {@Saga}", context.Saga))
-                    .TransitionTo(Moved)
-                    .Then(context => LogContext.Info?.Log("Rob Logs: moving 2 {@Saga}", context.Saga))
-                    .PublishAsync(x => x.Init<RetryLimitReached>(new { SubmissionId = x.Saga.CorrelationId, }))
-            )
-        );
+                    .TransitionTo(WaitingToRetry),
+                otherwise => otherwise
+                    .Then(y => LogContext.Info?.Log("Otherwise {@Saga}", y.Saga))
+                    .PublishAsync(context => context.Init<CreateTicketRequest>(new
+                    {
+                        SubmissionId = context.Saga.CorrelationId,
+                        context.Saga.ParticipantEmailAddress,
+                        context.Saga.ParticipantLicenseNumber,
+                        context.Saga.ParticipantCategory,
+                        context.Saga.CardNumber,
+                        context.Saga.EventId,
+                        context.Saga.RaceId,
+                    }))
+                    .Finalize()
+            ));
     } // ReSharper disable UnassignedGetOnlyAutoProperty
       // ReSharper disable MemberCanBePrivate.Global
     public State? Moved { get; }
@@ -106,7 +108,6 @@ public class RegistrationStateMachine :
     public Event<RegistrationCompleted>? EventRegistrationCompleted { get; }
     public Event<RegistrationLicenseVerificationFailed>? LicenseVerificationFailed { get; }
     public Event<RegistrationPaymentFailed>? PaymentFailed { get; }
-    public Event<RetryLimitReached>? EventRetryLimitReached { get; }
     public Schedule<RegistrationState, RetryDelayExpired>? RetryDelayExpired { get; }
 }
 
@@ -133,15 +134,6 @@ static class RegistrationStateMachineBehaviorExtensions
         this EventActivityBinder<RegistrationState, RegistrationReceived> binder)
     {
         return binder.PublishAsync(context => context.Init<ProcessRegistration>(context.Message));
-    }
-
-    public static EventActivityBinder<RegistrationState, RetryLimitReached> CreateTicket(
-        this EventActivityBinder<RegistrationState, RetryLimitReached> binder)
-    {
-        return binder.Then(context =>
-        {
-            LogContext.Info?.Log("Creating Ticket: {SubmissionId} ({@TicketDetails}, {@Saga})", context.Message.SubmissionId, context.Message, context.Saga);
-        });
     }
 
     public static EventActivityBinder<RegistrationState, RetryDelayExpired> RetryProcessing(
