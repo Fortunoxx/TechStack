@@ -1,11 +1,12 @@
 namespace TechStack.Infrastructure.Components.StateMachines;
 
 using MassTransit;
+using Microsoft.Extensions.Configuration;
 using TechStack.Infrastructure.Contracts;
 
 public class RegistrationStateMachine : MassTransitStateMachine<RegistrationState>
 {
-    public RegistrationStateMachine()
+    public RegistrationStateMachine(IConfiguration configuration)
     {
         InstanceState(x => x.CurrentState);
 
@@ -79,15 +80,13 @@ public class RegistrationStateMachine : MassTransitStateMachine<RegistrationStat
                 })
         );
 
-        // could easily be configured via options
-        const int retryCount = 2;
-        var retryDelay = TimeSpan.FromSeconds(2);
+        var retryConfig = configuration.GetSection(RetryConfig.SectionName).Get<RetryConfig>();
 
         WhenEnter(Suspended, x => x
             .Then(y => LogContext.Info?.Log("Retrying {RetryAttempt} {SubmissionId}", y.Saga.RetryAttempt, y.Saga.CorrelationId))
-            .IfElse(context => context.Saga.RetryAttempt < retryCount,
+            .IfElse(context => context.Saga.RetryAttempt < retryConfig!.RetryCount,
                 retry => retry
-                    .Schedule(RetryDelayExpired, context => new RetryDelayExpired(context.Saga.CorrelationId), _ => retryDelay)
+                    .Schedule(RetryDelayExpired, context => new RetryDelayExpired(context.Saga.CorrelationId), _ => TimeSpan.FromSeconds(retryConfig!.RetryDelay))
                     .TransitionTo(WaitingToRetry),
                 otherwise => otherwise
                     .Then(y => LogContext.Info?.Log("Creating Ticket with this data {@Saga}", y.Saga))
@@ -197,4 +196,11 @@ static class RegistrationStateMachineBehaviorExtensions
             context.Saga.Reason = "Payment Failed";
         });
     }
+}
+
+internal record RetryConfig
+{
+    public static string SectionName = "RetryConfig";
+    public int RetryCount {get; init;}
+    public int RetryDelay {get; init;}
 }
