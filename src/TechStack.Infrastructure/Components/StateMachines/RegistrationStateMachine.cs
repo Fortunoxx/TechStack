@@ -1,20 +1,28 @@
+namespace TechStack.Infrastructure.Components.StateMachines;
+
 using MassTransit;
 using TechStack.Infrastructure.Contracts;
 
-namespace TechStack.Infrastructure.Components.StateMachines;
-public class RegistrationStateMachine :
-    MassTransitStateMachine<RegistrationState>
+public class RegistrationStateMachine : MassTransitStateMachine<RegistrationState>
 {
     public RegistrationStateMachine()
     {
         InstanceState(x => x.CurrentState);
-        
+
         SetCompletedWhenFinalized();
 
-        Event(() => RegistrationStatusRequested, x =>
+        Event(() => RegistrationStatusRequested, eventConfig =>
         {
-            x.ReadOnly = true;
-            x.OnMissingInstance(m => m.Fault());
+            eventConfig.ReadOnly = true;
+
+            // eventConfig.OnMissingInstance(m => m.Fault()); // ! this moves the message to the error-queue
+            eventConfig.OnMissingInstance(config => config.
+                ExecuteAsync(context => context.
+                    RespondAsync<ISubmissionNotFound>(
+                        new { context.Message.SubmissionId, Status = "Not found", }
+                    )
+                )
+            );
         });
 
         Schedule(() => RetryDelayExpired, saga => saga.ScheduleRetryToken, x =>
@@ -76,13 +84,13 @@ public class RegistrationStateMachine :
         var retryDelay = TimeSpan.FromSeconds(2);
 
         WhenEnter(Suspended, x => x
-            .Then(y => LogContext.Info?.Log("Rob Logs: retrying {@Saga}", y.Saga))
+            .Then(y => LogContext.Info?.Log("Retrying {RetryAttempt} {SubmissionId}", y.Saga.RetryAttempt, y.Saga.CorrelationId))
             .IfElse(context => context.Saga.RetryAttempt < retryCount,
                 retry => retry
                     .Schedule(RetryDelayExpired, context => new RetryDelayExpired(context.Saga.CorrelationId), _ => retryDelay)
                     .TransitionTo(WaitingToRetry),
                 otherwise => otherwise
-                    .Then(y => LogContext.Info?.Log("Otherwise {@Saga}", y.Saga))
+                    .Then(y => LogContext.Info?.Log("Creating Ticket with this data {@Saga}", y.Saga))
                     .PublishAsync(context => context.Init<CreateTicketRequest>(new
                     {
                         SubmissionId = context.Saga.CorrelationId,
@@ -126,7 +134,7 @@ static class RegistrationStateMachineBehaviorExtensions
             context.Saga.EventId = context.Message.EventId;
             context.Saga.RaceId = context.Message.RaceId;
 
-            LogContext.Info?.Log("Processing: {0} ({1})", context.Message.SubmissionId, context.Message.ParticipantEmailAddress);
+            LogContext.Info?.Log("Processing: {SubmissionId} ({ParticipantEmailAddress})", context.Message.SubmissionId, context.Message.ParticipantEmailAddress);
         });
     }
 
@@ -159,7 +167,7 @@ static class RegistrationStateMachineBehaviorExtensions
     {
         return binder.Then(context =>
         {
-            LogContext.Info?.Log("Registered: {0} ({1})", context.Message.SubmissionId, context.Saga.ParticipantEmailAddress);
+            LogContext.Info?.Log("Registered: {SubmissionId} ({ParticipantEmailAddress})", context.Message.SubmissionId, context.Saga.ParticipantEmailAddress);
 
             context.Saga.ParticipantLicenseExpirationDate = context.GetVariable<DateTime>("ParticipantLicenseExpirationDate");
             context.Saga.RegistrationId = context.GetVariable<Guid>("RegistrationId");
@@ -171,7 +179,7 @@ static class RegistrationStateMachineBehaviorExtensions
     {
         return binder.Then(context =>
         {
-            LogContext.Info?.Log("Invalid License: {0} ({1}) - {2}", context.Message.SubmissionId, context.Saga.ParticipantLicenseNumber,
+            LogContext.Info?.Log("Invalid License: {SubmissionId} ({ParticipantLicenseNumber}) - {Message}", context.Message.SubmissionId, context.Saga.ParticipantLicenseNumber,
                 context.Message.ExceptionInfo.Message);
 
             context.Saga.Reason = "Invalid License";
@@ -183,7 +191,7 @@ static class RegistrationStateMachineBehaviorExtensions
     {
         return binder.Then(context =>
         {
-            LogContext.Info?.Log("Payment Failed: {0} ({1}) - {2}", context.Message.SubmissionId, context.Saga.ParticipantEmailAddress,
+            LogContext.Info?.Log("Payment Failed: {SubmissionId} ({ParticipantEmailAddress}) - {Message}", context.Message.SubmissionId, context.Saga.ParticipantEmailAddress,
                 context.Message?.ExceptionInfo?.Message);
 
             context.Saga.Reason = "Payment Failed";

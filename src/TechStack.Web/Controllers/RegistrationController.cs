@@ -43,11 +43,19 @@ public class RegistrationController : ControllerBase
     {
         try
         {
-            Response<RegistrationStatus> response = await client.GetResponse<RegistrationStatus>(new GetRegistrationStatus { SubmissionId = submissionId });
+            var response = await client.GetResponse<RegistrationStatus, ISubmissionNotFound>(new GetRegistrationStatus { SubmissionId = submissionId });
 
-            var registration = response.Message;
+            if (response.Is<ISubmissionNotFound>(out var submissionNotFound))
+            {
+                return NotFound(submissionNotFound.Message);
+            }
 
-            return Ok(registration);
+            if (response.Is<RegistrationStatus>(out var registration))
+            {
+                return Ok(registration.Message);
+            }
+
+            return BadRequest();
         }
         catch (RequestFaultException ex)
         {
