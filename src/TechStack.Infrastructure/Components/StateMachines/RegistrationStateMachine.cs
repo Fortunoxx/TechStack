@@ -89,17 +89,7 @@ public class RegistrationStateMachine : MassTransitStateMachine<RegistrationStat
                     .Schedule(RetryDelayExpired, context => new RetryDelayExpired(context.Saga.CorrelationId), _ => TimeSpan.FromSeconds(retryConfig!.RetryDelay))
                     .TransitionTo(WaitingToRetry),
                 otherwise => otherwise
-                    .Then(y => LogContext.Info?.Log("Creating Ticket with this data {@Saga}", y.Saga))
-                    .PublishAsync(context => context.Init<CreateTicketRequest>(new
-                    {
-                        SubmissionId = context.Saga.CorrelationId,
-                        context.Saga.ParticipantEmailAddress,
-                        context.Saga.ParticipantLicenseNumber,
-                        context.Saga.ParticipantCategory,
-                        context.Saga.CardNumber,
-                        context.Saga.EventId,
-                        context.Saga.RaceId,
-                    }))
+                    .CreateTicket()
                     .Finalize()
             ));
     } // ReSharper disable UnassignedGetOnlyAutoProperty
@@ -196,11 +186,21 @@ static class RegistrationStateMachineBehaviorExtensions
             context.Saga.Reason = "Payment Failed";
         });
     }
-}
 
-internal record RetryConfig
-{
-    public static string SectionName = "RetryConfig";
-    public int RetryCount {get; init;}
-    public int RetryDelay {get; init;}
+    public static EventActivityBinder<RegistrationState> CreateTicket(
+        this EventActivityBinder<RegistrationState> binder)
+    {
+        return binder
+            .Then(context => LogContext.Info?.Log("Creating Ticket with this data {@Saga}", context.Saga))
+            .PublishAsync(context => context.Init<CreateTicketRequest>(new
+            {
+                SubmissionId = context.Saga.CorrelationId,
+                context.Saga.ParticipantEmailAddress,
+                context.Saga.ParticipantLicenseNumber,
+                context.Saga.ParticipantCategory,
+                context.Saga.CardNumber,
+                context.Saga.EventId,
+                context.Saga.RaceId,
+            }));
+    }
 }
