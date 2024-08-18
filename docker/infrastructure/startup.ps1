@@ -54,11 +54,11 @@ GO";
 Invoke-Sqlcmd -Query $query `
     -ServerInstance "localhost,1433" `
     -Username "sa" `
-    -Password "$($mssql_pw_ini)" `
+    -Password $mssql_pw_ini `
     -TrustServerCertificate
 
 Write-Host "=> updating sa password:" -ForegroundColor $info_color
-Write-Host -ForegroundColor Magenta "=>" $mssql_pw
+Write-Host "=>" $mssql_pw -ForegroundColor $highlight_color
 
 $query = "USE [master]; ALTER LOGIN [sa] WITH PASSWORD=N'$($mssql_pw)';"
 
