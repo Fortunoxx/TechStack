@@ -43,6 +43,7 @@ $mssql_pw = (Get-MdbcData @{key="mssql.new_sa_password"}).value # new and secure
 
 $new_user = "TechStackUser"
 Write-Host "=> creating $new_user..." -ForegroundColor $info_color
+
 $query = "USE [master];
 GO
 CREATE LOGIN [$($new_user)] WITH PASSWORD=N'$($mssql_pw)', DEFAULT_DATABASE=[master], CHECK_EXPIRATION=OFF, CHECK_POLICY=ON;
@@ -58,8 +59,9 @@ Invoke-Sqlcmd -Query $query `
 
 Write-Host "=> updating sa password:" -ForegroundColor $info_color
 Write-Host -ForegroundColor Magenta "=>" $mssql_pw
+
 $query = "USE [master]; ALTER LOGIN [sa] WITH PASSWORD=N'$($mssql_pw)';"
-$query
+
 Invoke-Sqlcmd -Query $query `
     -ServerInstance "localhost,1433" `
     -Username $new_user `
