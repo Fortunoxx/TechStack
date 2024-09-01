@@ -15,7 +15,7 @@ docker compose up -d mongodb
 
 Write-Host "=> Setting up prometheus alertmanager..." -ForegroundColor $info_color
 Connect-Mdbc . docker-compose config
-$data = Get-MdbcData @{key="prometheus.alertmanager.discord_webhook_url"}
+$data = Get-MdbcData @{key = "prometheus.alertmanager.discord_webhook_url" }
 Write-Host "=> updating discord webhook url:" -ForegroundColor $info_color
 Write-Host "=>" $data.value -ForegroundColor $highlight_color 
 
@@ -28,8 +28,7 @@ docker compose up -d mssql
 # Wait for SQL Server migration steps, otherwise login will fail
 $sleeper = 0.0
 $sleeper_increment = 0.33
-DO 
-{
+DO {
     $sleeper += $sleeper_increment
     $line = docker container logs mssql | Where-Object { $_ -like "*Service Broker manager has started.*" }
     # $running = docker inspect -f '{{.State.Running}}' mssql
@@ -39,7 +38,7 @@ DO
 
 $mssql_pw_ini_str = (docker inspect -f '{{.Config.Env}}' mssql).Split(" ") | Where-Object { $_ -like "*MSSQL_SA_PASSWORD*" } | Select -First 1
 $mssql_pw_ini = $mssql_pw_ini_str.Split("=")[1] # old password, we want to change that later
-$mssql_pw = (Get-MdbcData @{key="mssql.new_sa_password"}).value # new and secure password
+$mssql_pw = (Get-MdbcData @{key = "mssql.new_sa_password" }).value # new and secure password
 
 $new_user = "TechStackUser"
 Write-Host "=> creating $new_user..." -ForegroundColor $info_color
@@ -67,6 +66,14 @@ Invoke-Sqlcmd -Query $query `
     -Username $new_user `
     -Password $mssql_pw `
     -TrustServerCertificate
+
+# create volumes if needed
+$volume = "grafana-storage"
+$volume_count = docker volume ls | Where-Object { $_ -like "* $($volume)" }
+if ($volume_count.Count -eq 0) {
+    Write-Host "Creating docker volume:" $volume -ForegroundColor $info_color
+    docker volume create $volume
+}
 
 Write-Host "=> Starting docker compose project..." -ForegroundColor $info_color
 docker compose up -d 
