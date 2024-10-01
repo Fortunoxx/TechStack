@@ -102,7 +102,7 @@ services:
     volumes:
       - ./blackbox:/config
     command:
-      - '--config.file=/config/blackbox.yml'
+      - "--config.file=/config/blackbox.yml"
 
   speedtest-exporter:
     image: miguelndecarvalho/speedtest-exporter:latest
@@ -133,7 +133,7 @@ services:
         condition: service_healthy
     volumes:
       - grafana-storage:/var/lib/grafana
-      
+
   mailhog:
     image: mailhog/mailhog:latest
     container_name: mailhog
@@ -169,6 +169,17 @@ services:
     restart: unless-stopped
     volumes:
       - mssql-data:/mssql/data
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - 9080:80  # Expose Nginx on port 9080
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf  # Nginx configuration file
+    restart: unless-stopped
+    depends_on:
+      - prometheus
 
 volumes:
   grafana-storage:
