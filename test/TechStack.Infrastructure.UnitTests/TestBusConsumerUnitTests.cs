@@ -12,6 +12,7 @@ using TechStack.Infrastructure.Components.Consumers;
 using TechStack.Infrastructure.Services;
 using Xunit;
 
+[Trait("Category", "UnitTest")]
 public class TestBusConsumerUnitTests
 {
     [Fact]

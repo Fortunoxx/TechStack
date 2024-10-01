@@ -19,7 +19,7 @@ public class CourierController(ICorrelationIdGenerator correlationIdGenerator, I
         var command = new DistributedTransactionCommand(input.Key, correlationIdGenerator.Get());
         var response = await requestClient.GetResponse<DistributedTransactionResponse>(command);
         var result = new DistributedTransactionOutput(response.Message.Id);
-        
+
         return Ok(result);
     }
 }

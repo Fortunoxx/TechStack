@@ -3,7 +3,7 @@ namespace TechStack.Web;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using TechStack.Application.Common.Interfaces;
-using TechStack.Infrastructure;
+using TechStack.Infrastructure.Data;
 using TechStack.Web.Authentication;
 using TechStack.Web.Infrastructure;
 using TechStack.Web.Services;
