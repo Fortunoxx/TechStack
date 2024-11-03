@@ -28,14 +28,3 @@ public class UserFaker : AutoFaker<User>
         RuleFor(x => x.LastModifiedBy, faker => faker.Name.FirstName().ClampLength(max: 8));
     }
 }
-
-public class UserMetaDataFaker : AutoFaker<UserMetaData>
-{
-    public UserMetaDataFaker() : base(Constants.Locale)
-    {
-        RuleFor(x => x.MetaKey, faker => faker.Lorem.Word().ClampLength(max: 128));
-        RuleFor(x => x.MetaValue, faker => faker.Lorem.Word());
-        RuleFor(x => x.CreatedBy, faker => faker.Name.FirstName().ClampLength(max: 8));
-        RuleFor(x => x.LastModifiedBy, faker => faker.Name.FirstName().ClampLength(max: 8));
-    }
-}
