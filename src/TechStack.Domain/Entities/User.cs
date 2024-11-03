@@ -1,6 +1,6 @@
-using TechStack.Domain.Common;
-
 namespace TechStack.Domain.Entities;
+
+using TechStack.Domain.Common;
 
 public class User : BaseAuditableEntity
 {
@@ -16,4 +16,5 @@ public class User : BaseAuditableEntity
     public int? Views { get; init; }
     public string? WebsiteUrl { get; init; }
     public int? AccountId { get; init; }
+    public ICollection<UserMetaData>? MetaData { get; init; }
 }

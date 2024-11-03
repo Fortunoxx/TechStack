@@ -18,7 +18,7 @@ public class GetAllUsersQueryConsumer : IConsumer<GetAllUsersQuery>
 
     public async Task Consume(ConsumeContext<GetAllUsersQuery> context)
     {
-        var items = await applicationDbContext.Users.ToListAsync();
+        var items = await applicationDbContext.Users.Include(x => x.MetaData).ToListAsync();
         var mapped = mapper.Map<IEnumerable<GetUserByIdQueryResult>>(items);
         await context.RespondAsync(new GetAllUsersQueryResult(mapped));
     }
