@@ -102,14 +102,13 @@ services:
     volumes:
       - ./blackbox:/config
     command:
-      - '--config.file=/config/blackbox.yml'
+      - "--config.file=/config/blackbox.yml"
 
   speedtest-exporter:
     image: miguelndecarvalho/speedtest-exporter:latest
     container_name: speedtest-exporter
     ports:
       - 9798:9798
-    restart: unless-stopped
 
   alert-manager:
     image: prom/alertmanager:latest
@@ -133,7 +132,7 @@ services:
         condition: service_healthy
     volumes:
       - grafana-storage:/var/lib/grafana
-      
+
   mailhog:
     image: mailhog/mailhog:latest
     container_name: mailhog
@@ -148,7 +147,6 @@ services:
     ports:
       - 5341:5341
       - 3110:80
-    restart: unless-stopped
 
   mongodb:
     image: mongo:latest
@@ -159,16 +157,25 @@ services:
       - mongo-data:/data/db
 
   mssql:
-    image: mcr.microsoft.com/mssql/server:2022-CU13-ubuntu-22.04
+    image: mcr.microsoft.com/mssql/server:latest
     container_name: mssql
     environment:
       - ACCEPT_EULA=Y
       - MSSQL_SA_PASSWORD=P@ssw0rd1!
     ports:
       - "1433:1433"
-    restart: unless-stopped
     volumes:
       - mssql-data:/mssql/data
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - 9080:80  # Expose Nginx on port 9080
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf  # Nginx configuration file
+    depends_on:
+      - prometheus
 
 volumes:
   grafana-storage:

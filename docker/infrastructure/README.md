@@ -3,6 +3,7 @@
 [Link](https://docs.miguelndecarvalho.pt/projects/speedtest-exporter/)
 use grafana dashboard #13665
 ## cadvisor
+use grafana dashboard #14282 or #19792
 ## loki
 use grafana dashboard #14055
 ## jaeger

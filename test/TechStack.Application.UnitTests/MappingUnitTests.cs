@@ -1,7 +1,7 @@
 namespace TechStack.Application.UnitTests;
 
 using AutoMapper;
-using TechStack.Application.Mappings;
+using TechStack.Application.Common.Mappings;
 
 [Trait("Category", "UnitTest")]
 

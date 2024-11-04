@@ -9,11 +9,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using TechStack.Application.Common.Interfaces;
-using TechStack.Application.Users.Commands;
-using TechStack.Application.Users.Queries;
-using TechStack.Infrastructure.Components.Activities;
+using TechStack.Infrastructure.Components;
 using TechStack.Infrastructure.Components.Consumers;
 using TechStack.Infrastructure.Components.Messaging;
+using TechStack.Infrastructure.Components.StateMachines;
+using TechStack.Infrastructure.Data;
 using TechStack.Infrastructure.Data.Interceptors;
 using TechStack.Infrastructure.Filter;
 using TechStack.Infrastructure.Services;
@@ -28,16 +28,25 @@ public static class DependencyInjection
         services.AddSingleton<IEndpointNameFormatter>(new SnakeCaseEndpointNameFormatter(includeNamespace: true));
         services.AddSingleton<ILockService, LockService>();
         services.AddScoped<ICorrelationIdGenerator, CorrelationIdGenerator>();
+        services.AddSingleton<IEndpointAddressProvider, RabbitMqEndpointAddressProvider>();
 
         services.AddMassTransit(options =>
         {
-            options.AddConsumer<AddUserCommandConsumer>();
-            options.AddConsumer<DeleteUserCommandConsumer>();
-            options.AddConsumer<GetUserByIdQueryConsumer>();
-            options.AddConsumer<GetAllUsersQueryConsumer>();
             options.AddConsumer<TestBusConsumer>();
+            options.AddConsumer<ProcessRegistrationConsumer>();
+            options.AddConsumer<SubmitRegistrationConsumer>();
+            options.AddConsumer<CreateTicketRequestConsumer>();
 
-            options.AddActivitiesFromNamespaceContaining<ActivityMarker>();
+            options.AddConsumersFromNamespaceContaining<Application.ComponentsNamespace>();
+            options.AddActivitiesFromNamespaceContaining<ComponentsNamespace>();
+            options.AddSagaStateMachinesFromNamespaceContaining<ComponentsNamespace>();
+            options.AddSagaStateMachine<RegistrationStateMachine, RegistrationState>().
+                MongoDbRepository(repo =>
+                {
+                    repo.Connection = "mongodb://localhost:27017";
+                    repo.DatabaseName = "masstransit";
+                    // repo.CollectionName = $"sagas-{NewId.NextGuid()}"; // to easily test, we start with a clear repo everytime
+                });
 
             var baseDir = AppDomain.CurrentDomain.BaseDirectory;
             var assemblies = LoadAssemblies(baseDir, AssemblyNamespace);
@@ -45,12 +54,14 @@ public static class DependencyInjection
 
             options.UsingRabbitMq((context, busFactoryConfigurator) =>
             {
-                busFactoryConfigurator.UseKillSwitch(opt => opt
-                    .SetActivationThreshold(3)
-                    .SetTripThreshold(0.15)
-                    .SetRestartTimeout(s: 10));
+                // busFactoryConfigurator.UseKillSwitch(opt => opt
+                //     .SetActivationThreshold(3)
+                //     .SetTripThreshold(0.15)
+                //     .SetRestartTimeout(s: 10));
 
-                busFactoryConfigurator.UseDelayedRedelivery(r => r.Intervals(TimeSpan.FromMinutes(5), TimeSpan.FromMinutes(15), TimeSpan.FromMinutes(30), TimeSpan.FromMinutes(60), TimeSpan.FromMinutes(120)));
+                // busFactoryConfigurator.UseDelayedRedelivery(r => r.Intervals(TimeSpan.FromMinutes(5), TimeSpan.FromMinutes(15), TimeSpan.FromMinutes(30), TimeSpan.FromMinutes(60), TimeSpan.FromMinutes(120)));
+
+                busFactoryConfigurator.UseDelayedMessageScheduler(); // ! this is important to have a scheduler in statemachine
 
                 busFactoryConfigurator.UsePublishFilter(typeof(CorrelationIdPublishFilter<>), context);
                 busFactoryConfigurator.UseConsumeFilter(typeof(CorrelationIdConsumeFilter<>), context);
@@ -60,7 +71,7 @@ public static class DependencyInjection
                 foreach (var rabbitMqOptionType in rabbitMqOptionTypes)
                 {
                     var methodInfo = rabbitMqOptionType.GetMethod(nameof(MessageBrokerRabbitMqOption.Configure));
-                    var classInstance = Activator.CreateInstance(rabbitMqOptionType, null);
+                    var classInstance = Activator.CreateInstance(rabbitMqOptionType, services);
 
                     var parametersArray = new object[]
                     {
@@ -84,6 +95,17 @@ public static class DependencyInjection
             options.AddInterceptors(serviceProvider.GetServices<ISaveChangesInterceptor>());
             options.UseSqlServer(connectionString);
         });
+
+        // services.AddDbContext<RegistrationDbContext>(r =>
+        // {
+        //     var sagaConnectionString = configuration.GetConnectionString("Sagas");
+
+        //     r.UseSqlServer(sagaConnectionString, m =>
+        //     {
+        //         m.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name);
+        //         m.MigrationsHistoryTable($"__{nameof(RegistrationDbContext)}");
+        //     });
+        // });
 
         services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
 

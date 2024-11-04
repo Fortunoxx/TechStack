@@ -8,10 +8,10 @@ using AutoFixture;
 using FluentAssertions;
 using TechStack.Application.Users.Commands;
 using TechStack.Domain.Entities;
-using TechStack.Infrastructure;
 using TechStack.Web.IntegrationTests.Mocks;
 using TechStack.Web.IntegrationTests.Fixtures;
 using Xunit;
+using TechStack.Infrastructure.Data;
 
 public sealed class UsersControllerIntegrationTests : IAsyncLifetime,
     IClassFixture<IntegrationTestFactory<Program, ApplicationDbContext>>
@@ -107,7 +107,14 @@ public sealed class UsersControllerIntegrationTests : IAsyncLifetime,
                 cfg.PhoneNumber.Aliases("Phone", "Mobile", "Tel", "Telefon", "Fax", "Mobil", "Rufnummer");
                 cfg.ZipCode.Aliases("PostalCode", "PLZ", "Postleitzahl");
             });
+
+            // exclude all the auto-generated Ids
             builder.WithSkip<User>(x => x.Id);
+            builder.WithSkip<UserMetaData>(x => x.Id);
+            builder.WithSkip<UserMetaData>(x => x.User);
+
+            // specify the custom faker for all objects that need special handling
+            builder.WithOverride<UserMetaData>(_ => new UserMetaDataFaker());
         });
 
         // Generate fake data for a list of customers

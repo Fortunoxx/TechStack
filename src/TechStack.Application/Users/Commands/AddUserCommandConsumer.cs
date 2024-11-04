@@ -23,7 +23,7 @@ public class AddUserCommandConsumer : IConsumer<AddUserCommand>
         var user = mapper.Map<User>(context.Message);
 
         applicationDbContext.Users.Add(user);
-        var rowsInserted = await applicationDbContext.SaveChangesAsync(context.CancellationToken); // TODO: exception here during Integration Test
+        var rowsInserted = await applicationDbContext.SaveChangesAsync(context.CancellationToken);
 
         if (rowsInserted > 0)
         {

@@ -1,4 +1,4 @@
-namespace TechStack.Application.Mappings;
+namespace TechStack.Application.Common.Mappings;
 
 using AutoMapper;
 using TechStack.Application.Users.Commands;
@@ -17,8 +17,9 @@ public class UserMapping : Profile
             ForMember(dest => dest.Id, opt => opt.Ignore()).
             ForMember(dest => dest.Created, opt => opt.Ignore()).
             ForMember(dest => dest.CreatedBy, opt => opt.Ignore()).
+            ForMember(dest => dest.DomainEvents, opt => opt.Ignore()).
             ForMember(dest => dest.LastModified, opt => opt.Ignore()).
             ForMember(dest => dest.LastModifiedBy, opt => opt.Ignore()).
-            ForMember(dest => dest.DomainEvents, opt => opt.Ignore());
+            ForMember(dest => dest.MetaData, opt => opt.Ignore());
     }
 }
