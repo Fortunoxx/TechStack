@@ -13,14 +13,30 @@ using System.Text.Json;
 using System.Buffers;
 using MassTransit.Monitoring;
 using TechStack.Web;
+using Microsoft.Extensions.Compliance.Redaction;
+using Microsoft.Extensions.Compliance.Classification;
+using TechStack.Application.Common.Logging;
 
 const string TechStackApiName = "TechStack";
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Logging.EnableRedaction();
+builder.Logging.AddJsonConsole(opt => opt.JsonWriterOptions = new() { Indented = true, });
+
 builder.Host.UseSerilog((ctx, lc) => lc
     .WriteTo.Console()
     .ReadFrom.Configuration(ctx.Configuration));
+
+builder.Services.AddRedaction(config =>
+{
+    config.SetRedactor<ErasingRedactor>(new DataClassificationSet(DataTaxonomy.SensitiveData));
+    config.SetHmacRedactor(options =>
+    {
+        options.Key = Convert.ToBase64String("MySecretKeyMustBeStoredSecurelyAndNotHardcoded"u8);
+        options.KeyId = 100;
+    }, new DataClassificationSet(DataTaxonomy.PiiData));
+});
 
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);

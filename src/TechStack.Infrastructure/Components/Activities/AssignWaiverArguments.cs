@@ -1,3 +1,5 @@
+using TechStack.Application.Common.Logging;
+
 namespace TechStack.Infrastructure.Components.Activities;
 
 public record AssignWaiverArguments
