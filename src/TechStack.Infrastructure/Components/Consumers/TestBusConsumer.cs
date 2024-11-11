@@ -5,18 +5,12 @@ using Microsoft.Extensions.Logging;
 using TechStack.Application.Common.Interfaces;
 using TechStack.Application.Test.Commands;
 
-public class TestBusConsumer :
+public class TestBusConsumer(ILockService lockService, ILogger<TestBusConsumer> logger) :
     IConsumer<TestCommand>,
     IConsumer<Fault<TestCommand>>
 {
-    private readonly ILockService lockService;
-    private readonly ILogger<TestBusConsumer> logger;
-
-    public TestBusConsumer(ILockService lockService, ILogger<TestBusConsumer> logger)
-    {
-        this.lockService = lockService;
-        this.logger = logger;
-    }
+    private readonly ILockService lockService = lockService;
+    private readonly ILogger<TestBusConsumer> logger = logger;
 
     public async Task Consume(ConsumeContext<TestCommand> context)
     {

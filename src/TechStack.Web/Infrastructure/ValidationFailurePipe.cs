@@ -1,5 +1,4 @@
 namespace TechStack.Web.Infrastructure;
-
 using TechStack.Application.Common.Validation;
 
 public class ValidationFailurePipe<TMessage> : ValidationFailurePipeBase<TMessage>

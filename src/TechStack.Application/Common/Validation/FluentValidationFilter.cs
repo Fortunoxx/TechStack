@@ -5,22 +5,15 @@ using MassTransit;
 using Microsoft.Extensions.Logging;
 using TechStack.Application.Common.Interfaces;
 
-public class FluentValidationFilter<TMessage> : IFilter<ConsumeContext<TMessage>>
+public class FluentValidationFilter<TMessage>(
+    ILogger<FluentValidationFilter<TMessage>> logger,
+    IValidator<TMessage> validator,
+    IValidationFailurePipe<TMessage> failurePipe) : IFilter<ConsumeContext<TMessage>>
     where TMessage : class
 {
-    private readonly IValidationFailurePipe<TMessage> _failurePipe;
-    private readonly ILogger<FluentValidationFilter<TMessage>> _logger;
-    private readonly IValidator<TMessage> _validator;
-
-    public FluentValidationFilter(
-        ILogger<FluentValidationFilter<TMessage>> logger, 
-        IValidator<TMessage> validator, 
-        IValidationFailurePipe<TMessage> failurePipe)
-    {
-        _failurePipe = failurePipe ?? throw new ArgumentNullException(nameof(failurePipe));
-        _logger = logger;
-        _validator = validator;
-    }
+    private readonly IValidationFailurePipe<TMessage> _failurePipe = failurePipe ?? throw new ArgumentNullException(nameof(failurePipe));
+    private readonly ILogger<FluentValidationFilter<TMessage>> _logger = logger;
+    private readonly IValidator<TMessage> _validator = validator;
 
     public async Task Send(ConsumeContext<TMessage> context, IPipe<ConsumeContext<TMessage>> next)
     {

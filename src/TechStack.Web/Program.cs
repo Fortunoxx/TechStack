@@ -7,12 +7,11 @@ using TechStack.Infrastructure;
 using TechStack.Application;
 using TechStack.Web.Infrastructure;
 using TechStack.Application.Common.Interfaces;
-using Microsoft.AspNetCore.Diagnostics;
-using TechStack.Application.Common.Validation;
 using System.Text.Json;
 using System.Buffers;
 using MassTransit.Monitoring;
 using TechStack.Web;
+using Microsoft.AspNetCore.Http.Features;
 
 const string TechStackApiName = "TechStack";
 
@@ -26,6 +25,18 @@ builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddWebServices();
 builder.Services.AddTransient(typeof(IValidationFailurePipe<>), typeof(ValidationFailurePipe<>));
+builder.Services.AddProblemDetails(options =>
+{
+    options.CustomizeProblemDetails = context =>
+    {
+        context.ProblemDetails.Instance = $"{context.HttpContext.Request.Method} {context.HttpContext.Request.Path}";
+        context.ProblemDetails.Extensions.TryAdd("requestId", context.HttpContext.TraceIdentifier);
+
+        var activity = context.HttpContext.Features.Get<IHttpActivityFeature>()?.Activity;
+        context.ProblemDetails.Extensions.TryAdd("traceId", activity?.Id);
+    };
+});
+builder.Services.AddExceptionHandler<ProblemExceptionHandler>();
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -106,35 +117,7 @@ app.UseSerilogRequestLogging(options =>
     };
 });
 
-app.UseExceptionHandler(exceptionHandlerApp =>
-{
-    exceptionHandlerApp.Run(async context =>
-    {
-        var exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
-        var exception = exceptionHandlerPathFeature?.Error;
-
-        if (exception is MassTransit.RequestException rex)
-        {
-            if (rex.InnerException is ValidationException vex)
-            {
-                context.Response.StatusCode = vex.StatusCode;
-                var pd = new HttpValidationProblemDetails
-                {
-                    Detail = vex.Detail,
-                    Errors = vex.Errors,
-                    Instance = context.Request.Path,
-                    Status = vex.StatusCode,
-                    Type = typeof(ValidationException).FullName
-                };
-
-                await context.Response.WriteAsJsonAsync(pd);
-                return;
-            }
-        }
-
-        await context.Response.WriteAsJsonAsync(new { error = exception?.Message });
-    });
-});
+app.UseExceptionHandler();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
