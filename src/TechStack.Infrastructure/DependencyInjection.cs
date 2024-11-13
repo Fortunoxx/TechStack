@@ -30,6 +30,13 @@ public static class DependencyInjection
         services.AddScoped<ICorrelationIdGenerator, CorrelationIdGenerator>();
         services.AddSingleton<IEndpointAddressProvider, RabbitMqEndpointAddressProvider>();
 
+        // Configure Redis Cache
+        services.AddStackExchangeRedisCache(options =>
+        {
+            options.Configuration = "localhost:6379";
+            options.InstanceName = "SampleInstance";
+        });
+
         services.AddMassTransit(options =>
         {
             options.AddConsumer<TestBusConsumer>();

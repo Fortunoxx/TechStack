@@ -7,16 +7,10 @@ using TechStack.Domain.Entities;
 
 namespace TechStack.Application.Users.Commands;
 
-public class AddUserCommandConsumer : IConsumer<AddUserCommand>
+public class AddUserCommandConsumer(IApplicationDbContext applicationDbContext, IMapper mapper) : IConsumer<AddUserCommand>
 {
-    private readonly IApplicationDbContext applicationDbContext;
-    private readonly IMapper mapper;
-
-    public AddUserCommandConsumer(IApplicationDbContext applicationDbContext, IMapper mapper)
-    {
-        this.applicationDbContext = applicationDbContext;
-        this.mapper = mapper;
-    }
+    private readonly IApplicationDbContext applicationDbContext = applicationDbContext;
+    private readonly IMapper mapper = mapper;
 
     public async Task Consume(ConsumeContext<AddUserCommand> context)
     {
