@@ -15,6 +15,8 @@
     <PackageReference Include="xunit" Version="2.9.2" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
     <PackageReference Include="AutoMapper" Version="13.0.1" />
+    <PackageReference Include="AutoFixture.Xunit" Version="4.18.1" />
+    <PackageReference Include="FluentAssertions" Version="6.12.2" />
   </ItemGroup>
 
   <ItemGroup>
