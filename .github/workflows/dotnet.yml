@@ -53,7 +53,29 @@ jobs:
   #       token: ${{ secrets.CODECOV_TOKEN }}
   #       slug: Fortunoxx/TechStack
 
-  build-8:
+  # build-8:
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #   - uses: actions/checkout@v4
+  #   - name: Setup .NET
+  #     uses: actions/setup-dotnet@v4
+  #     with:
+  #       dotnet-version: 8.0.x
+  #   - name: Restore dependencies
+  #     run: dotnet restore
+  #   - name: Build
+  #     run: dotnet build --no-restore
+  #   - name: Test
+  #     run: dotnet test --configuration Release --no-restore /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+  #     # run: dotnet test --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura
+  #   - name: Upload coverage reports to Codecov
+  #     uses: codecov/codecov-action@v4.0.1
+  #     with:
+  #       token: ${{ secrets.CODECOV_TOKEN }}
+  #       slug: Fortunoxx/TechStack
+
+  build-9:
     runs-on: ubuntu-latest
 
     steps:
@@ -61,7 +83,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: 9.0.x
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
