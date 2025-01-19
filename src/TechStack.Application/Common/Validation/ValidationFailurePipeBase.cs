@@ -7,9 +7,7 @@ public abstract class ValidationFailurePipeBase<TMessage> : IValidationFailurePi
     where TMessage : class
 {
     public virtual void Probe(ProbeContext context)
-    {
-        context.CreateScope($"ValidationFailurePipe<{typeof(TMessage)}>");
-    }
+        => context.CreateScope($"ValidationFailurePipe<{typeof(TMessage)}>");
 
     public abstract Task Send(ValidationFailureContext<TMessage> context);
 }
