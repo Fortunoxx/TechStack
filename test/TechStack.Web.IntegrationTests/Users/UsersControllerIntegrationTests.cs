@@ -121,8 +121,12 @@ public sealed class UsersControllerIntegrationTests : IAsyncLifetime,
         var userFaker = new UserFaker(Constants.EmailProvider);
         var users = userFaker.Generate(100);
 
+        var voteFaker = new VoteFaker();
+        var votes = voteFaker.Generate(100);
+
         // Add the customers to the context and save changes
         _context.Users.AddRange(users);
+        _context.Votes.AddRange(votes);
         _ = await _context.SaveChangesAsync(new CancellationTokenSource().Token);
     }
 }

@@ -9,6 +9,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     : DbContext(options), IApplicationDbContext
 {
     public DbSet<User> Users => Set<User>();
+    public DbSet<Vote> Votes => Set<Vote>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
