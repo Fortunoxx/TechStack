@@ -6,6 +6,7 @@ using FluentValidation;
 using MassTransit;
 using TechStack.Application.Test.Queries;
 using TechStack.Application.Common.Validation;
+using TechStack.Application.Common.Interfaces;
 
 public static class DependencyInjection
 {
@@ -21,6 +22,10 @@ public static class DependencyInjection
         });
 
         services.AddAutoMapper(Assembly.GetExecutingAssembly());
+
+        services.AddScoped<IDataFetcherService, FirstDataFetcherService>();
+        services.AddScoped<IDataFetcherService, DefaultDataFetcherService>();
+        services.AddScoped<IAggregatorService, AggregatorService>();
 
         return services;
     }
