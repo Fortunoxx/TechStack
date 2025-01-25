@@ -15,6 +15,7 @@ public class UserMapping : Profile
 
         CreateMap<AddUserCommand, User>().
             ForMember(dest => dest.Id, opt => opt.Ignore()).
+            ForMember(dest => dest.Badges, opt => opt.Ignore()).
             ForMember(dest => dest.Created, opt => opt.Ignore()).
             ForMember(dest => dest.CreatedBy, opt => opt.Ignore()).
             ForMember(dest => dest.DomainEvents, opt => opt.Ignore()).
