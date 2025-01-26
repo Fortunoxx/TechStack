@@ -7,7 +7,7 @@ public class Post
     public int Id { get; set; }
     public int? AcceptedAnswerId { get; set; }
     public int? AnswerCount { get; set; }
-    public string Body { get; set; }
+    public string? Body { get; set; }
     public DateTime? ClosedDate { get; set; }
     public int? CommentCount { get; set; }
     public DateTime? CommunityOwnedDate { get; set; }
