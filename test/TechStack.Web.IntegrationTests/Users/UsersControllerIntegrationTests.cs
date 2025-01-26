@@ -88,7 +88,7 @@ public sealed class UsersControllerIntegrationTests(IntegrationTestFactory<Progr
         var cut = _factory.CreateClient();
 
         // Act
-        var act = await cut.DeleteAsync("api/users/2");
+        var act = await cut.DeleteAsync("api/users/100");
 
         // Assert
         act.StatusCode.Should().Be(System.Net.HttpStatusCode.NoContent, "user should be deleted");
@@ -166,5 +166,12 @@ public sealed class UsersControllerIntegrationTests(IntegrationTestFactory<Progr
 
         context.Votes.AddRange(votes);
         await context.SaveChangesWithIdentityInsertAsync<Vote>();
+
+        // Add a single user with id = 100 to the context and save changes. this is used for the DeleteUser test
+        userFaker = new UserFaker(Constants.EmailProvider, 100);
+        users = userFaker.Generate(1);
+
+        context.Users.AddRange(users);
+        await context.SaveChangesWithIdentityInsertAsync<User>();
     }
 }
