@@ -23,15 +23,8 @@ public static class DbContextExtensions
     }
     
     public static Task EnableIdentityInsert<T>(this DbContext context) => SetIdentityInsert<T>(context, enable: true);
+    
     public static Task DisableIdentityInsert<T>(this DbContext context) => SetIdentityInsert<T>(context, enable: false);
-
-    private static Task<int> SetIdentityInsert<T>(DbContext context, bool enable)
-    {
-        var entityType = context.Model.FindEntityType(typeof(T));
-        var value = enable ? "ON" : "OFF";
-        return context.Database.ExecuteSqlRawAsync(
-            $"SET IDENTITY_INSERT {entityType.GetSchema()}.{entityType.GetTableName()} {value}");
-    }
 
     public static void SaveChangesWithIdentityInsert<T>(this DbContext context)
     {
@@ -49,5 +42,15 @@ public static class DbContextExtensions
         await context.SaveChangesAsync();
         await context.DisableIdentityInsert<T>();
         transaction.Commit();
+    }
+    
+    private static Task<int> SetIdentityInsert<T>(DbContext context, bool enable)
+    {
+        var entityType = context.Model.FindEntityType(typeof(T));
+        var value = enable ? "ON" : "OFF";
+#pragma warning disable EF1002 // Risk of vulnerability to SQL injection. This is safe to use in Integration Tests, no other way to set Identity Insert in EF Core.
+        return context.Database.ExecuteSqlRawAsync(
+            $"SET IDENTITY_INSERT {entityType?.GetSchema()}.{entityType?.GetTableName()} {value}");
+#pragma warning restore EF1002 // Risk of vulnerability to SQL injection.
     }
 }

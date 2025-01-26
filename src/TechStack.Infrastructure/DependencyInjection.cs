@@ -17,6 +17,7 @@ using TechStack.Infrastructure.Data;
 using TechStack.Infrastructure.Data.Interceptors;
 using TechStack.Infrastructure.Filter;
 using TechStack.Infrastructure.Services;
+using TechStack.Infrastructure.Services.DataFetchers;
 
 public static class DependencyInjection
 {
@@ -29,6 +30,9 @@ public static class DependencyInjection
         services.AddSingleton<ILockService, LockService>();
         services.AddScoped<ICorrelationIdGenerator, CorrelationIdGenerator>();
         services.AddSingleton<IEndpointAddressProvider, RabbitMqEndpointAddressProvider>();
+        services.AddScoped<IDataFetcherService, FirstDataFetcherService>();
+        services.AddScoped<IDataFetcherService, DefaultDataFetcherService>();
+        services.AddScoped<IAggregatorService, AggregatorService>();
 
         // Configure Redis Cache
         services.AddStackExchangeRedisCache(options =>
