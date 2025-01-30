@@ -26,7 +26,7 @@ public class IntegrationTestFactory<TProgram, TDbContext> : WebApplicationFactor
     private const string PathToUpgradedDacPac = "../../../../Assets/Database/DatabaseProjectStackOverflow2010.dacpac";
 
     private readonly MsSqlContainer _container = new MsSqlBuilder().
-        WithImage("mcr.microsoft.com/mssql/server:2022-CU13-ubuntu-22.04").
+        WithImage("mcr.microsoft.com/mssql/server:2022-latest").
         Build();
 
     public async Task InitializeAsync()
