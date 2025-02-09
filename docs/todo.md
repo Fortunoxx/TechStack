@@ -1,5 +1,5 @@
 # Tech used
-- [ ] MassTransit
+- [x] MassTransit
   - [x] MassTransit Mediator (Architecture)
   - [x] ConsumeFilter
   - [x] SendFilter
@@ -10,7 +10,7 @@
     - [x] MassTransit Delayed Redelivery (Architecture)
   - [x] Request-Response
   - [x] RoutingSlips (Courier)
-  - [ ] Saga
+  - [x] Saga
 - [x] rabbitmq (Architecture) (everyday I'm shoveling)
 - [x] Seq (Logging)
 - [x] Serilog (Logging)

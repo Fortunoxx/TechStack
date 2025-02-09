@@ -13,6 +13,7 @@ using System.Text.Json;
 using System.Buffers;
 using MassTransit.Monitoring;
 using TechStack.Web;
+using Microsoft.Extensions.Options;
 
 const string TechStackApiName = "TechStack";
 
@@ -49,7 +50,7 @@ builder.Services.
     });
 
 builder.Services.AddControllers(
-    options => options.Filters.Add(typeof(CorrelationIdFilter))
+    options => options.Filters.Add<CorrelationIdFilter>()
 );
 builder.Services.AddAuthentication(opt => opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
 builder.Services.AddAuthorization();
@@ -80,6 +81,8 @@ builder.Services.AddOpenTelemetry()
             })
     );
 
+builder.Services.Configure<AppSettings>(builder.Configuration.GetSection("AppSettings"));
+builder.Services.AddSingleton<IOptionsMonitor<AppSettings>, OptionsMonitor<AppSettings>>();
 
 var app = builder.Build();
 
