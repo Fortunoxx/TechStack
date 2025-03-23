@@ -10,12 +10,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-		<PackageReference Include="AutoBogus" Version="2.13.1" />
-		<PackageReference Include="AutoBogus.Conventions" Version="2.13.1" />
+    <PackageReference Include="AutoBogus" Version="2.13.1" />
+    <PackageReference Include="AutoBogus.Conventions" Version="2.13.1" />
     <PackageReference Include="AutoFixture.Xunit2" Version="4.18.1" />
     <PackageReference Include="coverlet.collector" Version="6.0.3" />
-		<PackageReference Include="coverlet.msbuild" Version="6.0.3" />
-		<PackageReference Include="FluentAssertions" Version="[7.1.0]" />
+    <PackageReference Include="coverlet.msbuild" Version="6.0.3" />
+    <PackageReference Include="FluentAssertions" Version="[7.1.0]" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
@@ -24,6 +24,20 @@
     <PackageReference Include="xunit" Version="2.9.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.0.1" />
     <PackageReference Include="Testcontainers.Keycloak" Version="4.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Copy the certificate files to the output directory -->
+    <None Update=".\Tests\Certificates\certificate.pem">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update=".\Tests\Certificates\certificate.key">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <!-- Copy the import.json file to the output directory -->
+    <None Update=".\Tests\Import\import.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>

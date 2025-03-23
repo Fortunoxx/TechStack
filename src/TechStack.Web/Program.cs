@@ -51,7 +51,17 @@ builder.Services.
 builder.Services.AddControllers(
     options => options.Filters.Add(typeof(CorrelationIdFilter))
 );
-builder.Services.AddAuthentication(opt => opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
+
+// the realm and the client configured in the Keycloak server
+var realm = "myrealm";
+var client = "myclient";
+
+builder.Services.AddAuthentication(opt => opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.Authority = $"https://localhost:8443/realms/{realm}";
+        options.Audience = $"{client}";
+    });
 builder.Services.AddAuthorization();
 builder.Services.AddOpenTelemetry()
     .ConfigureResource(resource =>

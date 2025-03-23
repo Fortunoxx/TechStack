@@ -15,9 +15,9 @@ public class AuthIntegrationTestFactory<TProgram> : WebApplicationFactory<TProgr
         .WithImage("keycloak/keycloak:26.0")
         .WithPortBinding(8443, 8443)
         //map the realm configuration file import.json.
-        .WithResourceMapping("./Import/import.json", "/opt/keycloak/data/import")
+        .WithResourceMapping("./Tests/Import/import.json", "/opt/keycloak/data/import")
         //map the certificates
-        .WithResourceMapping("./Certs", "/opt/keycloak/certs")
+        .WithResourceMapping("./Tests/Certificates", "/opt/keycloak/certs")
         .WithCommand("--import-realm")
         .WithEnvironment("KC_HTTPS_CERTIFICATE_FILE", "/opt/keycloak/certs/certificate.pem")
         .WithEnvironment("KC_HTTPS_CERTIFICATE_KEY_FILE", "/opt/keycloak/certs/certificate.key")
@@ -33,6 +33,6 @@ public class AuthIntegrationTestFactory<TProgram> : WebApplicationFactory<TProgr
 }
 
 [CollectionDefinition(nameof(AuthIntegrationTestFactoryCollection))]
-public class AuthIntegrationTestFactoryCollection : ICollectionFixture<Program>
+public class AuthIntegrationTestFactoryCollection : ICollectionFixture<AuthIntegrationTestFactory<Program>>
 {
 }

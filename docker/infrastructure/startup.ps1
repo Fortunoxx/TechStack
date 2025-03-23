@@ -20,7 +20,6 @@ docker compose up -d mongodb
 Connect-Mdbc . docker-compose config
 
 Write-Host "=> Setting up prometheus alertmanager..." -ForegroundColor $info_color
-Connect-Mdbc . docker-compose config
 $data = Get-MdbcData @{key = "prometheus.alertmanager.discord_webhook_url" }
 Write-Host "=> updating discord webhook url:" -ForegroundColor $info_color
 Write-Host "=>" $data.value -ForegroundColor $highlight_color 
