@@ -17,4 +17,7 @@ public class User : BaseAuditableEntity
     public string? WebsiteUrl { get; init; }
     public int? AccountId { get; init; }
     public ICollection<UserMetaData>? MetaData { get; init; }
+    public ICollection<Badge>? Badges { get; init; }
+    // public ICollection<Post>? Posts { get; init; }
+    public ICollection<Vote>? Votes { get; init; }
 }

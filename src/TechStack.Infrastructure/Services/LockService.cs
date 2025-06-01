@@ -34,7 +34,8 @@ public class LockService(IDistributedCache distributedCache) : ILockService
 
     public async Task<int?> GetById(int id)
     {
-        var dataDictionary = ConvertByteArrayToDictionary(await distributedCache.GetAsync(CacheKey));
+        var data = await distributedCache.GetAsync(CacheKey);
+        var dataDictionary = data != null ? ConvertByteArrayToDictionary(data) : [];
 
         if (dataDictionary.Any(x => x.Key == id))
         {
@@ -53,7 +54,7 @@ public class LockService(IDistributedCache distributedCache) : ILockService
     private static Dictionary<int, object> ConvertByteArrayToDictionary(byte[] byteArray)
     {
         var jsonString = System.Text.Encoding.UTF8.GetString(byteArray);
-        return JsonSerializer.Deserialize<Dictionary<int, object>>(jsonString);
+        return JsonSerializer.Deserialize<Dictionary<int, object>>(jsonString) ?? [];
     }
 
     private async Task<Dictionary<int, object>> GetDataDictionary()
