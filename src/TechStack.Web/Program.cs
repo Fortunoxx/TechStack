@@ -13,6 +13,7 @@ using System.Text.Json;
 using System.Buffers;
 using MassTransit.Monitoring;
 using TechStack.Web;
+using Scalar.AspNetCore;
 
 const string TechStackApiName = "TechStack";
 
@@ -33,6 +34,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.
     AddSwaggerGen(options => options.OperationFilter<DeprecatedHeaderFilter>()).
     AddSwaggerGenNewtonsoftSupport();
+builder.Services.AddOpenApi();
 
 builder.Services.
     AddApiVersioning(options =>
@@ -139,6 +141,14 @@ app.UseExceptionHandler(exceptionHandlerApp =>
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    app.MapOpenApi();
+    app.MapScalarApiReference(options =>
+    {
+        options.
+            WithTitle("Messages API").
+            WithTheme(ScalarTheme.Laserwave).
+            WithDefaultHttpClient(ScalarTarget.PowerShell, ScalarClient.Curl);
+    });
     app.UseSwagger();
     app.UseSwaggerUI(
         options =>
@@ -194,8 +204,7 @@ app.MapGet("/weatherforecast", () =>
         .ToArray();
     return forecast;
 })
-.WithName("GetWeatherForecast")
-.WithOpenApi();
+.WithName("GetWeatherForecast");
 
 app.Run();
 
