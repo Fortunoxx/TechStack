@@ -145,7 +145,7 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference(options =>
     {
         options.
-            WithTitle("Messages API").
+            WithTitle("TechStack API").
             WithTheme(ScalarTheme.Laserwave).
             WithDefaultHttpClient(ScalarTarget.PowerShell, ScalarClient.Curl);
     });
