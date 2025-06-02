@@ -133,11 +133,18 @@ services:
     volumes:
       - grafana-storage:/var/lib/grafana
 
-  mailhog:
-    image: mailhog/mailhog:latest
-    container_name: mailhog
+  mailpit:    
+    image: axllent/mailpit
+    container_name: mailpit
+    # volumes:
+    #   - ./data:/data
     ports:
-      - "8025:8025"
+      - 8025:8025
+    environment:
+      MP_MAX_MESSAGES: 5000
+      # MP_DATABASE: /data/mailpit.db
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
 
   seq:
     image: datalust/seq:latest
