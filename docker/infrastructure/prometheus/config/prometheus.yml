@@ -64,6 +64,12 @@ scrape_configs:
           - nginx:9080
     metrics_path: /loki/metrics
 
+  - job_name: mailpit
+    static_configs:
+      - targets:
+          - nginx:9080
+    metrics_path: /mailpit/metrics
+
   - job_name: node
     static_configs:
       - targets:
