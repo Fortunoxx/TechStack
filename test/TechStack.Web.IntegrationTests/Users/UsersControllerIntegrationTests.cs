@@ -17,19 +17,20 @@ public sealed class UsersControllerIntegrationTests : IAsyncLifetime,
     IClassFixture<IntegrationTestFactory<Program, ApplicationDbContext>>
 {
     private readonly IntegrationTestFactory<Program, ApplicationDbContext> _factory;
-
     private readonly ApplicationDbContext _context;
+    private readonly Func<Task> _resetDatabaseAsync;
 
     public UsersControllerIntegrationTests(IntegrationTestFactory<Program, ApplicationDbContext> factory)
     {
         _factory = factory;
+        _resetDatabaseAsync = factory.ResetDatabaseAsync;
         var scope = factory.Services.CreateAsyncScope();
         _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     }
 
     public async Task InitializeAsync() => await SeedDatabaseAsync();
 
-    public Task DisposeAsync() => Task.CompletedTask;
+    public Task DisposeAsync() => _resetDatabaseAsync();
 
     [Fact]
     internal async Task UsersApi_GetPersons_ShouldReturnValidResultAsync()
