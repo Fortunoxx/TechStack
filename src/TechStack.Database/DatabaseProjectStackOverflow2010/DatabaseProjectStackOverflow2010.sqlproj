@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build">
-  <Sdk Name="Microsoft.Build.Sql" Version="1.0.0-rc1" />
+  <Sdk Name="Microsoft.Build.Sql" Version="1.0.0" />
   <PropertyGroup>
     <Name>DatabaseProjectStackOverflow2010</Name>
     <ProjectGuid>{C8E6B4DB-1B80-4465-AF1C-36C1187E1AFF}</ProjectGuid>
     <DSP>Microsoft.Data.Tools.Schema.Sql.Sql160DatabaseSchemaProvider</DSP>
     <ModelCollation>1033, CI</ModelCollation>
+    <!-- <OutputPath>bin\Debug\</OutputPath> -->
+    <AdditionalOutputPath>..\..\..\test\Assets\Database</AdditionalOutputPath>
+    <!-- <AdditionalOutputPath>$(SolutionDir)test\Assets\Database\</AdditionalOutputPath> -->
   </PropertyGroup>
   <ItemGroup>
     <None Include="DatabaseProjectStackOverflow2010_TechStackDb.publish.xml" />
@@ -19,5 +22,10 @@
   </ItemGroup>
   <Target Name="BeforeBuild">
     <Delete Files="$(BaseIntermediateOutputPath)\project.assets.json" />
+  </Target>
+  <Target Name="CopyToAdditionalOutput" AfterTargets="Build">
+    <MakeDir Directories="$(AdditionalOutputPath)" />
+    <Copy SourceFiles="$(OutputPath)$(MSBuildProjectName).dacpac"
+      DestinationFolder="$(AdditionalOutputPath)" />
   </Target>
 </Project>

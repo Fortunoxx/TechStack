@@ -28,6 +28,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\TechStack.Web\TechStack.Web.csproj" />
+    <ProjectReference Include="..\..\src\TechStack.Database\DatabaseProjectStackOverflow2010\DatabaseProjectStackOverflow2010.sqlproj" />
   </ItemGroup>
 
 </Project>
