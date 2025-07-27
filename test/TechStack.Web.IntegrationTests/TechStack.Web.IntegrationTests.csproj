@@ -26,6 +26,14 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.1" />
   </ItemGroup>
 
+  <!-- Copy DACPAC file to output directory -->
+  <ItemGroup>
+    <None Include="..\..\src\TechStack.Database\DatabaseProjectStackOverflow2010\bin\Debug\DatabaseProjectStackOverflow2010.dacpac">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <TargetPath>Database\DatabaseProjectStackOverflow2010.dacpac</TargetPath>
+    </None>
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\..\src\TechStack.Web\TechStack.Web.csproj" />
     <ProjectReference Include="..\..\src\TechStack.Database\DatabaseProjectStackOverflow2010\DatabaseProjectStackOverflow2010.sqlproj" />

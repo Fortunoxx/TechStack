@@ -23,7 +23,7 @@ public class IntegrationTestFactory<TProgram, TDbContext> : WebApplicationFactor
 {
     private const string DatabaseName = "TechStackDatabase";
     private const string PathToInitialDacPac = "../../../../Assets/Database/StackOverflow2010.dacpac";
-    private const string PathToUpgradedDacPac = "../../../../Assets/Database/DatabaseProjectStackOverflow2010.dacpac";
+
     private Respawner _respawner = default!;
 
     private readonly MsSqlContainer _container = new MsSqlBuilder().
@@ -64,7 +64,9 @@ public class IntegrationTestFactory<TProgram, TDbContext> : WebApplicationFactor
     {
         var builder = new SqlConnectionStringBuilder(sqlConnectionString);
         FillFromDacFx(builder, new FileInfo(PathToInitialDacPac), DatabaseName);
-        FillFromDacFx(builder, new FileInfo(PathToUpgradedDacPac), DatabaseName);
+
+        var pathToUpgradedDacPac = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Database", "DatabaseProjectStackOverflow2010.dacpac");
+        FillFromDacFx(builder, new FileInfo(pathToUpgradedDacPac), DatabaseName);
 
         // Set up Respawn
         _respawner = await Respawner.CreateAsync(sqlConnectionString, new RespawnerOptions
