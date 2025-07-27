@@ -82,8 +82,14 @@ scrape_configs:
           - nginx:9080
     metrics_path: /prometheus/metrics
 
+  - job_name: rabbitmq
+    static_configs:
+      - targets:
+          - nginx:9080
+    metrics_path: /rabbitmq/metrics
+
   - job_name: speedtest-exporter
-    scrape_interval: 15m
+    scrape_interval: 3m
     scrape_timeout: 1m
     static_configs:
       - targets:
