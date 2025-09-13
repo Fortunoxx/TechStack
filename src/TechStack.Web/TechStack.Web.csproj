@@ -34,7 +34,7 @@
     <PackageReference Include="Asp.Versioning.Mvc" Version="8.1.0" />
     <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.1.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="9.0.4" />
-    <PackageReference Include="Scalar.AspNetCore" Version="2.8.0" />
+    <PackageReference Include="Scalar.AspNetCore" Version="2.8.3" />
   </ItemGroup>
 
   <ItemGroup>
