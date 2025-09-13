@@ -2,7 +2,7 @@ namespace TechStack.Web.UnitTests;
 
 using System.Threading.Tasks;
 using AutoFixture;
-using FluentAssertions;
+using AwesomeAssertions;
 using MassTransit;
 using MassTransit.Testing;
 using Microsoft.Extensions.DependencyInjection;

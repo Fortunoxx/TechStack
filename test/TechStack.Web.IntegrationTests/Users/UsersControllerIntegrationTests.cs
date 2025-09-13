@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using AutoBogus;
 using AutoBogus.Conventions;
 using AutoFixture;
-using FluentAssertions;
+using AwesomeAssertions;
 using TechStack.Application.Users.Commands;
 using TechStack.Domain.Entities;
 using TechStack.Web.IntegrationTests.Mocks;
