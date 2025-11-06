@@ -75,15 +75,15 @@ jobs:
   #       token: ${{ secrets.CODECOV_TOKEN }}
   #       slug: Fortunoxx/TechStack
 
-  build-9:
+  build-10:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Setup .NET 9.0
-      uses: actions/setup-dotnet@v4
+    - uses: actions/checkout@v5
+    - name: Setup .NET 10.0
+      uses: actions/setup-dotnet@v5
       with:
-        dotnet-version: 9.0.x
+        dotnet-version: 10.0.x
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
@@ -92,7 +92,7 @@ jobs:
       run: dotnet test --configuration Release --no-restore /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
       # run: dotnet test --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura
     - name: Upload coverage reports to Codecov
-      uses: codecov/codecov-action@v4.0.1
+      uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         slug: Fortunoxx/TechStack
