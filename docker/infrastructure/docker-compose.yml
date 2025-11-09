@@ -166,7 +166,7 @@ services:
       - mongo-data:/data/db
 
   mssql:
-    image: mcr.microsoft.com/mssql/server:latest
+    image: mcr.microsoft.com/mssql/server:2025-latest
     container_name: mssql
     environment:
       - ACCEPT_EULA=Y
