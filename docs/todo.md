@@ -37,6 +37,7 @@
 
 # Patterns
 - [x] Mediator
+  - [ ] ExceptionMiddleware
 - [x] CleanArchitecture
   - [x] MassTransit: 
     - [ ] Contracts
