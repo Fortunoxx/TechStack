@@ -3,6 +3,7 @@ namespace TechStack.Application.UnitTests;
 using AutoFixture;
 using AwesomeAssertions;
 using TechStack.Application.Users.Commands;
+using TechStack.Application.Users.Queries;
 
 [Trait("Category", "UnitTest")]
 public class ValidatorUnitTests
@@ -34,6 +35,22 @@ public class ValidatorUnitTests
 
         // Act
         var result = await validator.ValidateAsync(command);
+
+        // Assert
+        result.IsValid.Should().BeTrue();
+    }
+    
+    [Fact]
+    internal async Task GetUserByIdQueryValidator_ValidateAsync_ShouldWorkAsync()
+    {
+        // Arrange 
+        var fixture = new Fixture();
+        var validator = new GetUserByIdQueryValidator();
+
+        var query = fixture.Create<GetUserByIdQuery>();
+
+        // Act
+        var result = await validator.ValidateAsync(query);
 
         // Assert
         result.IsValid.Should().BeTrue();
