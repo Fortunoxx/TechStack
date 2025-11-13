@@ -29,17 +29,26 @@
     </PackageReference>
   </ItemGroup>
 
-  <!-- Copy DACPAC file to output directory -->
-  <ItemGroup>
-    <None Include="..\..\src\TechStack.Database\DatabaseProjectStackOverflow2010\bin\Debug\DatabaseProjectStackOverflow2010.dacpac">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <TargetPath>Database\DatabaseProjectStackOverflow2010.dacpac</TargetPath>
-    </None>
-  </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\..\src\TechStack.Web\TechStack.Web.csproj" />
-    <ProjectReference Include="..\..\src\TechStack.Database\DatabaseProjectStackOverflow2010\DatabaseProjectStackOverflow2010.sqlproj" />
+    <!-- This ensures the SQL project builds first, but CSC ignores its output -->
+    <ProjectReference Include="..\..\src\TechStack.Database\DatabaseProjectStackOverflow2010\DatabaseProjectStackOverflow2010.sqlproj">
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+
+  <!-- Still copy DACPAC file to output directory -->
+  <ItemGroup>
+    <None Include="..\..\src\TechStack.Database\DatabaseProjectStackOverflow2010\bin\$(Configuration)\DatabaseProjectStackOverflow2010.dacpac">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <TargetPath>Database\DatabaseProjectStackOverflow2010.dacpac</TargetPath>
+      <Visible>false</Visible>
+    </None>
+    <None Include="..\..\src\TechStack.Database\DatabaseProjectStackOverflow2010\bin\$(Configuration)\master.dacpac">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <TargetPath>Database\master.dacpac</TargetPath>
+      <Visible>false</Visible>
+    </None>
   </ItemGroup>
 
 </Project>
