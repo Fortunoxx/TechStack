@@ -2,7 +2,7 @@ namespace TechStack.Web.Infrastructure;
 
 using Asp.Versioning.ApiExplorer;
 using Microsoft.Extensions.Options;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 public class ConfigureSwaggerOptions(IApiVersionDescriptionProvider provider) :
