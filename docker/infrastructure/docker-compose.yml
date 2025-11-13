@@ -174,7 +174,7 @@ services:
     ports:
       - "1433:1433"
     volumes:
-      - mssql-data:/mssql/data
+      - sqlvolume:/var/opt/mssql
 
   nginx:
     image: nginx:latest
@@ -196,5 +196,5 @@ volumes:
   grafana-storage:
     external: true
   mongo-data:
-  mssql-data:
+  sqlvolume:
   loki-data:
