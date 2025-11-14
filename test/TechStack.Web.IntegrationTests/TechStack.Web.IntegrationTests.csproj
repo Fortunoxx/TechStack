@@ -44,11 +44,6 @@
       <TargetPath>Database\DatabaseProjectStackOverflow2010.dacpac</TargetPath>
       <Visible>false</Visible>
     </None>
-    <None Include="..\..\src\TechStack.Database\DatabaseProjectStackOverflow2010\bin\$(Configuration)\master.dacpac">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <TargetPath>Database\master.dacpac</TargetPath>
-      <Visible>false</Visible>
-    </None>
   </ItemGroup>
 
 </Project>
