@@ -39,7 +39,7 @@
 
   <!-- Still copy DACPAC file to output directory -->
   <ItemGroup>
-    <None Include="..\..\src\TechStack.Database\DatabaseProjectStackOverflow2010\bin\$(Configuration)\DatabaseProjectStackOverflow2010.dacpac">
+    <None Include="..\..\src\TechStack.Database\DatabaseProjectStackOverflow2010\bin\Debug\DatabaseProjectStackOverflow2010.dacpac">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <TargetPath>Database\DatabaseProjectStackOverflow2010.dacpac</TargetPath>
       <Visible>false</Visible>
