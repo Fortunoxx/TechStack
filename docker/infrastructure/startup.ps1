@@ -1,4 +1,3 @@
-$is_initial_startup = $false
 $info_color = "Green"
 $warning_color = "Yellow"
 $highlight_color = "Magenta"
@@ -46,30 +45,34 @@ $content = Get-Content ./prometheus/config/alertmanager.yml
 $content = $content -replace '<replace_me_discord_webhook_url>', $data.value
 Set-Content ./prometheus/config/alertmanager.yml -Value $content
 
+docker compose up -d mssql
+
+# Wait for SQL Server migration steps, otherwise login will fail
+$sleeper = 0.0
+$sleeper_increment = 0.33
+$retry_count = 0
+
+DO {
+    $sleeper += $sleeper_increment
+    $line = docker container logs mssql | Where-Object { $_ -like "*Service Broker manager has started.*" }
+    $tsdb = docker container logs mssql | Where-Object { $_ -like "*Starting up database 'TechStackDatabase'*" }
+    # $running = docker inspect -f '{{.State.Running}}' mssql
+    Write-Host "=> Waiting for SQL Server migration steps ($sleeper s)" -ForegroundColor $warning_color
+    Start-Sleep $sleeper_increment
+    $retry_count++
+} Until ($line -or $sleeper -ge 15.0)
+
+$mssql_running = docker inspect -f '{{.State.Running}}' mssql
+if ($mssql_running -eq $false) {
+    Write-Host "=> MSSQL container is not running. Starting MSSQL container..." -ForegroundColor $warning_color
+    docker compose up -d mssql
+    Start-Sleep -Seconds 10
+}
+
+$is_initial_startup = $tsdb -eq $null
+
 if ($is_initial_startup -eq $true) {
     Write-Host "=> Initial startup detected. Waiting additional time for MSSQL to be ready..." -ForegroundColor $warning_color
-    docker compose up -d mssql
-
-    # Wait for SQL Server migration steps, otherwise login will fail
-    $sleeper = 0.0
-    $sleeper_increment = 0.33
-    $retry_count = 0
-
-    DO {
-        $sleeper += $sleeper_increment
-        $line = docker container logs mssql | Where-Object { $_ -like "*Service Broker manager has started.*" }
-        # $running = docker inspect -f '{{.State.Running}}' mssql
-        Write-Host "=> Waiting for SQL Server migration steps ($sleeper s)" -ForegroundColor $warning_color
-        Start-Sleep $sleeper_increment
-        $retry_count++
-    } Until ($line -or $sleeper -ge 15.0)
-
-    $mssql_running = docker inspect -f '{{.State.Running}}' mssql
-    if ($mssql_running -eq $false) {
-        Write-Host "=> MSSQL container is not running. Starting MSSQL container..." -ForegroundColor $warning_color
-        docker compose up -d mssql
-        Start-Sleep -Seconds 10
-    }
 
     $msSqlPasswordIniString = (docker inspect -f '{{.Config.Env}}' mssql).Split(" ") | Where-Object { $_ -like "*MSSQL_SA_PASSWORD*" } | Select -First 1
     $msSqlPasswordIni = $msSqlPasswordIniString.Split("=")[1] # old password, we want to change that later
