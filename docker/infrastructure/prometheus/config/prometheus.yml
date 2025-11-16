@@ -6,6 +6,7 @@ rule_files:
   - blackbox-exporter.yml
   - embedded-exporter.yml
   - google-cadvisor.yml
+  - jaeger-v2.yml
   - node-exporter.yml
   - rules-example.yml
 

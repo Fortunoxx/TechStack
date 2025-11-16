@@ -62,7 +62,12 @@ builder.Services.AddOpenTelemetry()
     .WithTracing(tracing => tracing
         .AddAspNetCoreInstrumentation()
         .AddHttpClientInstrumentation()
-        .AddJaegerExporter()
+        .AddOtlpExporter(options =>
+        {
+            // Jaeger v2 uses OTLP endpoint (default: http://localhost:4318/v1/traces)
+            options.Endpoint = new Uri(builder.Configuration["Jaeger:OtlpEndpoint"] ?? "http://localhost:4318/v1/traces");
+            options.Protocol = OpenTelemetry.Exporter.OtlpExportProtocol.HttpProtobuf;
+        })
         .AddSource("MassTransit")
     )
     .WithMetrics(builder => builder
