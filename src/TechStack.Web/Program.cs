@@ -14,6 +14,7 @@ using System.Buffers;
 using MassTransit.Monitoring;
 using TechStack.Web;
 using Scalar.AspNetCore;
+using MassTransit.Logging;
 
 const string TechStackApiName = "TechStack";
 
@@ -51,7 +52,7 @@ builder.Services.
     });
 
 builder.Services.AddControllers(
-    options => options.Filters.Add(typeof(CorrelationIdFilter))
+    options => options.Filters.Add<CorrelationIdFilter>()
 );
 builder.Services.AddAuthentication(opt => opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
 builder.Services.AddAuthorization();
@@ -62,13 +63,15 @@ builder.Services.AddOpenTelemetry()
     .WithTracing(tracing => tracing
         .AddAspNetCoreInstrumentation()
         .AddHttpClientInstrumentation()
+        .AddEntityFrameworkCoreInstrumentation()
+        .AddConsoleExporter()
         .AddOtlpExporter(options =>
         {
             // Jaeger v2 uses OTLP endpoint (default: http://localhost:4318/v1/traces)
             options.Endpoint = new Uri(builder.Configuration["Jaeger:OtlpEndpoint"] ?? "http://localhost:4318/v1/traces");
             options.Protocol = OpenTelemetry.Exporter.OtlpExportProtocol.HttpProtobuf;
         })
-        .AddSource("MassTransit")
+        .AddSource(DiagnosticHeaders.DefaultListenerName)  // MassTransit ActivitySource
     )
     .WithMetrics(builder => builder
         .AddPrometheusExporter()
