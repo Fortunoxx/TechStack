@@ -5,6 +5,9 @@
     <Project Path="src/TechStack.Infrastructure/TechStack.Infrastructure.csproj" />
     <Project Path="src/TechStack.Web/TechStack.Web.csproj" />
   </Folder>
+  <Folder Name="/src/TechStack.Database/">
+    <Project Path="src/TechStack.Database/DatabaseProjectStackOverflow2010/DatabaseProjectStackOverflow2010.sqlproj" />
+  </Folder>
   <Folder Name="/test/">
     <Project Path="test/TechStack.Application.UnitTests/TechStack.Application.UnitTests.csproj" />
     <Project Path="test/TechStack.Infrastructure.UnitTests/TechStack.Infrastructure.UnitTests.csproj" />

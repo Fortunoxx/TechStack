@@ -60,3 +60,7 @@
   - [x] analyze
 - [ ] Staging / Live Environments
 - [x] CodeCov (together with unit tests and integration tests)
+  
+# General
+- slnx (.net 9.x +)
+- [Central Package Management](https://learn.microsoft.com/en-us/nuget/consume-packages/central-package-management)
