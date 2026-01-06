@@ -27,7 +27,7 @@ services:
       - loki
 
   loki:
-    image: grafana/loki:latest
+    image: grafana/loki:3.5.8 # health check tools removed in 3.6.0
     container_name: loki
     ports:
       - 3100:3100
