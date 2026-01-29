@@ -2,7 +2,6 @@ namespace TechStack.Application.Test.Queries;
 
 using MassTransit;
 
-[Retry(typeof(CustomRetryPolicy))]
 public class TestQueryMediatorConsumer :
     IConsumer<TestQuery>
 {
