@@ -73,6 +73,10 @@ public static class DependencyInjection
                 busFactoryConfigurator.UsePublishFilter(typeof(CorrelationIdPublishFilter<>), context);
                 busFactoryConfigurator.UseConsumeFilter(typeof(CorrelationIdConsumeFilter<>), context);
 
+                // Activity filters for routing slips - adds CorrelationId to logging scope
+                busFactoryConfigurator.UseExecuteActivityFilter(typeof(CorrelationIdExecuteActivityFilter<>), context);
+                busFactoryConfigurator.UseCompensateActivityFilter(typeof(CorrelationIdCompensateActivityFilter<>), context);
+
                 busFactoryConfigurator.ConfigureEndpoints(context);
 
                 foreach (var rabbitMqOptionType in rabbitMqOptionTypes)
