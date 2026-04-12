@@ -3,16 +3,16 @@ services:
     image: masstransit/rabbitmq:latest
     container_name: rabbitmq
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "${LOCAL_PORT_PREFIX}672:5672"
+      - "${LOCAL_PORT_PREFIX}673:15672"
 
   jaeger:
     image: ${REGISTRY:-}jaegertracing/jaeger:${JAEGER_VERSION:-latest}
     container_name: jaeger
     ports:
-      - "16686:16686"
-      - "4317:4317"
-      - "4318:4318"
+      - "${LOCAL_PORT_PREFIX}686:16686"
+      - "${LOCAL_PORT_PREFIX}317:4317"
+      - "${LOCAL_PORT_PREFIX}318:4318"
     environment:
       - COLLECTOR_OTLP_ENABLED=true
       - LOG_LEVEL=debug
@@ -30,7 +30,7 @@ services:
     image: grafana/loki:3.5.8 # health check tools removed in 3.6.0
     container_name: loki
     ports:
-      - 3100:3100
+      - "${LOCAL_PORT_PREFIX}100:3100"
     volumes:
       - ./loki/loki-config.yml:/etc/loki/loki-config.yaml
       - loki-data:/tmp/loki
@@ -59,7 +59,7 @@ services:
       retries: 10
       start_period: 10s
     ports:
-      - 9090:9090
+      - "${LOCAL_PORT_PREFIX}090:9090"
     depends_on:
       - cadvisor
 
@@ -67,7 +67,7 @@ services:
     image: gcr.io/cadvisor/cadvisor:latest
     container_name: cadvisor
     ports:
-      - 8080:8080
+      - "${LOCAL_PORT_PREFIX}080:8080"
     command:
       - "--port=8080"
       - "--housekeeping_interval=30s"
@@ -89,13 +89,13 @@ services:
     image: prom/node-exporter:latest
     container_name: node-exporter
     ports:
-      - 9100:9100
+      - "${LOCAL_PORT_PREFIX}101:9100"
 
   blackbox-exporter:
     image: prom/blackbox-exporter:latest
     container_name: blackbox-exporter
     ports:
-      - 9115:9115
+      - "${LOCAL_PORT_PREFIX}115:9115"
     volumes:
       - ./blackbox:/config
     command:
@@ -105,7 +105,7 @@ services:
     image: miguelndecarvalho/speedtest-exporter:latest
     container_name: speedtest-exporter
     ports:
-      - 9798:9798
+      - "${LOCAL_PORT_PREFIX}798:9798"
 
   alert-manager:
     image: prom/alertmanager:latest
@@ -113,13 +113,13 @@ services:
     volumes:
       - ./prometheus/config/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
     ports:
-      - 9093:9093
+      - "${LOCAL_PORT_PREFIX}093:9093"
 
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
     ports:
-      - "3000:3000"
+      - "${LOCAL_PORT_PREFIX}000:3000"
     depends_on:
       loki:
         condition: service_healthy
@@ -136,7 +136,7 @@ services:
     # volumes:
     #   - ./data:/data
     ports:
-      - 8025:8025
+      - "${LOCAL_PORT_PREFIX}025:8025"
     environment:
       MP_ENABLE_PROMETHEUS: True
       MP_MAX_MESSAGES: 5000
@@ -151,14 +151,14 @@ services:
       - ACCEPT_EULA=Y
       - SEQ_FIRSTRUN_ADMINPASSWORD=P@ssw0rd1!
     ports:
-      - 5341:5341
-      - 3110:80
+      - "${LOCAL_PORT_PREFIX}341:5341"
+      - "${LOCAL_PORT_PREFIX}110:80"
 
   mongodb:
     image: mongo:latest
     container_name: mongodb
     ports:
-      - 27017:27017
+      - "${LOCAL_PORT_PREFIX}017:27017"
     volumes:
       - mongo-data:/data/db
 
@@ -169,7 +169,7 @@ services:
       - ACCEPT_EULA=Y
       - MSSQL_SA_PASSWORD=P@ssw0rd1!
     ports:
-      - "1433:1433"
+      - "${LOCAL_PORT_PREFIX}433:1433"
     volumes:
       - sqlvolume:/var/opt/mssql
 
@@ -177,7 +177,7 @@ services:
     image: nginx:latest
     container_name: nginx
     ports:
-      - 9080:80  # Expose Nginx on port 9080
+      - "${LOCAL_PORT_PREFIX}081:80"  # Expose Nginx with LOCAL_PORT_PREFIX
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf  # Nginx configuration file
     depends_on:
@@ -187,7 +187,7 @@ services:
     image: redis:latest
     container_name: redis
     ports:
-      - "6379:6379"
+      - "${LOCAL_PORT_PREFIX}379:6379"
 
 volumes:
   grafana-storage:

@@ -22,6 +22,13 @@ public static class DependencyInjection
 {
     private const string AssemblyNamespace = "TechStack";
 
+    private record RabbitMqOption(
+        string Host,
+        ushort Port,
+        string VirtualHost,
+        string Username,
+        string Password);
+
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
         // custom services
@@ -33,7 +40,9 @@ public static class DependencyInjection
         // Configure Redis Cache
         services.AddStackExchangeRedisCache(options =>
         {
-            options.Configuration = "localhost:6379";
+            var redisConfig = configuration.GetSection("Redis");
+            var configurationValue = redisConfig.GetValue<string>("Configuration");
+            options.Configuration = configurationValue;
             options.InstanceName = "SampleInstance";
         });
 
@@ -61,6 +70,17 @@ public static class DependencyInjection
 
             options.UsingRabbitMq((context, busFactoryConfigurator) =>
             {
+                var rabbitMqOption = configuration.GetSection("RabbitMq").Get<RabbitMqOption>();
+
+                if (rabbitMqOption is not null)
+                {
+                    busFactoryConfigurator.Host(rabbitMqOption.Host, rabbitMqOption.Port, rabbitMqOption.VirtualHost, host =>
+                    {
+                        host.Username(rabbitMqOption.Username);
+                        host.Password(rabbitMqOption.Password);
+                    });
+                }
+
                 // busFactoryConfigurator.UseKillSwitch(opt => opt
                 //     .SetActivationThreshold(3)
                 //     .SetTripThreshold(0.15)

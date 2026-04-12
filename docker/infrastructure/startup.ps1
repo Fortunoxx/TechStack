@@ -8,6 +8,10 @@ docker compose down
 # Ensure .env file has REGISTRY setting
 $envFile = ".env"
 $registryLine = "REGISTRY=cr.jaegertracing.io/"
+$localPortPrefixDefault = "50"
+$localPortPrefixLine = "LOCAL_PORT_PREFIX=$localPortPrefixDefault"
+$mongoPortSuffix = "017"
+$msSqlPortSuffix = "433"
 
 if (Test-Path $envFile) {
     $envContent = Get-Content $envFile
@@ -15,10 +19,24 @@ if (Test-Path $envFile) {
         Write-Host "=> Adding REGISTRY to .env file..." -ForegroundColor $info_color
         Add-Content -Path $envFile -Value $registryLine
     }
+    $localPortPrefixEntry = $envContent | Where-Object { $_ -match "^LOCAL_PORT_PREFIX=" } | Select-Object -First 1
+    if (-not $localPortPrefixEntry) {
+        Write-Host "=> Adding LOCAL_PORT_PREFIX to .env file..." -ForegroundColor $info_color
+        Add-Content -Path $envFile -Value $localPortPrefixLine
+    } else {
+        Write-Host "=> Keeping existing LOCAL_PORT_PREFIX from .env..." -ForegroundColor $info_color
+    }
 } else {
-    Write-Host "=> Creating .env file with REGISTRY..." -ForegroundColor $info_color
-    Set-Content -Path $envFile -Value $registryLine
+    Write-Host "=> Creating .env file with REGISTRY and LOCAL_PORT_PREFIX..." -ForegroundColor $info_color
+    Set-Content -Path $envFile -Value @($registryLine, $localPortPrefixLine)
 }
+
+$envContent = Get-Content $envFile
+$localPortPrefixEntry = $envContent | Where-Object { $_ -match "^LOCAL_PORT_PREFIX=" } | Select-Object -First 1
+$localPortPrefix = if ($localPortPrefixEntry) { ($localPortPrefixEntry -split "=", 2)[1] } else { $localPortPrefixDefault }
+$mongoHostPort = "$($localPortPrefix)$mongoPortSuffix"
+$mongoConnectionString = "mongodb://localhost:$mongoHostPort"
+$msSqlHostPort = "$($localPortPrefix)$msSqlPortSuffix"
 
 if (-not (Get-Module -ListAvailable -Name Mdbc)) {
     Install-Module Mdbc -Force
@@ -32,10 +50,10 @@ Import-Module SqlServer
 Write-Host "=> Starting mongodb to get configurations..." -ForegroundColor $info_color
 docker compose up -d mongodb
 
-Connect-Mdbc . docker-compose config
+Connect-Mdbc $mongoConnectionString docker-compose config
 
 Write-Host "=> Setting up prometheus alertmanager..." -ForegroundColor $info_color
-Connect-Mdbc . docker-compose config
+Connect-Mdbc $mongoConnectionString docker-compose config
 $data = Get-MdbcData @{key = "prometheus.alertmanager.discord_webhook_url" }
 Write-Host "=> updating discord webhook url:" -ForegroundColor $info_color
 Write-Host "=>" $data.value -ForegroundColor $highlight_color 
@@ -89,7 +107,7 @@ if ($is_initial_startup -eq $true) {
     GO";
 
     Invoke-Sqlcmd -Query $query `
-        -ServerInstance "localhost,1433" `
+        -ServerInstance "localhost,$msSqlHostPort" `
         -TrustServerCertificate `
         -Username "sa" `
         -Password $msSqlPasswordIni
@@ -100,7 +118,7 @@ if ($is_initial_startup -eq $true) {
     $query = "USE [master]; ALTER LOGIN [sa] WITH PASSWORD=N'$($msSqlPassword)', CHECK_EXPIRATION=OFF, CHECK_POLICY=ON;"
         
     Invoke-Sqlcmd -Query $query `
-        -ServerInstance "localhost,1433" `
+        -ServerInstance "localhost,$msSqlHostPort" `
         -TrustServerCertificate `
         -Username $newUser `
         -Password $msSqlPassword
