@@ -9,7 +9,7 @@
     <PackageVersion Include="Ardalis.GuardClauses" Version="5.0.0" />
     <PackageVersion Include="Asp.Versioning.Mvc" Version="10.0.0" />
     <PackageVersion Include="Asp.Versioning.Mvc.ApiExplorer" Version="10.0.0" />
-    <PackageVersion Include="AutoMapper" Version="14.0.0" />
+    <PackageVersion Include="Mapster" Version="10.0.0" />
     <PackageVersion Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
     <PackageVersion Include="MassTransit" Version="8.5.7" />
     <PackageVersion Include="MassTransit.MongoDb" Version="8.5.7" />
