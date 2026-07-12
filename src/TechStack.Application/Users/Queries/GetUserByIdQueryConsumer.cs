@@ -1,19 +1,21 @@
 namespace TechStack.Application.Users.Queries;
 
 using System.Net;
-using Mapster;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using TechStack.Application.Common.Interfaces;
+using TechStack.Application.Common.Mappings;
 using TechStack.Application.Common.Models;
 
 public class GetUserByIdQueryConsumer : IConsumer<GetUserByIdQuery>
 {
     private readonly IApplicationDbContext applicationDbContext;
+    private readonly UserMapper mapper;
 
-    public GetUserByIdQueryConsumer(IApplicationDbContext applicationDbContext)
+    public GetUserByIdQueryConsumer(IApplicationDbContext applicationDbContext, UserMapper mapper)
     {
         this.applicationDbContext = applicationDbContext;
+        this.mapper = mapper;
     }
 
     public async Task Consume(ConsumeContext<GetUserByIdQuery> context)
@@ -26,7 +28,7 @@ public class GetUserByIdQueryConsumer : IConsumer<GetUserByIdQuery>
             return;
         }
 
-        var result = user.Adapt<GetUserByIdQueryResult>();
+        var result = mapper.UserToGetUserByIdQueryResult(user);
         await context.RespondAsync(result);
     }
 }
