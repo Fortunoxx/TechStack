@@ -41,7 +41,12 @@ public class IntegrationTestFactory<TProgram, TDbContext> : WebApplicationFactor
 
     // Respawn reset
     public async Task ResetDatabaseAsync()
-        => await _respawner.ResetAsync(_container.GetConnectionString());
+    {
+        var connectionString = new SqlConnectionStringBuilder(_container.GetConnectionString()) { InitialCatalog = DatabaseName }.ConnectionString;
+        await using var connection = new SqlConnection(connectionString);
+        await connection.OpenAsync();
+        await _respawner.ResetAsync(connection);
+    }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -69,10 +74,14 @@ public class IntegrationTestFactory<TProgram, TDbContext> : WebApplicationFactor
         FillFromDacFx(builder, new FileInfo(pathToUpgradedDacPac), DatabaseName);
 
         // Set up Respawn
-        _respawner = await Respawner.CreateAsync(sqlConnectionString, new RespawnerOptions
+        var respawnConnectionString = new SqlConnectionStringBuilder(sqlConnectionString) { InitialCatalog = DatabaseName }.ConnectionString;
+        await using var respawnConnection = new SqlConnection(respawnConnectionString);
+        await respawnConnection.OpenAsync();
+        _respawner = await Respawner.CreateAsync(respawnConnection, new RespawnerOptions
         {
             DbAdapter = DbAdapter.SqlServer,
             TablesToIgnore = [new Table("__EFMigrationsHistory")],
+            WithReseed = true,
         });
     }
 

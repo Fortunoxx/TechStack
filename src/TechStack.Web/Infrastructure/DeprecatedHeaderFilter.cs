@@ -10,7 +10,7 @@ public class DeprecatedHeaderFilter : IOperationFilter
     {
         operation.Parameters ??= [];
 
-        if (context.ApiDescription.IsDeprecated())
+        if (context.ApiDescription.IsDeprecated)
         {
             operation.Deprecated = true;
         }
