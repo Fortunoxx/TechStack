@@ -11,8 +11,9 @@ public class UserFaker : AutoFaker<User>
     {
     }
 
-    public UserFaker(string domain) : base(Constants.Locale)
+    public UserFaker(string domain, int id = 1) : base(Constants.Locale)
     {
+        RuleFor(x => x.Id, _ => id++);
         RuleFor(x => x.AccountId, faker => faker.Random.Int(min: 0, max: 100000));
         RuleFor(x => x.AboutMe, faker => faker.Name.JobDescriptor());
         RuleFor(x => x.Age, faker => faker.Random.Int(min: 10, max: 120));

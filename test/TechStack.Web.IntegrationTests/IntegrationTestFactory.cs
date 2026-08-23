@@ -12,7 +12,6 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.SqlServer.Dac;
 using Respawn;
 using Respawn.Graph;
-using TechStack.Infrastructure.Data;
 using TechStack.Web.IntegrationTests.Extensions;
 using Testcontainers.MsSql;
 using Xunit;
@@ -26,8 +25,7 @@ public class IntegrationTestFactory<TProgram, TDbContext> : WebApplicationFactor
 
     private Respawner _respawner = default!;
 
-    private readonly MsSqlContainer _container = new MsSqlBuilder().
-        WithImage("mcr.microsoft.com/mssql/server:2022-latest").
+    private readonly MsSqlContainer _container = new MsSqlBuilder("mcr.microsoft.com/mssql/server:2022-latest").
         Build();
 
     public async Task InitializeAsync()
@@ -52,9 +50,13 @@ public class IntegrationTestFactory<TProgram, TDbContext> : WebApplicationFactor
 
         builder.ConfigureTestServices(services =>
         {
-            services.RemoveAll<DbContextOptions<ApplicationDbContext>>();
+            services.RemoveAll<DbContextOptions<TDbContext>>();
             services.RemoveDbContext<TDbContext>();
-            services.AddDbContext<TDbContext>(options => options.UseSqlServer(connectionStringBuilder.ConnectionString));
+            services.AddDbContext<TDbContext>(options =>
+            {
+                options.UseSqlServer(connectionStringBuilder.ConnectionString);
+                options.EnableSensitiveDataLogging();
+            });
             services.EnsureDbCreated<TDbContext>();
             services.AddMassTransitTestHarness();
         });
