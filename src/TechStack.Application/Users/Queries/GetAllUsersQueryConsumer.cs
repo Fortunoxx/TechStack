@@ -1,6 +1,6 @@
 namespace TechStack.Application.Users.Queries;
 
-using AutoMapper;
+using Mapster;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using TechStack.Application.Common.Interfaces;
@@ -8,18 +8,16 @@ using TechStack.Application.Common.Interfaces;
 public class GetAllUsersQueryConsumer : IConsumer<GetAllUsersQuery>
 {
     private readonly IApplicationDbContext applicationDbContext;
-    private readonly IMapper mapper;
 
-    public GetAllUsersQueryConsumer(IApplicationDbContext applicationDbContext, IMapper mapper)
+    public GetAllUsersQueryConsumer(IApplicationDbContext applicationDbContext)
     {
         this.applicationDbContext = applicationDbContext;
-        this.mapper = mapper;
     }
 
     public async Task Consume(ConsumeContext<GetAllUsersQuery> context)
     {
         var items = await applicationDbContext.Users.Include(x => x.MetaData).ToListAsync();
-        var mapped = mapper.Map<IEnumerable<GetUserByIdQueryResult>>(items);
+        var mapped = items.Adapt<IEnumerable<GetUserByIdQueryResult>>();
         await context.RespondAsync(new GetAllUsersQueryResult(mapped));
     }
 }

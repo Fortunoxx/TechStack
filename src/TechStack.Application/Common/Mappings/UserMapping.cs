@@ -1,25 +1,27 @@
 namespace TechStack.Application.Common.Mappings;
 
-using AutoMapper;
+using Mapster;
 using TechStack.Application.Users.Commands;
 using TechStack.Application.Users.Queries;
 using TechStack.Domain.Entities;
 
-public class UserMapping : Profile
+public class UserMappingProfile : IRegister
 {
-    public UserMapping()
+    public void Register(TypeAdapterConfig config)
     {
-        CreateMap<User, GetUserByIdQueryResult>().
-            ForMember(dest => dest.Id, opt => opt.Ignore()).
-            ReverseMap();
+        config.NewConfig<User, GetUserByIdQueryResult>()
+            .Ignore(dest => dest.Id);
 
-        CreateMap<AddUserCommand, User>().
-            ForMember(dest => dest.Id, opt => opt.Ignore()).
-            ForMember(dest => dest.Created, opt => opt.Ignore()).
-            ForMember(dest => dest.CreatedBy, opt => opt.Ignore()).
-            ForMember(dest => dest.DomainEvents, opt => opt.Ignore()).
-            ForMember(dest => dest.LastModified, opt => opt.Ignore()).
-            ForMember(dest => dest.LastModifiedBy, opt => opt.Ignore()).
-            ForMember(dest => dest.MetaData, opt => opt.Ignore());
+        config.NewConfig<GetUserByIdQueryResult, User>()
+            .Ignore(dest => dest.Id);
+
+        config.NewConfig<AddUserCommand, User>()
+            .Ignore(dest => dest.Id)
+            .Ignore(dest => dest.Created)
+            .Ignore(dest => dest.CreatedBy)
+            .Ignore(dest => dest.DomainEvents)
+            .Ignore(dest => dest.LastModified)
+            .Ignore(dest => dest.LastModifiedBy)
+            .Ignore(dest => dest.MetaData);
     }
 }

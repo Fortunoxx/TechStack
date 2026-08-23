@@ -1,7 +1,7 @@
 namespace TechStack.Application.UnitTests;
 
 using AutoFixture;
-using AwesomeAssertions;
+using FluentValidation.TestHelper;
 using TechStack.Application.Users.Commands;
 using TechStack.Application.Users.Queries;
 
@@ -18,10 +18,10 @@ public class ValidatorUnitTests
         var command = fixture.Create<AddUserCommand>();
 
         // Act
-        var result = await validator.ValidateAsync(command);
+        var result = await validator.TestValidateAsync(command);
 
         // Assert
-        result.IsValid.Should().BeTrue();
+        result.ShouldNotHaveAnyValidationErrors();
     }
 
     [Fact]
@@ -34,10 +34,10 @@ public class ValidatorUnitTests
         var command = fixture.Create<DeleteUserCommand>();
 
         // Act
-        var result = await validator.ValidateAsync(command);
+        var result = await validator.TestValidateAsync(command);
 
         // Assert
-        result.IsValid.Should().BeTrue();
+        result.ShouldNotHaveAnyValidationErrors();
     }
     
     [Fact]
@@ -50,9 +50,9 @@ public class ValidatorUnitTests
         var query = fixture.Create<GetUserByIdQuery>();
 
         // Act
-        var result = await validator.ValidateAsync(query);
+        var result = await validator.TestValidateAsync(query);
 
         // Assert
-        result.IsValid.Should().BeTrue();
+        result.ShouldNotHaveAnyValidationErrors();
     }
 }

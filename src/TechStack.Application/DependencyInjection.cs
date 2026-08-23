@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 using FluentValidation;
 using MassTransit;
+using Mapster;
 using TechStack.Application.Test.Queries;
 using TechStack.Application.Common.Validation;
 
@@ -20,7 +21,9 @@ public static class DependencyInjection
             options.ConfigureMediator((context, mediator) => mediator.UseConsumeFilter(typeof(FluentValidationFilter<>), context));
         });
 
-        services.AddAutoMapper(Assembly.GetExecutingAssembly());
+        var typeAdapterConfig = TypeAdapterConfig.GlobalSettings;
+        typeAdapterConfig.Scan(Assembly.GetExecutingAssembly());
+        services.AddSingleton(typeAdapterConfig);
 
         return services;
     }
