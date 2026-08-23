@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Asp.Versioning;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using OpenTelemetry.Metrics;
@@ -35,21 +36,22 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.
     AddSwaggerGen(options => options.OperationFilter<DeprecatedHeaderFilter>()).
     AddSwaggerGenNewtonsoftSupport();
-builder.Services.AddOpenApi();
 
 builder.Services.
     AddApiVersioning(options =>
     {
         options.AssumeDefaultVersionWhenUnspecified = true;
-        options.DefaultApiVersion = new(1, 0);
         options.ReportApiVersions = true;
+        options.ApiVersionReader = new QueryStringApiVersionReader();
     }).
+    AddMvc().
     AddApiExplorer(options =>
     {
         options.AssumeDefaultVersionWhenUnspecified = true;
         options.GroupNameFormat = "'v'VVV";
         // options.SubstituteApiVersionInUrl = true; // only needed for route versioning
-    });
+    }).
+    AddOpenApi();
 
 builder.Services.AddControllers(
     options => options.Filters.Add<CorrelationIdFilter>()
@@ -149,7 +151,7 @@ app.UseExceptionHandler(exceptionHandlerApp =>
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.MapOpenApi().WithDocumentPerVersion();
     app.MapScalarApiReference(options =>
     {
         options.
