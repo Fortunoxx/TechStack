@@ -34,8 +34,8 @@ public class LockService(IDistributedCache distributedCache) : ILockService
 
     public async Task<int?> GetById(int id)
     {
-        var data = await distributedCache.GetAsync(CacheKey);
-        var dataDictionary = data != null ? ConvertByteArrayToDictionary(data) : [];
+        var byteArray = await distributedCache.GetAsync(CacheKey);
+        var dataDictionary = byteArray != null ? ConvertByteArrayToDictionary(byteArray) : [];
 
         if (dataDictionary.Any(x => x.Key == id))
         {

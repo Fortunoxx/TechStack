@@ -19,23 +19,26 @@ public class IntegrationTestFactory<TProgram, TDbContext> : WebApplicationFactor
     where TDbContext : DbContext
 {
     private const string DatabaseName = "TechStackDatabase";
-
     private const string PathToInitialDacPac = "../../../../Assets/Database/StackOverflow2010.dacpac";
 
-    private const string PathToUpgradedDacPac = "../../../../Assets/Database/DatabaseProjectStackOverflow2010.dacpac";
+    private Respawner _respawner = default!;
 
     private readonly MsSqlContainer _container = new MsSqlBuilder().
-        WithImage("mcr.microsoft.com/mssql/server:2022-CU13-ubuntu-22.04").
+        WithImage("mcr.microsoft.com/mssql/server:2022-latest").
         Build();
 
     public async Task InitializeAsync()
     {
         await _container.StartAsync();
-        MigrateDatabase(_container.GetConnectionString());
+        await MigrateDatabaseAsync(_container.GetConnectionString());
     }
 
     public new async Task DisposeAsync()
         => await _container.DisposeAsync();
+
+    // Respawn reset
+    public async Task ResetDatabaseAsync()
+        => await _respawner.ResetAsync(_container.GetConnectionString());
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -58,11 +61,20 @@ public class IntegrationTestFactory<TProgram, TDbContext> : WebApplicationFactor
         });
     }
 
-    private static void MigrateDatabase(string sqlConnectionString)
+    private async Task MigrateDatabaseAsync(string sqlConnectionString)
     {
         var builder = new SqlConnectionStringBuilder(sqlConnectionString);
         FillFromDacFx(builder, new FileInfo(PathToInitialDacPac), DatabaseName);
-        FillFromDacFx(builder, new FileInfo(PathToUpgradedDacPac), DatabaseName);
+
+        var pathToUpgradedDacPac = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Database", "DatabaseProjectStackOverflow2010.dacpac");
+        FillFromDacFx(builder, new FileInfo(pathToUpgradedDacPac), DatabaseName);
+
+        // Set up Respawn
+        _respawner = await Respawner.CreateAsync(sqlConnectionString, new RespawnerOptions
+        {
+            DbAdapter = DbAdapter.SqlServer,
+            TablesToIgnore = [new Table("__EFMigrationsHistory")],
+        });
     }
 
     private static void FillFromDacFx(SqlConnectionStringBuilder connectionStringBuilder, FileInfo dacpacFile, string catalog)

@@ -12,3 +12,5 @@ use grafana dashboard #10001
 ## blackbox
 https://grafana.com/grafana/dashboards/?search=blackbox
 use grafana dashboard #7587 or #13659
+## rabbitmq
+[Dashboard #10991](https://grafana.com/grafana/dashboards/10991-rabbitmq-overview/)

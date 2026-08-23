@@ -13,6 +13,8 @@ using System.Text.Json;
 using System.Buffers;
 using MassTransit.Monitoring;
 using TechStack.Web;
+using Scalar.AspNetCore;
+using MassTransit.Logging;
 
 const string TechStackApiName = "TechStack";
 
@@ -33,6 +35,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.
     AddSwaggerGen(options => options.OperationFilter<DeprecatedHeaderFilter>()).
     AddSwaggerGenNewtonsoftSupport();
+builder.Services.AddOpenApi();
 
 builder.Services.
     AddApiVersioning(options =>
@@ -49,7 +52,7 @@ builder.Services.
     });
 
 builder.Services.AddControllers(
-    options => options.Filters.Add(typeof(CorrelationIdFilter))
+    options => options.Filters.Add<CorrelationIdFilter>()
 );
 builder.Services.AddAuthentication(opt => opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
 builder.Services.AddAuthorization();
@@ -60,8 +63,15 @@ builder.Services.AddOpenTelemetry()
     .WithTracing(tracing => tracing
         .AddAspNetCoreInstrumentation()
         .AddHttpClientInstrumentation()
-        .AddJaegerExporter()
-        .AddSource("MassTransit")
+        .AddEntityFrameworkCoreInstrumentation()
+        .AddConsoleExporter()
+        .AddOtlpExporter(options =>
+        {
+            // Jaeger v2 uses OTLP endpoint (default: http://localhost:4318/v1/traces)
+            options.Endpoint = new Uri(builder.Configuration["Jaeger:OtlpEndpoint"] ?? "http://localhost:4318/v1/traces");
+            options.Protocol = OpenTelemetry.Exporter.OtlpExportProtocol.HttpProtobuf;
+        })
+        .AddSource(DiagnosticHeaders.DefaultListenerName)  // MassTransit ActivitySource
     )
     .WithMetrics(builder => builder
         .AddPrometheusExporter()
@@ -144,6 +154,14 @@ app.UseExceptionHandler(exceptionHandlerApp =>
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    app.MapOpenApi();
+    app.MapScalarApiReference(options =>
+    {
+        options.
+            WithTitle("TechStack API").
+            WithTheme(ScalarTheme.Laserwave).
+            WithDefaultHttpClient(ScalarTarget.PowerShell, ScalarClient.Curl);
+    });
     app.UseSwagger();
     app.UseSwaggerUI(
         options =>
@@ -199,8 +217,7 @@ app.MapGet("/weatherforecast", () =>
         .ToArray();
     return forecast;
 })
-.WithName("GetWeatherForecast")
-.WithOpenApi();
+.WithName("GetWeatherForecast");
 
 app.Run();
 

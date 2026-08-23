@@ -21,6 +21,9 @@ public class DistributedTransactionRequestProxy(IEndpointAddressProvider endpoin
         builder.AddActivity(nameof(LogActivity), endpointAddressProvider.GetExecuteEndpoint<LogActivity, LogActivityArguments>()
             , new { LogLevel = LogLevel.Information, Message = $"Routing Slip starting ({request.Message.Key})", });
 
+        builder.AddActivity(nameof(TestActivity), endpointAddressProvider.GetExecuteEndpoint<TestActivity, TestActivityArguments>()
+            , new { InputValue = request.Message.Key, });
+
         return Task.CompletedTask;
     }
 }

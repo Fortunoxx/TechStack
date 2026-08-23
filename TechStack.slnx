@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/TechStack.Application/TechStack.Application.csproj" />
+    <Project Path="src/TechStack.Domain/TechStack.Domain.csproj" />
+    <Project Path="src/TechStack.Infrastructure/TechStack.Infrastructure.csproj" />
+    <Project Path="src/TechStack.Web/TechStack.Web.csproj" />
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="test/TechStack.Application.UnitTests/TechStack.Application.UnitTests.csproj" />
+    <Project Path="test/TechStack.Infrastructure.UnitTests/TechStack.Infrastructure.UnitTests.csproj" />
+    <Project Path="test/TechStack.Web.IntegrationTests/TechStack.Web.IntegrationTests.csproj" />
+    <Project Path="test/TechStack.Web.UnitTests/TechStack.Web.UnitTests.csproj" />
+  </Folder>
+</Solution>

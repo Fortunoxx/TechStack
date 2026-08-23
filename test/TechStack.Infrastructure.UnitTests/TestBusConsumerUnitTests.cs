@@ -2,7 +2,7 @@ namespace TechStack.Infrastructure.UnitTests;
 
 using System.Text.Json;
 using AutoFixture;
-using FluentAssertions;
+using AwesomeAssertions;
 using MassTransit;
 using MassTransit.Testing;
 using Microsoft.Extensions.Caching.Distributed;

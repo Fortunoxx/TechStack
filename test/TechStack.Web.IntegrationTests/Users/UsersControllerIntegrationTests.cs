@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using AutoBogus;
 using AutoBogus.Conventions;
 using AutoFixture;
-using FluentAssertions;
+using AwesomeAssertions;
 using TechStack.Application.Users.Commands;
 using TechStack.Domain.Entities;
 using TechStack.Web.IntegrationTests.Mocks;
@@ -14,14 +14,21 @@ using TechStack.Infrastructure.Data;
 using Xunit;
 using TechStack.Web.IntegrationTests.Extensions;
 
-[Collection(nameof(DatabaseCollectionSetup))]
-public sealed class UsersControllerIntegrationTests(IntegrationTestFactory<Program, ApplicationDbContext> factory) : IAsyncLifetime
+[Trait("Category", "Integration")]
+public sealed class UsersControllerIntegrationTests : IAsyncLifetime,
+    IClassFixture<IntegrationTestFactory<Program, ApplicationDbContext>>
 {
-    private readonly IntegrationTestFactory<Program, ApplicationDbContext> _factory = factory;
+    private readonly IntegrationTestFactory<Program, ApplicationDbContext> _factory;
+    private readonly ApplicationDbContext _context;
+    private readonly Func<Task> _resetDatabaseAsync;
 
-    public async Task InitializeAsync()
+    public UsersControllerIntegrationTests(IntegrationTestFactory<Program, ApplicationDbContext> factory)
     {
-        var context = _factory.Services.CreateAsyncScope().ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        _factory = factory;
+        _resetDatabaseAsync = factory.ResetDatabaseAsync;
+        var scope = factory.Services.CreateAsyncScope();
+        _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    }
 
         await context.Database.EnsureDeletedAsync();
         await context.Database.EnsureCreatedAsync();
@@ -29,7 +36,7 @@ public sealed class UsersControllerIntegrationTests(IntegrationTestFactory<Progr
         await SeedDatabaseAsync(context);
     }
 
-    public Task DisposeAsync() => Task.CompletedTask;
+    public Task DisposeAsync() => _resetDatabaseAsync();
 
     [Fact]
     internal async Task UsersApi_GetPersons_ShouldReturnValidResultAsync()

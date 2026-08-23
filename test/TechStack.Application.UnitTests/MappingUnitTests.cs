@@ -4,7 +4,6 @@ using AutoMapper;
 using TechStack.Application.Common.Mappings;
 
 [Trait("Category", "UnitTest")]
-
 public class MappingUnitTests
 {
     [Fact]

@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 
@@ -10,23 +10,40 @@
   </PropertyGroup>
 
   <ItemGroup>
-		<PackageReference Include="AutoBogus" Version="2.13.1" />
-		<PackageReference Include="AutoBogus.Conventions" Version="2.13.1" />
-    <PackageReference Include="AutoFixture.Xunit2" Version="4.18.1" />
-    <PackageReference Include="coverlet.collector" Version="6.0.3" />
-		<PackageReference Include="coverlet.msbuild" Version="6.0.3" />
-		<PackageReference Include="FluentAssertions" Version="[7.1.0]" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.1" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
-    <PackageReference Include="Microsoft.SqlServer.DacFx" Version="162.5.57" />
-    <PackageReference Include="Testcontainers.MsSql" Version="4.1.0" />
-    <PackageReference Include="xunit" Version="2.9.3" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="3.0.1" />
+    <PackageReference Include="AutoBogus" />
+    <PackageReference Include="AutoBogus.Conventions" />
+    <PackageReference Include="AutoFixture.Xunit2" />
+    <PackageReference Include="AwesomeAssertions" />
+    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="coverlet.msbuild" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="Microsoft.SqlServer.DacFx" />
+    <PackageReference Include="Respawn" />
+    <PackageReference Include="Testcontainers.MsSql" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\TechStack.Web\TechStack.Web.csproj" />
+    <!-- This ensures the SQL project builds first, but CSC ignores its output -->
+    <ProjectReference Include="..\..\src\TechStack.Database\DatabaseProjectStackOverflow2010\DatabaseProjectStackOverflow2010.sqlproj">
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+
+  <!-- Still copy DACPAC file to output directory -->
+  <ItemGroup>
+    <None Include="..\..\src\TechStack.Database\DatabaseProjectStackOverflow2010\bin\Debug\DatabaseProjectStackOverflow2010.dacpac">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <TargetPath>Database\DatabaseProjectStackOverflow2010.dacpac</TargetPath>
+      <Visible>false</Visible>
+    </None>
   </ItemGroup>
 
 </Project>

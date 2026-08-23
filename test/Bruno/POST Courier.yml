@@ -1,0 +1,28 @@
+info:
+  name: POST Courier
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/Courier"
+  headers:
+    - name: X-Correlation-Id
+      value: AFFE-03
+  body:
+    type: json
+    data: |-
+      {
+        "key": "test-01"
+      }
+  auth:
+    type: apikey
+    key: X-API-Key
+    value: "{{apiKey}}"
+    placement: header
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
