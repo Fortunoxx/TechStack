@@ -26,7 +26,7 @@ jobs:
   #   - name: Test
   #     run: dotnet test --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura
   #   - name: Upload coverage reports to Codecov
-  #     uses: codecov/codecov-action@v4.0.1
+  #     uses: codecov/codecov-action@v7.0.0
   #     with:
   #       token: ${{ secrets.CODECOV_TOKEN }}
   #       slug: Fortunoxx/TechStack
@@ -48,7 +48,7 @@ jobs:
   #   - name: Test
   #     run: dotnet test --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura
   #   - name: Upload coverage reports to Codecov
-  #     uses: codecov/codecov-action@v4.0.1
+  #     uses: codecov/codecov-action@v7.0.0
   #     with:
   #       token: ${{ secrets.CODECOV_TOKEN }}
   #       slug: Fortunoxx/TechStack
@@ -70,7 +70,7 @@ jobs:
   #     run: dotnet test --configuration Release --no-restore /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
   #     # run: dotnet test --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura
   #   - name: Upload coverage reports to Codecov
-  #     uses: codecov/codecov-action@v4.0.1
+  #     uses: codecov/codecov-action@v7.0.0
   #     with:
   #       token: ${{ secrets.CODECOV_TOKEN }}
   #       slug: Fortunoxx/TechStack
@@ -92,7 +92,7 @@ jobs:
   #     run: dotnet test --configuration Release --no-restore /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
   #     # run: dotnet test --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura
   #   - name: Upload coverage reports to Codecov
-  #     uses: codecov/codecov-action@v4.0.1
+  #     uses: codecov/codecov-action@v7.0.0
   #     with:
   #       token: ${{ secrets.CODECOV_TOKEN }}
   #       slug: Fortunoxx/TechStack
@@ -114,7 +114,7 @@ jobs:
       run: dotnet test --configuration Release --no-restore /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
       # run: dotnet test --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura
     - name: Upload coverage reports to Codecov
-      uses: codecov/codecov-action@v4.0.1
+      uses: codecov/codecov-action@v7.0.0
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         slug: Fortunoxx/TechStack
