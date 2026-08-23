@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.SqlServer.Dac;
+using Respawn;
+using Respawn.Graph;
 using TechStack.Web.IntegrationTests.Extensions;
 using Testcontainers.MsSql;
 using Xunit;
@@ -23,8 +25,7 @@ public class IntegrationTestFactory<TProgram, TDbContext> : WebApplicationFactor
 
     private Respawner _respawner = default!;
 
-    private readonly MsSqlContainer _container = new MsSqlBuilder().
-        WithImage("mcr.microsoft.com/mssql/server:2022-latest").
+    private readonly MsSqlContainer _container = new MsSqlBuilder("mcr.microsoft.com/mssql/server:2022-latest").
         Build();
 
     public async Task InitializeAsync()

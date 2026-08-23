@@ -30,14 +30,9 @@ public sealed class UsersControllerIntegrationTests : IAsyncLifetime,
         _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     }
 
-        await context.Database.EnsureDeletedAsync();
-        await context.Database.EnsureCreatedAsync();
-
-        await SeedDatabaseAsync(context);
-    }
+    public async Task InitializeAsync() => await SeedDatabaseAsync();
 
     public Task DisposeAsync() => _resetDatabaseAsync();
-
     [Fact]
     internal async Task UsersApi_GetPersons_ShouldReturnValidResultAsync()
     {
@@ -102,7 +97,7 @@ public sealed class UsersControllerIntegrationTests : IAsyncLifetime,
         act.EnsureSuccessStatusCode();
     }
 
-    private async Task SeedDatabaseAsync(ApplicationDbContext context)
+    private async Task SeedDatabaseAsync()
     {
         // Create a new instance of the Faker class
         AutoFaker.Configure(builder =>
@@ -162,23 +157,23 @@ public sealed class UsersControllerIntegrationTests : IAsyncLifetime,
         var votes = voteFaker.Generate(300);
 
         // Add the users to the context and save changes
-        context.Users.AddRange(users);
-        await context.SaveChangesWithIdentityInsertAsync<User>();
+        _context.Users.AddRange(users);
+        await _context.SaveChangesWithIdentityInsertAsync<User>();
 
-        context.Posts.AddRange(posts);
-        await context.SaveChangesWithIdentityInsertAsync<Post>();
+        _context.Posts.AddRange(posts);
+        await _context.SaveChangesWithIdentityInsertAsync<Post>();
 
-        context.Comments.AddRange(comments);
-        await context.SaveChangesWithIdentityInsertAsync<Comment>();
+        _context.Comments.AddRange(comments);
+        await _context.SaveChangesWithIdentityInsertAsync<Comment>();
 
-        context.Votes.AddRange(votes);
-        await context.SaveChangesWithIdentityInsertAsync<Vote>();
+        _context.Votes.AddRange(votes);
+        await _context.SaveChangesWithIdentityInsertAsync<Vote>();
 
         // Add a single user with id = 100 to the context and save changes. this is used for the DeleteUser test
         userFaker = new UserFaker(Constants.EmailProvider, 100);
         users = userFaker.Generate(1);
 
-        context.Users.AddRange(users);
-        await context.SaveChangesWithIdentityInsertAsync<User>();
+        _context.Users.AddRange(users);
+        await _context.SaveChangesWithIdentityInsertAsync<User>();
     }
 }
