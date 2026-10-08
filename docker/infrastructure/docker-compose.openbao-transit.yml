@@ -1,0 +1,30 @@
+services:
+  openbao-1:
+    depends_on:
+      openbao-transit:
+        condition: service_started
+    env_file:
+      - path: ./openbao/transit-seal.env
+        required: false
+    volumes:
+      - ./openbao/node-1-transit.hcl:/openbao/config.hcl:ro
+
+  openbao-2:
+    depends_on:
+      openbao-transit:
+        condition: service_started
+    env_file:
+      - path: ./openbao/transit-seal.env
+        required: false
+    volumes:
+      - ./openbao/node-2-transit.hcl:/openbao/config.hcl:ro
+
+  openbao-3:
+    depends_on:
+      openbao-transit:
+        condition: service_started
+    env_file:
+      - path: ./openbao/transit-seal.env
+        required: false
+    volumes:
+      - ./openbao/node-3-transit.hcl:/openbao/config.hcl:ro

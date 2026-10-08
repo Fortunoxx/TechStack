@@ -96,3 +96,112 @@ The startup AppRole has read-only access to these two KV v2 data paths and recei
 - If the local CA or node certificates need rotation, follow the OpenBao TLS rotation procedure; do not overwrite existing TLS files with `generate-certs.ps1`.
 
 See the [OpenBao Raft](https://openbao.org/docs/configuration/storage/raft/), [HA](https://openbao.org/docs/concepts/ha/), [AppRole](https://openbao.org/docs/auth/approle/), and [seal/unseal](https://openbao.org/docs/concepts/seal/) documentation.
+
+## Transit Auto-Unseal
+
+The three-node cluster can use a separate `openbao-transit` service as its
+auto-unseal provider. The provider has its own Raft and audit volumes, TLS
+certificate, and Shamir keys. It is intentionally a separate OpenBao instance:
+the cluster cannot use its own Transit engine to unseal itself. This local
+provider is a single node on the same Docker host, so it is a development
+convenience, not an independent failure domain. It must be manually unsealed
+after every restart. For production, use a separately protected HA Transit
+provider or an external KMS/HSM.
+
+The existing three-node cluster was initialized with Shamir (5 shares,
+threshold 3). Do not add the Transit seal stanza to the active node configs or
+restart all nodes together. Seal migration requires a backup, both seals to be
+available, and planned downtime.
+
+### Prepare Transit
+
+Run these steps from `docker/infrastructure` in PowerShell. Generate a
+certificate signed by the existing local CA, then start the provider:
+
+```powershell
+.\openbao\generate-transit-cert.ps1
+docker compose --profile transit up -d openbao-transit
+docker compose --profile transit exec -e BAO_ADDR=https://localhost:8210 -e BAO_CACERT=/openbao/tls/ca.crt openbao-transit bao operator init -key-shares=5 -key-threshold=3
+docker compose --profile transit rm --force openbao-transit-data-init openbao-transit-audit-init
+```
+
+Securely record the provider's five Shamir shares and root token outside this
+repository. Unseal the provider with three distinct shares by running this
+command three times:
+
+```powershell
+docker compose --profile transit exec -e BAO_ADDR=https://localhost:8210 -e BAO_CACERT=/openbao/tls/ca.crt openbao-transit bao operator unseal
+```
+
+Log in interactively with the provider root token, then configure the narrowly
+scoped seal key and policy:
+
+```powershell
+docker compose --profile transit exec -e BAO_ADDR=https://localhost:8210 -e BAO_CACERT=/openbao/tls/ca.crt openbao-transit bao login
+docker compose --profile transit exec -e BAO_ADDR=https://localhost:8210 -e BAO_CACERT=/openbao/tls/ca.crt openbao-transit bao secrets enable -path=transit transit
+docker compose --profile transit exec -e BAO_ADDR=https://localhost:8210 -e BAO_CACERT=/openbao/tls/ca.crt openbao-transit bao write -f transit/keys/techstack-seal
+docker compose --profile transit exec -e BAO_ADDR=https://localhost:8210 -e BAO_CACERT=/openbao/tls/ca.crt openbao-transit bao policy write transit-seal /openbao/transit-seal-policy.hcl
+docker compose --profile transit exec -e BAO_ADDR=https://localhost:8210 -e BAO_CACERT=/openbao/tls/ca.crt openbao-transit bao token create -orphan -policy=transit-seal -period=24h -no-default-policy
+```
+
+The last command returns the token used by the three main nodes. Put it in the
+ignored file `openbao/transit-seal.env` as `BAO_TOKEN=<token>`. Restrict that
+file to your Windows account with an appropriate ACL; do not commit it or put
+the token in HCL. The token is still visible to Docker administrators through
+container inspection. Keep the Transit key and its old key versions: existing
+seal data may require them for decryption.
+
+### Migrate the Existing Cluster
+
+1. Unseal all three existing nodes with three of their current Shamir shares and
+   confirm the Raft cluster is healthy. Take a Raft snapshot and copy it out of
+   the container to protected storage before continuing:
+
+   ```powershell
+   docker compose exec -e BAO_ADDR=https://localhost:8200 -e BAO_CACERT=/openbao/tls/ca.crt openbao-1 bao operator raft snapshot save /tmp/raft-before-transit.snap
+   docker cp openbao-1:/tmp/raft-before-transit.snap .\openbao\raft-before-transit.snap
+   ```
+
+2. Migrate standby nodes one at a time. Start with `openbao-2`; wait for it to
+   rejoin and confirm quorum before repeating the same procedure for
+   `openbao-3`:
+
+   ```powershell
+   docker compose stop openbao-2
+   docker compose --profile transit -f docker-compose.yml -f docker-compose.openbao-transit.yml up -d --no-deps --force-recreate openbao-2
+   docker compose --profile transit -f docker-compose.yml -f docker-compose.openbao-transit.yml exec -e BAO_ADDR=https://localhost:8202 -e BAO_CACERT=/openbao/tls/ca.crt openbao-2 bao operator unseal -migrate
+   ```
+
+   Run the final `unseal -migrate` command three times, entering a different
+   existing Shamir share each time. For `openbao-3`, replace the service and
+   local API port with `openbao-3` and `8204`. Do not continue until each node
+   has rejoined successfully.
+
+3. Identify the active node with `bao status`, step it down, then stop and
+   restart that former active node using the Transit overlay. Replace
+   `openbao-1` below with the actual former active node. It should auto-unseal
+   and rejoin; do not run `unseal -migrate` on this former active node:
+
+   ```powershell
+   docker compose --profile transit exec -e BAO_ADDR=https://localhost:8200 -e BAO_CACERT=/openbao/tls/ca.crt openbao-1 bao operator step-down
+   docker compose stop openbao-1
+   docker compose --profile transit -f docker-compose.yml -f docker-compose.openbao-transit.yml up -d --no-deps --force-recreate openbao-1
+   ```
+
+4. After verifying all nodes are unsealed and healthy, create the local
+   activation marker. `startup.ps1` will then use the Transit overlay and check
+   that the provider is initialized and unsealed before starting the main
+   cluster:
+
+   ```powershell
+   New-Item -ItemType File .\openbao\transit-seal.enabled
+   ```
+
+The former Shamir shares become recovery keys after migration. Keep them
+securely; they authorize recovery operations but cannot unseal the main cluster
+if the Transit provider or its key is unavailable. Start and manually unseal
+`openbao-transit` before running `startup.ps1` after a host or provider restart.
+
+See OpenBao's [Transit seal](https://openbao.org/docs/configuration/seal/transit/)
+and [seal migration](https://openbao.org/docs/concepts/seal/#seal-migration)
+guidance for the authoritative procedure and recovery requirements.

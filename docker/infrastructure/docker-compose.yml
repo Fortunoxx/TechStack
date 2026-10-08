@@ -148,6 +148,47 @@ services:
       - 5341:5341
       - 3110:80
 
+  openbao-transit-data-init:
+    image: busybox:1.37.0
+    user: "0:0"
+    command: ["sh", "-c", "chown -R 100:1000 /openbao-data"]
+    volumes:
+      - openbao-transit-data:/openbao-data
+    restart: "no"
+
+  openbao-transit-audit-init:
+    image: busybox:1.37.0
+    user: "0:0"
+    command: ["sh", "-c", "chown -R 100:1000 /openbao/audit"]
+    volumes:
+      - openbao-transit-audit:/openbao/audit
+    restart: "no"
+
+  openbao-transit:
+    image: openbao/openbao:2.7.1
+    container_name: openbao-transit
+    profiles: ["transit"]
+    mem_swappiness: 0
+    command: ["server", "-config=/openbao/config.hcl"]
+    cap_add:
+      - IPC_LOCK
+    depends_on:
+      openbao-transit-data-init:
+        condition: service_completed_successfully
+      openbao-transit-audit-init:
+        condition: service_completed_successfully
+    ports:
+      - "127.0.0.1:8210:8200"
+    volumes:
+      - ./openbao/transit.hcl:/openbao/config.hcl:ro
+      - ./openbao/tls/ca.crt:/openbao/tls/ca.crt:ro
+      - ./openbao/tls/openbao-transit.crt:/openbao/tls/server.crt:ro
+      - ./openbao/tls/openbao-transit.key:/openbao/tls/server.key:ro
+      - ./openbao/transit-seal-policy.hcl:/openbao/transit-seal-policy.hcl:ro
+      - openbao-transit-data:/openbao/data
+      - openbao-transit-audit:/openbao/audit
+    restart: unless-stopped
+
   openbao-1-data-init:
     image: busybox:1.37.0
     user: "0:0"
@@ -313,6 +354,8 @@ volumes:
   openbao-1-data:
   openbao-2-data:
   openbao-3-data:
+  openbao-transit-data:
   openbao-1-audit:
   openbao-2-audit:
   openbao-3-audit:
+  openbao-transit-audit:

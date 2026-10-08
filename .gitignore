@@ -8,6 +8,9 @@
 
 # OpenBao local CA, node certificates, and private keys
 /docker/infrastructure/openbao/tls/
+/docker/infrastructure/openbao/transit-seal.env
+/docker/infrastructure/openbao/transit-seal.enabled
+/docker/infrastructure/openbao/raft-before-transit.snap
 
 # User-specific files
 *.rsuser

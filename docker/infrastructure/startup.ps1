@@ -2,6 +2,15 @@ $info_color = "Green"
 $warning_color = "Yellow"
 $highlight_color = "Magenta"
 
+$composeFileArguments = @("-f", "docker-compose.yml")
+$transitSealEnabled = Test-Path "./openbao/transit-seal.enabled"
+if ($transitSealEnabled) {
+    if (-not (Test-Path "./openbao/transit-seal.env")) {
+        throw "The Transit seal token file is missing. Follow openbao\README.md."
+    }
+    $composeFileArguments += @("--profile", "transit", "-f", "docker-compose.openbao-transit.yml")
+}
+
 Write-Host "=> Preparing docker compose project..." -ForegroundColor $info_color
 
 # Ensure .env file has REGISTRY setting
@@ -77,9 +86,49 @@ function Invoke-OpenBaoRequest {
     throw "OpenBao request failed for all local nodes. Last error: $lastError"
 }
 
+$openBaoInitServices = @(
+    "openbao-1-data-init", "openbao-1-audit-init",
+    "openbao-2-data-init", "openbao-2-audit-init",
+    "openbao-3-data-init", "openbao-3-audit-init"
+)
+if ($transitSealEnabled) {
+    $openBaoInitServices += @("openbao-transit-data-init", "openbao-transit-audit-init")
+}
+
+function Remove-OpenBaoInitContainers {
+    docker compose @composeFileArguments rm --force $openBaoInitServices | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+        throw "Failed to remove the completed OpenBao volume-initializer containers."
+    }
+}
+
+if ($transitSealEnabled) {
+    Write-Host "=> Starting the Transit seal provider..." -ForegroundColor $info_color
+    docker compose @composeFileArguments up -d openbao-transit
+    $transitStartupExitCode = $LASTEXITCODE
+    Remove-OpenBaoInitContainers
+    if ($transitStartupExitCode -ne 0) {
+        throw "Failed to start the Transit seal provider. See openbao\README.md."
+    }
+
+    try {
+        $transitSealStatus = Invoke-RestMethod -Uri "https://localhost:8210/v1/sys/seal-status" -TimeoutSec 10
+    } catch {
+        throw "Transit is unavailable. Check its TLS certificate and container logs."
+    }
+    if (-not $transitSealStatus.initialized) {
+        throw "The Transit seal provider is not initialized. Follow openbao\README.md."
+    }
+    if ($transitSealStatus.sealed) {
+        throw "Transit is sealed. Manually unseal openbao-transit before running startup.ps1."
+    }
+}
+
 Write-Host "=> Starting OpenBao cluster..." -ForegroundColor $info_color
-docker compose up -d openbao-1 openbao-2 openbao-3
-if ($LASTEXITCODE -ne 0) {
+docker compose @composeFileArguments up -d openbao-1 openbao-2 openbao-3
+$openBaoStartupExitCode = $LASTEXITCODE
+Remove-OpenBaoInitContainers
+if ($openBaoStartupExitCode -ne 0) {
     throw "Failed to start OpenBao. See openbao\README.md for setup steps."
 }
 
@@ -132,7 +181,7 @@ Set-Content ./prometheus/config/alertmanager.yml -Value $content -NoNewline
 $previousSaPassword = $env:MSSQL_SA_PASSWORD
 $env:MSSQL_SA_PASSWORD = $initialSaPassword
 try {
-docker compose up -d mssql
+docker compose @composeFileArguments up -d mssql
 if ($LASTEXITCODE -ne 0) {
     throw "Failed to start SQL Server. Verify the OpenBao SQL password values and container logs."
 }
@@ -155,7 +204,7 @@ DO {
 $mssql_running = docker inspect -f '{{.State.Running}}' mssql
 if ($mssql_running -ne "true") {
     Write-Host "=> MSSQL container is not running. Starting MSSQL container..." -ForegroundColor $warning_color
-    docker compose up -d mssql
+    docker compose @composeFileArguments up -d mssql
     Start-Sleep -Seconds 10
 }
 
@@ -202,18 +251,11 @@ if ($volume_count.Count -eq 0) {
 }
 
 Write-Host "=> Starting docker compose project..." -ForegroundColor $info_color
-docker compose up -d
-if ($LASTEXITCODE -ne 0) {
+docker compose @composeFileArguments up -d
+$composeStartupExitCode = $LASTEXITCODE
+Remove-OpenBaoInitContainers
+if ($composeStartupExitCode -ne 0) {
     throw "Failed to start the Docker Compose project."
-}
-
-Write-Host "=> Removing completed OpenBao volume initializers..." -ForegroundColor $info_color
-docker compose rm --force `
-    openbao-1-data-init openbao-1-audit-init `
-    openbao-2-data-init openbao-2-audit-init `
-    openbao-3-data-init openbao-3-audit-init
-if ($LASTEXITCODE -ne 0) {
-    throw "Failed to remove the completed OpenBao volume-initializer containers."
 }
 } finally {
     if ($null -eq $previousSaPassword) {
