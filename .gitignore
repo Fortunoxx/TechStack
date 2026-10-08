@@ -6,6 +6,9 @@
 # dotenv files
 .env
 
+# OpenBao local CA, node certificates, and private keys
+/docker/infrastructure/openbao/tls/
+
 # User-specific files
 *.rsuser
 *.suo

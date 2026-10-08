@@ -148,6 +148,127 @@ services:
       - 5341:5341
       - 3110:80
 
+  openbao-1-data-init:
+    image: busybox:1.37.0
+    user: "0:0"
+    command: ["sh", "-c", "chown -R 100:1000 /openbao-data"]
+    volumes:
+      - openbao-1-data:/openbao-data
+    restart: "no"
+
+  openbao-1-audit-init:
+    image: busybox:1.37.0
+    user: "0:0"
+    command: ["sh", "-c", "chown -R 100:1000 /openbao/audit"]
+    volumes:
+      - openbao-1-audit:/openbao/audit
+    restart: "no"
+
+  openbao-2-audit-init:
+    image: busybox:1.37.0
+    user: "0:0"
+    command: ["sh", "-c", "chown -R 100:1000 /openbao/audit"]
+    volumes:
+      - openbao-2-audit:/openbao/audit
+    restart: "no"
+
+  openbao-3-audit-init:
+    image: busybox:1.37.0
+    user: "0:0"
+    command: ["sh", "-c", "chown -R 100:1000 /openbao/audit"]
+    volumes:
+      - openbao-3-audit:/openbao/audit
+    restart: "no"
+
+  openbao-1:
+    image: openbao/openbao:2.7.1
+    container_name: openbao-1
+    mem_swappiness: 0
+    command: ["server", "-config=/openbao/config.hcl"]
+    cap_add:
+      - IPC_LOCK
+    depends_on:
+      openbao-1-data-init:
+        condition: service_completed_successfully
+      openbao-1-audit-init:
+        condition: service_completed_successfully
+    ports:
+      - "127.0.0.1:8200:8200"
+    volumes:
+      - ./openbao/node-1.hcl:/openbao/config.hcl:ro
+      - ./openbao/tls/ca.crt:/openbao/tls/ca.crt:ro
+      - ./openbao/tls/node-1.crt:/openbao/tls/server.crt:ro
+      - ./openbao/tls/node-1.key:/openbao/tls/server.key:ro
+      - openbao-1-data:/openbao/data
+      - openbao-1-audit:/openbao/audit
+    restart: unless-stopped
+
+  openbao-2-data-init:
+    image: busybox:1.37.0
+    user: "0:0"
+    command: ["sh", "-c", "chown -R 100:1000 /openbao-data"]
+    volumes:
+      - openbao-2-data:/openbao-data
+    restart: "no"
+
+  openbao-2:
+    image: openbao/openbao:2.7.1
+    container_name: openbao-2
+    mem_swappiness: 0
+    command: ["server", "-config=/openbao/config.hcl"]
+    cap_add:
+      - IPC_LOCK
+    depends_on:
+      openbao-1:
+        condition: service_started
+      openbao-2-data-init:
+        condition: service_completed_successfully
+      openbao-2-audit-init:
+        condition: service_completed_successfully
+    ports:
+      - "127.0.0.1:8202:8200"
+    volumes:
+      - ./openbao/node-2.hcl:/openbao/config.hcl:ro
+      - ./openbao/tls/ca.crt:/openbao/tls/ca.crt:ro
+      - ./openbao/tls/node-2.crt:/openbao/tls/server.crt:ro
+      - ./openbao/tls/node-2.key:/openbao/tls/server.key:ro
+      - openbao-2-data:/openbao/data
+      - openbao-2-audit:/openbao/audit
+    restart: unless-stopped
+
+  openbao-3-data-init:
+    image: busybox:1.37.0
+    user: "0:0"
+    command: ["sh", "-c", "chown -R 100:1000 /openbao-data"]
+    volumes:
+      - openbao-3-data:/openbao-data
+    restart: "no"
+
+  openbao-3:
+    image: openbao/openbao:2.7.1
+    container_name: openbao-3
+    mem_swappiness: 0
+    command: ["server", "-config=/openbao/config.hcl"]
+    cap_add:
+      - IPC_LOCK
+    depends_on:
+      openbao-1:
+        condition: service_started
+      openbao-3-data-init:
+        condition: service_completed_successfully
+      openbao-3-audit-init:
+        condition: service_completed_successfully
+    ports:
+      - "127.0.0.1:8204:8200"
+    volumes:
+      - ./openbao/node-3.hcl:/openbao/config.hcl:ro
+      - ./openbao/tls/ca.crt:/openbao/tls/ca.crt:ro
+      - ./openbao/tls/node-3.crt:/openbao/tls/server.crt:ro
+      - ./openbao/tls/node-3.key:/openbao/tls/server.key:ro
+      - openbao-3-data:/openbao/data
+      - openbao-3-audit:/openbao/audit
+    restart: unless-stopped
+
   mongodb:
     image: mongo:9.0.2
     container_name: mongodb
@@ -161,7 +282,7 @@ services:
     container_name: mssql
     environment:
       - ACCEPT_EULA=Y
-      - MSSQL_SA_PASSWORD=P@ssw0rd1!
+      - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD:-}
     ports:
       - "1433:1433"
     volumes:
@@ -189,3 +310,9 @@ volumes:
   mongo-data:
   sqlvolume:
   loki-data:
+  openbao-1-data:
+  openbao-2-data:
+  openbao-3-data:
+  openbao-1-audit:
+  openbao-2-audit:
+  openbao-3-audit:

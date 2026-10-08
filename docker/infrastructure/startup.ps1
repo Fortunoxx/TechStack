@@ -2,8 +2,7 @@ $info_color = "Green"
 $warning_color = "Yellow"
 $highlight_color = "Magenta"
 
-Write-Host "=> Stopping docker compose project..." -ForegroundColor $info_color
-docker compose down
+Write-Host "=> Preparing docker compose project..." -ForegroundColor $info_color
 
 # Ensure .env file has REGISTRY setting
 $envFile = ".env"
@@ -20,32 +19,123 @@ if (Test-Path $envFile) {
     Set-Content -Path $envFile -Value $registryLine
 }
 
-if (-not (Get-Module -ListAvailable -Name Mdbc)) {
-    Install-Module Mdbc -Force
+if (-not (Test-Path "./openbao/tls/ca.crt")) {
+    throw "OpenBao TLS files are missing. Run .\openbao\generate-certs.ps1 and follow openbao\README.md first."
 }
 if (-not (Get-Module -ListAvailable -Name SqlServer)) {
-    Install-Module SqlServer -Force
+    Install-Module SqlServer -Scope CurrentUser -Force
 }
-Import-Module Mdbc 
-Import-Module SqlServer 
+Import-Module SqlServer
 
-Write-Host "=> Starting mongodb to get configurations..." -ForegroundColor $info_color
-docker compose up -d mongodb
+$openBaoAddresses = @(
+    "https://localhost:8200",
+    "https://localhost:8202",
+    "https://localhost:8204"
+)
 
-Connect-Mdbc . docker-compose config
+function ConvertTo-PlainText {
+    param([System.Security.SecureString]$Value)
+
+    $pointer = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($Value)
+    try {
+        [Runtime.InteropServices.Marshal]::PtrToStringBSTR($pointer)
+    } finally {
+        [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($pointer)
+    }
+}
+
+function Invoke-OpenBaoRequest {
+    param(
+        [string]$Path,
+        [string]$Method = "Get",
+        [string]$Token,
+        [object]$Body
+    )
+
+    $lastError = $null
+    foreach ($address in $openBaoAddresses) {
+        $request = @{
+            Uri = "$address/v1/$Path"
+            Method = $Method
+            TimeoutSec = 10
+        }
+        if ($Token) {
+            $request.Headers = @{ "X-Vault-Token" = $Token }
+        }
+        if ($null -ne $Body) {
+            $request.ContentType = "application/json"
+            $request.Body = $Body | ConvertTo-Json -Depth 6 -Compress
+        }
+
+        try {
+            return Invoke-RestMethod @request
+        } catch {
+            $lastError = $_.Exception.Message
+        }
+    }
+
+    throw "OpenBao request failed for all local nodes. Last error: $lastError"
+}
+
+Write-Host "=> Starting OpenBao cluster..." -ForegroundColor $info_color
+docker compose up -d openbao-1 openbao-2 openbao-3
+if ($LASTEXITCODE -ne 0) {
+    throw "Failed to start OpenBao. See openbao\README.md for setup steps."
+}
+
+foreach ($address in $openBaoAddresses) {
+    try {
+        $sealStatus = Invoke-RestMethod -Uri "$address/v1/sys/seal-status" -TimeoutSec 10
+    } catch {
+        throw "OpenBao at $address is unavailable. Check the node logs and follow openbao\README.md."
+    }
+    if (-not $sealStatus.initialized) {
+        throw "OpenBao is not initialized. Follow the initialization steps in openbao\README.md."
+    }
+    if ($sealStatus.sealed) {
+        throw "OpenBao at $address is sealed. Unseal all three nodes using openbao\README.md, then rerun this script."
+    }
+}
+
+$roleIdLine = Get-Content $envFile | Where-Object { $_ -match '^OPENBAO_ROLE_ID=' } | Select-Object -First 1
+if (-not $roleIdLine) {
+    throw "OPENBAO_ROLE_ID is missing from .env. Run .\openbao\configure-secrets.ps1 first."
+}
+$openBaoRoleId = $roleIdLine.Substring("OPENBAO_ROLE_ID=".Length)
+$secretIdSecure = Read-Host "OpenBao AppRole Secret ID" -AsSecureString
+$secretId = ConvertTo-PlainText $secretIdSecure
+try {
+    $login = Invoke-OpenBaoRequest -Path "auth/approle/login" -Method "Post" -Body @{
+        role_id = $openBaoRoleId
+        secret_id = $secretId
+    }
+} finally {
+    $secretId = $null
+    $secretIdSecure.Dispose()
+}
+$openBaoToken = $login.auth.client_token
+
+$discordWebhookUrl = (Invoke-OpenBaoRequest -Path "secret/data/techstack/alertmanager" -Token $openBaoToken).data.data.discord_webhook_url
+$mssqlSecrets = (Invoke-OpenBaoRequest -Path "secret/data/techstack/mssql" -Token $openBaoToken).data.data
+$initialSaPassword = $mssqlSecrets.initial_sa_password
+$msSqlPassword = $mssqlSecrets.new_sa_password
+if (-not $discordWebhookUrl -or -not $initialSaPassword -or -not $msSqlPassword) {
+    throw "Required OpenBao secret fields are missing. Rerun openbao\configure-secrets.ps1."
+}
 
 Write-Host "=> Setting up prometheus alertmanager..." -ForegroundColor $info_color
-Connect-Mdbc . docker-compose config
-$data = Get-MdbcData @{key = "prometheus.alertmanager.discord_webhook_url" }
-Write-Host "=> updating discord webhook url:" -ForegroundColor $info_color
-Write-Host "=>" $data.value -ForegroundColor $highlight_color 
-
 Copy-Item ./templates/prometheus/alertmanager.template.yml ./prometheus/config/alertmanager.yml
-$content = Get-Content ./prometheus/config/alertmanager.yml
-$content = $content -replace '<replace_me_discord_webhook_url>', $data.value
-Set-Content ./prometheus/config/alertmanager.yml -Value $content
+$content = Get-Content ./prometheus/config/alertmanager.yml -Raw
+$content = $content.Replace('<replace_me_discord_webhook_url>', $discordWebhookUrl)
+Set-Content ./prometheus/config/alertmanager.yml -Value $content -NoNewline
 
+$previousSaPassword = $env:MSSQL_SA_PASSWORD
+$env:MSSQL_SA_PASSWORD = $initialSaPassword
+try {
 docker compose up -d mssql
+if ($LASTEXITCODE -ne 0) {
+    throw "Failed to start SQL Server. Verify the OpenBao SQL password values and container logs."
+}
 
 # Wait for SQL Server migration steps, otherwise login will fail
 $sleeper = 0.0
@@ -63,7 +153,7 @@ DO {
 } Until ($line -or $sleeper -ge 15.0)
 
 $mssql_running = docker inspect -f '{{.State.Running}}' mssql
-if ($mssql_running -eq $false) {
+if ($mssql_running -ne "true") {
     Write-Host "=> MSSQL container is not running. Starting MSSQL container..." -ForegroundColor $warning_color
     docker compose up -d mssql
     Start-Sleep -Seconds 10
@@ -74,16 +164,14 @@ $is_initial_startup = $tsdb -eq $null
 if ($is_initial_startup -eq $true) {
     Write-Host "=> Initial startup detected. Waiting additional time for MSSQL to be ready..." -ForegroundColor $warning_color
 
-    $msSqlPasswordIniString = (docker inspect -f '{{.Config.Env}}' mssql).Split(" ") | Where-Object { $_ -like "*MSSQL_SA_PASSWORD*" } | Select -First 1
-    $msSqlPasswordIni = $msSqlPasswordIniString.Split("=")[1] # old password, we want to change that later
-    $msSqlPassword = (Get-MdbcData @{key = "mssql.new_sa_password" }).value # new and secure password
-
+    $msSqlPasswordIni = $initialSaPassword
     $newUser = "TechStackUser"
     Write-Host "=> creating $newUser..." -ForegroundColor $info_color
+    $escapedSqlPassword = $msSqlPassword.Replace("'", "''")
 
     $query = "USE [master];
     GO
-    CREATE LOGIN [$($newUser)] WITH PASSWORD=N'$($msSqlPassword)', DEFAULT_DATABASE=[master], CHECK_EXPIRATION=OFF, CHECK_POLICY=ON;
+    CREATE LOGIN [$($newUser)] WITH PASSWORD=N'$($escapedSqlPassword)', DEFAULT_DATABASE=[master], CHECK_EXPIRATION=OFF, CHECK_POLICY=ON;
     GO
     ALTER SERVER ROLE [sysadmin] ADD MEMBER [$($newUser)];
     GO";
@@ -94,10 +182,9 @@ if ($is_initial_startup -eq $true) {
         -Username "sa" `
         -Password $msSqlPasswordIni
         
-    Write-Host "=> updating sa password:" -ForegroundColor $info_color
-    Write-Host "=>" $msSqlPassword -ForegroundColor $highlight_color
+    Write-Host "=> updating sa password..." -ForegroundColor $info_color
         
-    $query = "USE [master]; ALTER LOGIN [sa] WITH PASSWORD=N'$($msSqlPassword)', CHECK_EXPIRATION=OFF, CHECK_POLICY=ON;"
+    $query = "USE [master]; ALTER LOGIN [sa] WITH PASSWORD=N'$($escapedSqlPassword)', CHECK_EXPIRATION=OFF, CHECK_POLICY=ON;"
         
     Invoke-Sqlcmd -Query $query `
         -ServerInstance "localhost,1433" `
@@ -115,4 +202,27 @@ if ($volume_count.Count -eq 0) {
 }
 
 Write-Host "=> Starting docker compose project..." -ForegroundColor $info_color
-docker compose up -d 
+docker compose up -d
+if ($LASTEXITCODE -ne 0) {
+    throw "Failed to start the Docker Compose project."
+}
+
+Write-Host "=> Removing completed OpenBao volume initializers..." -ForegroundColor $info_color
+docker compose rm --force `
+    openbao-1-data-init openbao-1-audit-init `
+    openbao-2-data-init openbao-2-audit-init `
+    openbao-3-data-init openbao-3-audit-init
+if ($LASTEXITCODE -ne 0) {
+    throw "Failed to remove the completed OpenBao volume-initializer containers."
+}
+} finally {
+    if ($null -eq $previousSaPassword) {
+        Remove-Item Env:\MSSQL_SA_PASSWORD -ErrorAction SilentlyContinue
+    } else {
+        $env:MSSQL_SA_PASSWORD = $previousSaPassword
+    }
+    $openBaoToken = $null
+    $initialSaPassword = $null
+    $msSqlPassword = $null
+    $discordWebhookUrl = $null
+}
