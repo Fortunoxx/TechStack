@@ -39,6 +39,14 @@ For an already-running cluster, restart each node after changing its HCL config 
 
    Securely record the five unseal-key shares and root token outside this repository. Do not put them in `.env`, scripts, or source control.
 
+   To unseal all three nodes after a restart, store the five shares one per line in the Git-ignored `openbao/secrets/secrets.txt` file, then run:
+
+   ```powershell
+   .\openbao\unseal-cluster.ps1
+   ```
+
+   The script submits the first three shares to each initialized sealed node, which meets the three-share threshold. It skips nodes that are already unsealed and never prints the shares. Run it from `docker/infrastructure` after the nodes are running and the local OpenBao CA is trusted by Windows.
+
 3. Unseal node 1 by supplying three distinct shares. The command prompts for each share:
 
    ```powershell
@@ -98,6 +106,26 @@ The startup AppRole has read-only access to these two KV v2 data paths and recei
 See the [OpenBao Raft](https://openbao.org/docs/configuration/storage/raft/), [HA](https://openbao.org/docs/concepts/ha/), [AppRole](https://openbao.org/docs/auth/approle/), and [seal/unseal](https://openbao.org/docs/concepts/seal/) documentation.
 
 ## Transit Auto-Unseal
+
+To provision the local Transit provider and migrate the existing three-node
+cluster, run this from `docker/infrastructure`:
+
+```powershell
+.\openbao\setup-transit.ps1
+```
+
+The script requires the five main-cluster shares in the ignored
+`openbao/secrets/secrets.txt`, creates and account-restricts a separate Transit
+share file, prompts securely for the main root token, saves a protected Raft
+snapshot, and requires typing `MIGRATE` before restarting nodes. It creates the
+seal token file and enables the Transit profile only after all three main nodes
+verify unsealed with the Transit seal. Keep a protected copy of the snapshot
+outside the repository.
+At the root-token prompt, use the root token saved when the main three-node
+cluster was initialized. `transit-seal.env` contains a separate, restricted
+encrypt/decrypt token; it cannot authorize a Raft snapshot or administer the
+main cluster. On reruns, the script validates and reuses that existing seal
+token instead of requiring the Transit provider root token again.
 
 The three-node cluster can use a separate `openbao-transit` service as its
 auto-unseal provider. The provider has its own Raft and audit volumes, TLS
@@ -162,9 +190,10 @@ seal data may require them for decryption.
    docker cp openbao-1:/tmp/raft-before-transit.snap .\openbao\raft-before-transit.snap
    ```
 
-2. Migrate standby nodes one at a time. Start with `openbao-2`; wait for it to
-   rejoin and confirm quorum before repeating the same procedure for
-   `openbao-3`:
+2. Migrate standby nodes one at a time. Start with `openbao-2`, then repeat for
+   `openbao-3`. After the three migration shares are accepted, leave that node
+   running and continue to the next standby. It may not report normal health
+   while the active node still has the Shamir seal configuration:
 
    ```powershell
    docker compose stop openbao-2
@@ -174,11 +203,11 @@ seal data may require them for decryption.
 
    Run the final `unseal -migrate` command three times, entering a different
    existing Shamir share each time. For `openbao-3`, replace the service and
-   local API port with `openbao-3` and `8204`. Do not continue until each node
-   has rejoined successfully.
+   local API port with `openbao-3` and `8204`.
 
-3. Identify the active node with `bao status`, step it down, then stop and
-   restart that former active node using the Transit overlay. Replace
+3. Identify the active node with `bao status` and step it down. Wait until the
+   migrated standby nodes have elected a leader and report Transit seal status
+   before restarting the former active node using the Transit overlay. Replace
    `openbao-1` below with the actual former active node. It should auto-unseal
    and rejoin; do not run `unseal -migrate` on this former active node:
 

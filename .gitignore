@@ -7,6 +7,7 @@
 .env
 
 # OpenBao local CA, node certificates, and private keys
+/docker/infrastructure/openbao/secrets/
 /docker/infrastructure/openbao/tls/
 /docker/infrastructure/openbao/transit-seal.env
 /docker/infrastructure/openbao/transit-seal.enabled

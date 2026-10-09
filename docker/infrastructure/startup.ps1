@@ -213,23 +213,19 @@ $is_initial_startup = $tsdb -eq $null
 if ($is_initial_startup -eq $true) {
     Write-Host "=> Initial startup detected. Waiting additional time for MSSQL to be ready..." -ForegroundColor $warning_color
 
-    $msSqlPasswordIni = $initialSaPassword
     $newUser = "TechStackUser"
     Write-Host "=> creating $newUser..." -ForegroundColor $info_color
     $escapedSqlPassword = $msSqlPassword.Replace("'", "''")
 
     $query = "USE [master];
-    GO
-    CREATE LOGIN [$($newUser)] WITH PASSWORD=N'$($escapedSqlPassword)', DEFAULT_DATABASE=[master], CHECK_EXPIRATION=OFF, CHECK_POLICY=ON;
-    GO
-    ALTER SERVER ROLE [sysadmin] ADD MEMBER [$($newUser)];
-    GO";
+CREATE LOGIN [$($newUser)] WITH PASSWORD=N'$($escapedSqlPassword)', DEFAULT_DATABASE=[master], CHECK_EXPIRATION=OFF, CHECK_POLICY=ON;
+ALTER SERVER ROLE [sysadmin] ADD MEMBER [$($newUser)];";
 
     Invoke-Sqlcmd -Query $query `
         -ServerInstance "localhost,1433" `
         -TrustServerCertificate `
         -Username "sa" `
-        -Password $msSqlPasswordIni
+        -Password $initialSaPassword
         
     Write-Host "=> updating sa password..." -ForegroundColor $info_color
         
