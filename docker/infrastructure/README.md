@@ -10,19 +10,31 @@ Requires PowerShell 7, Docker Compose and OpenSSL. The single script installs an
 
 After a host restart, `.\scripts\unseal-openbao.ps1` unseals the transit nodes. See [openbao/README.md](openbao/README.md) for details.
 
-# Configure containers
-## speedtest-exporter
-[Link](https://docs.miguelndecarvalho.pt/projects/speedtest-exporter/)
+## Configure dashboards
+
+### speedtest-exporter
+
+[SpeedTest-Exporter](https://docs.miguelndecarvalho.pt/projects/speedtest-exporter/)
 use grafana dashboard #13665
-## cadvisor
+
+### cadvisor
+
 use grafana dashboard #14282 or #19792
-## loki
+
+### loki
+
 use grafana dashboard #14055
-## jaeger
-[Link](https://www.jaegertracing.io/docs/1.25/monitoring/)
+
+### jaeger
+
+[Jaeger](https://www.jaegertracing.io/docs/1.25/monitoring/)
 use grafana dashboard #10001
-## blackbox
-https://grafana.com/grafana/dashboards/?search=blackbox
+
+### blackbox
+
+[Blackbox](https://grafana.com/grafana/dashboards/?search=blackbox)
 use grafana dashboard #7587 or #13659
-## rabbitmq
+
+### rabbitmq
+
 [Dashboard #10991](https://grafana.com/grafana/dashboards/10991-rabbitmq-overview/)

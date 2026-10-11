@@ -93,7 +93,7 @@ try {
         Start-Sleep -Seconds 10
     }
 
-    $is_initial_startup = $tsdb -eq $null
+    $is_initial_startup = $null -eq $tsdb
 
     if ($is_initial_startup -eq $true) {
         Write-Host "=> Initial startup detected. Waiting additional time for MSSQL to be ready..." -ForegroundColor $warning_color
