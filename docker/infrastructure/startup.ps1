@@ -166,9 +166,8 @@ $openBaoToken = $login.auth.client_token
 
 $discordWebhookUrl = (Invoke-OpenBaoRequest -Path "secret/data/techstack/alertmanager" -Token $openBaoToken).data.data.discord_webhook_url
 $mssqlSecrets = (Invoke-OpenBaoRequest -Path "secret/data/techstack/mssql" -Token $openBaoToken).data.data
-$initialSaPassword = $mssqlSecrets.initial_sa_password
 $msSqlPassword = $mssqlSecrets.new_sa_password
-if (-not $discordWebhookUrl -or -not $initialSaPassword -or -not $msSqlPassword) {
+if (-not $discordWebhookUrl -or -not $msSqlPassword) {
     throw "Required OpenBao secret fields are missing. Rerun openbao\configure-secrets.ps1."
 }
 
@@ -213,6 +212,9 @@ $is_initial_startup = $tsdb -eq $null
 if ($is_initial_startup -eq $true) {
     Write-Host "=> Initial startup detected. Waiting additional time for MSSQL to be ready..." -ForegroundColor $warning_color
 
+    $msSqlPasswordIniString = (docker inspect -f '{{.Config.Env}}' mssql).Split(" ") | Where-Object { $_ -like "*MSSQL_SA_PASSWORD*" } | Select -First 1
+    $msSqlPasswordIni = $msSqlPasswordIniString.Split("=")[1] # old password, we want to change that later
+
     $newUser = "TechStackUser"
     Write-Host "=> creating $newUser..." -ForegroundColor $info_color
     $escapedSqlPassword = $msSqlPassword.Replace("'", "''")
@@ -226,16 +228,6 @@ ALTER SERVER ROLE [sysadmin] ADD MEMBER [$($newUser)];";
         -TrustServerCertificate `
         -Username "sa" `
         -Password $initialSaPassword
-        
-    Write-Host "=> updating sa password..." -ForegroundColor $info_color
-        
-    $query = "USE [master]; ALTER LOGIN [sa] WITH PASSWORD=N'$($escapedSqlPassword)', CHECK_EXPIRATION=OFF, CHECK_POLICY=ON;"
-        
-    Invoke-Sqlcmd -Query $query `
-        -ServerInstance "localhost,1433" `
-        -TrustServerCertificate `
-        -Username $newUser `
-        -Password $msSqlPassword
 }
 
 # create volumes if needed
