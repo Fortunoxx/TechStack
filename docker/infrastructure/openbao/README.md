@@ -22,7 +22,7 @@ Run `..\startup.ps1` from `docker/infrastructure`. It calls [`scripts/install-op
 3. Starts the three main nodes. On the **first install** it initializes the cluster; the nodes then auto-unseal and join via Raft.
 4. Removes the one-shot volume-initializer container.
 
-`startup.ps1` then runs [`scripts/configure-secrets.ps1`](../scripts/configure-secrets.ps1) (prompts once for the Discord webhook URL and the SQL Server passwords, only if they are not stored yet) and starts the rest of the stack.
+`startup.ps1` then runs [`scripts/configure-secrets.ps1`](../scripts/configure-secrets.ps1) (prompts once for the Discord webhook URL and the new SQL Server password, only if they are not stored yet) and starts the rest of the stack. The initial SQL Server SA password is `P@ssw0rd1!` in `docker-compose.yml` and is not stored in OpenBao.
 
 ## Saved keys (`secrets/`, Git-ignored)
 
@@ -50,9 +50,9 @@ It unseals the transit nodes from `transit-init.json`; `openbao-1..3` then unsea
 ## Secrets
 
 - `secret/techstack/alertmanager`: `discord_webhook_url`
-- `secret/techstack/mssql`: `initial_sa_password`, `new_sa_password`
+- `secret/techstack/mssql`: `new_sa_password`
 
-The `techstack-startup` AppRole can only read these two paths and receives a 5 minute token. The initial SQL password is used only when initializing an empty SQL data volume. To change the values, run `.\scripts\configure-secrets.ps1 -Reset`.
+The `techstack-startup` AppRole can only read these two paths and receives a 5 minute token. `startup.ps1` reads the initial SA password from the resolved Compose configuration when it needs to create the SQL login. To change the OpenBao values, run `\.\scripts\configure-secrets.ps1 -Reset`.
 
 ## Layout
 

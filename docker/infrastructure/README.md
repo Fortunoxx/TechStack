@@ -6,7 +6,7 @@
 .\startup.ps1
 ```
 
-Requires PowerShell 7, Docker Compose and OpenSSL. The single script installs and unseals both OpenBao clusters (three Raft nodes each, the main cluster auto-unsealed by the transit cluster), reads the application secrets from OpenBao and starts the rest of the stack. On the first run it prompts once for the Discord webhook URL and the SQL Server passwords and saves the generated unseal keys and admin tokens to `openbao/secrets/` (Git-ignored).
+Requires PowerShell 7, Docker Compose and OpenSSL. The single script installs and unseals both OpenBao clusters (three Raft nodes each, the main cluster auto-unsealed by the transit cluster), reads the application secrets from OpenBao and starts the rest of the stack. On the first run it prompts for the Discord webhook URL and the new SQL Server password; the initial SA password `P@ssw0rd1!` remains in `docker-compose.yml`. Generated unseal keys and admin tokens go to `openbao/secrets/` (Git-ignored).
 
 After a host restart, `.\scripts\unseal-openbao.ps1` unseals the transit nodes. See [openbao/README.md](openbao/README.md) for details.
 

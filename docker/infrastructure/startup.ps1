@@ -46,10 +46,17 @@ $secretId = $null
 
 $discordWebhookUrl = (Invoke-BaoCluster -Nodes $MainNodes -Path "secret/data/techstack/alertmanager" -Token $openBaoToken).data.data.discord_webhook_url
 $mssqlSecrets = (Invoke-BaoCluster -Nodes $MainNodes -Path "secret/data/techstack/mssql" -Token $openBaoToken).data.data
-$initialSaPassword = $mssqlSecrets.initial_sa_password
 $msSqlPassword = $mssqlSecrets.new_sa_password
-if (-not $discordWebhookUrl -or -not $initialSaPassword -or -not $msSqlPassword) {
+if (-not $discordWebhookUrl -or -not $msSqlPassword) {
     throw "Required OpenBao secret fields are missing. Run scripts\configure-secrets.ps1 -Reset."
+}
+$composeConfig = docker compose config --format json | ConvertFrom-Json
+if ($LASTEXITCODE -ne 0) {
+    throw "Failed to read the resolved Docker Compose configuration."
+}
+$initialSaPassword = $composeConfig.services.mssql.environment.MSSQL_SA_PASSWORD
+if (-not $initialSaPassword) {
+    throw "MSSQL_SA_PASSWORD is missing from the mssql service in docker-compose.yml."
 }
 
 Write-Host "=> Setting up prometheus alertmanager..." -ForegroundColor $info_color
@@ -58,8 +65,6 @@ $content = Get-Content ./prometheus/config/alertmanager.yml -Raw
 $content = $content.Replace('<replace_me_discord_webhook_url>', $discordWebhookUrl)
 Set-Content ./prometheus/config/alertmanager.yml -Value $content -NoNewline
 
-$previousSaPassword = $env:MSSQL_SA_PASSWORD
-$env:MSSQL_SA_PASSWORD = $initialSaPassword
 try {
     docker compose up -d mssql
     if ($LASTEXITCODE -ne 0) {
@@ -121,11 +126,6 @@ ALTER SERVER ROLE [sysadmin] ADD MEMBER [$($newUser)];";
         throw "Failed to start the Docker Compose project."
     }
 } finally {
-    if ($null -eq $previousSaPassword) {
-        Remove-Item Env:\MSSQL_SA_PASSWORD -ErrorAction SilentlyContinue
-    } else {
-        $env:MSSQL_SA_PASSWORD = $previousSaPassword
-    }
     $openBaoToken = $null
     $initialSaPassword = $null
     $msSqlPassword = $null

@@ -84,21 +84,19 @@ try {
 if ($Reset -or -not $secretsExist) {
     Write-Step "Enter the application secrets (stored in OpenBao only)."
     $discordWebhookUrl = Read-SecretValue "Discord webhook URL"
-    $initialSaPassword = Read-SecretValue "Initial SQL Server SA password"
     $newSaPassword = Read-SecretValue "New SQL Server SA password"
     if ([string]::IsNullOrWhiteSpace($discordWebhookUrl) -or
-        [string]::IsNullOrWhiteSpace($initialSaPassword) -or
         [string]::IsNullOrWhiteSpace($newSaPassword)) {
-        throw "All three secret values are required."
+        throw "Both secret values are required."
     }
 
     Invoke-Admin "secret/data/techstack/alertmanager" "POST" @{
         data = @{ discord_webhook_url = $discordWebhookUrl }
     } | Out-Null
     Invoke-Admin "secret/data/techstack/mssql" "POST" @{
-        data = @{ initial_sa_password = $initialSaPassword; new_sa_password = $newSaPassword }
+        data = @{ new_sa_password = $newSaPassword }
     } | Out-Null
-    $discordWebhookUrl = $initialSaPassword = $newSaPassword = $null
+    $discordWebhookUrl = $newSaPassword = $null
 }
 
 $roleId = (Invoke-Admin "auth/approle/role/techstack-startup/role-id").data.role_id
