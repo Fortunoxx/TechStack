@@ -11,6 +11,9 @@ $warning_color = "Yellow"
 
 . (Join-Path $PSScriptRoot "scripts\openbao-common.ps1")
 
+Write-Host "=> Stopping docker compose project..." -ForegroundColor $info_color
+docker compose down
+
 Write-Host "=> Preparing docker compose project..." -ForegroundColor $info_color
 
 # Ensure .env file has REGISTRY setting
@@ -100,8 +103,14 @@ try {
         $escapedSqlPassword = $msSqlPassword.Replace("'", "''")
 
         $query = "USE [master];
-CREATE LOGIN [$($newUser)] WITH PASSWORD=N'$($escapedSqlPassword)', DEFAULT_DATABASE=[master], CHECK_EXPIRATION=OFF, CHECK_POLICY=ON;
-ALTER SERVER ROLE [sysadmin] ADD MEMBER [$($newUser)];";
+IF SUSER_ID(N'$newUser') IS NULL
+BEGIN
+    CREATE LOGIN [$($newUser)] WITH PASSWORD=N'$($escapedSqlPassword)', DEFAULT_DATABASE=[master], CHECK_EXPIRATION=OFF, CHECK_POLICY=ON;
+END;
+IF IS_SRVROLEMEMBER(N'sysadmin', N'$newUser') <> 1
+BEGIN
+    ALTER SERVER ROLE [sysadmin] ADD MEMBER [$($newUser)];
+END;";
 
         Invoke-Sqlcmd -Query $query `
             -ServerInstance "localhost,1433" `

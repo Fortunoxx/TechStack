@@ -94,6 +94,7 @@ try {
     foreach ($node in $MainNodes) {
         Wait-BaoUnsealed $node
     }
+    Wait-BaoLeader $main1
     Write-Step "OpenBao cluster is unsealed (auto-unseal via transit)."
 
     $mainInit = Read-InitFile -Path $MainInitFile -What "OpenBao root token"
