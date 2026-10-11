@@ -1,14 +1,6 @@
 ui = true
-api_addr = "https://localhost:8200"
-cluster_addr = "https://openbao-1:8201"
-
-seal "transit" {
-  address = "https://openbao-transit:8200"
-  key_name = "techstack-seal"
-  mount_path = "transit/"
-  tls_ca_cert = "/openbao/tls/ca.crt"
-  tls_server_name = "openbao-transit"
-}
+api_addr = "https://localhost:8210"
+cluster_addr = "https://openbao-transit-1:8201"
 
 listener "tcp" {
   address = "0.0.0.0:8200"
@@ -28,5 +20,5 @@ audit "file" "local" {
 
 storage "raft" {
   path = "/openbao/data"
-  node_id = "openbao-1"
+  node_id = "openbao-transit-1"
 }

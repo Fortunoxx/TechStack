@@ -6,12 +6,9 @@
 # dotenv files
 .env
 
-# OpenBao local CA, node certificates, and private keys
+# OpenBao unseal/recovery keys, root tokens, local CA and private keys
 /docker/infrastructure/openbao/secrets/
 /docker/infrastructure/openbao/tls/
-/docker/infrastructure/openbao/transit-seal.env
-/docker/infrastructure/openbao/transit-seal.enabled
-/docker/infrastructure/openbao/raft-before-transit.snap
 
 # User-specific files
 *.rsuser

@@ -1,6 +1,6 @@
 ui = true
-api_addr = "https://openbao-transit:8200"
-cluster_addr = "https://openbao-transit:8201"
+api_addr = "https://localhost:8214"
+cluster_addr = "https://openbao-transit-3:8201"
 
 listener "tcp" {
   address = "0.0.0.0:8200"
@@ -20,5 +20,11 @@ audit "file" "local" {
 
 storage "raft" {
   path = "/openbao/data"
-  node_id = "openbao-transit"
+  node_id = "openbao-transit-3"
+
+  retry_join {
+    leader_api_addr = "https://openbao-transit-1:8200"
+    leader_ca_cert_file = "/openbao/tls/ca.crt"
+    leader_tls_servername = "openbao-transit-1"
+  }
 }

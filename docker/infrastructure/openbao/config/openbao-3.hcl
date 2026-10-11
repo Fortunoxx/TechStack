@@ -2,6 +2,15 @@ ui = true
 api_addr = "https://localhost:8204"
 cluster_addr = "https://openbao-3:8201"
 
+# The token is supplied through the BAO_TOKEN environment variable (secrets/transit-seal.env).
+seal "transit" {
+  address = "https://openbao-transit-3:8200"
+  key_name = "techstack-seal"
+  mount_path = "transit/"
+  tls_ca_cert = "/openbao/tls/ca.crt"
+  tls_server_name = "openbao-transit-3"
+}
+
 listener "tcp" {
   address = "0.0.0.0:8200"
   cluster_address = "0.0.0.0:8201"
