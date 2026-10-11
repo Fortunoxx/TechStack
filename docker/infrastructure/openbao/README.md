@@ -74,3 +74,7 @@ scripts/       install-openbao, unseal-openbao, configure-secrets, generate-cert
 - Each node sets `mem_swappiness: 0`. On Docker Compose v5 / Engine 29 the zero may be reported as unset (`<nil>`); check with `docker inspect --format '{{.Name}} {{.HostConfig.MemorySwappiness}}' openbao-1`.
 
 See the OpenBao [Raft](https://openbao.org/docs/configuration/storage/raft/), [Transit seal](https://openbao.org/docs/configuration/seal/transit/), [AppRole](https://openbao.org/docs/auth/approle/) and [seal/unseal](https://openbao.org/docs/concepts/seal/) documentation.
+
+## Windows hardening
+
+OpenBao recommends encrypting Windows paging files so secrets are not exposed if memory is paged to disk. Run `pwsh .\scripts\harden-windows.ps1` from an elevated PowerShell session. The script checks the current setting, enables it if necessary, and reports that Windows must be restarted; it does not reboot automatically. See the [OpenBao installation guidance](https://openbao.org/docs/install/#windows).
